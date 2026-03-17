@@ -150,13 +150,14 @@
     <!--education-->
     <section id="education">
         <h2>Education</h2>
-        <table border:"1" cellpadding="6" cellspacing="1" width="100%">
+        <table border="1" cellpadding="6" cellspacing="1" width="100%">
 
         <tr>
             <th >Degree</th>
             <th >Institution</th>
             <th >Year</th>
             <th >CGPA</th>
+            <th>Division</th>
         </tr>
 
         <tr>
@@ -164,6 +165,7 @@
             <td>International Institute of Professional Studies, DAVV</td>
             <td>2025</td>
             <td>8.00</td>
+            <td rowspan="2">I </td>
         </tr>
 
         <tr>
@@ -181,7 +183,7 @@
         <fieldset>
             <form>
                 <fieldset>
-                    <legend>Personal Details: </legend>
+                    <h3>Personal Details: </h3>
                     <br><br>
                     <!-- Name -->
                     <label for="name">Name:</label>
@@ -194,9 +196,19 @@
                     <br><br>
                     
                     <!--phoneno-->
-                    <label for="phone">Phone Number:</label>
+                    <label for="phone">Phone Number: </label>
                     <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
                     <br><br>
+
+                    <!--Gender-->
+                    <h4>Gender</h4>
+                    <input type="radio" id="male" name="gender" value="male">
+                    <label for="male">Male</label>
+
+                    <input type="radio" id="female" name="gender" value="female">
+                    <label for="female">Female</label>
+                    <br>
+
                     <!-- Message -->
                     <label for="message">Message:</label><br>
                     <textarea id="message" name="message" rows="5" cols="40" placeholder="Enter your message" required></textarea>
@@ -209,12 +221,12 @@
                 <option value="">Select reason for contact: </option>
                 <option value="job">Job Opportunity</option>
                 <option value="project">Project Collaboration</option>
-                <option value="other"></option>
+                <option value="other">Other</option>
                 </select>
                 <br>
 
                 <!-- Checkboxes -->
-                <p>Technologies of Interest:</p>
+                <p>Skills Interested in : </p>
 
                 <input type="checkbox" id="java" name="tech" value="java">
                 <label for="java">Java</label>
@@ -227,16 +239,6 @@
 
                 <input type="checkbox" id="other" name="tech" value="other">
                 <label for="other">Other</label>
-                <br>
-
-                <!--radio-buttons-->
-                <p>Project Type:</p>
-
-                <input type="radio" id="paid" name="project_type" value="paid">
-                <label for="paid">Paid</label>
-
-                <input type="radio" id="unpaid" name="project_type" value="unpaid">
-                <label for="unpaid">Unpaid</label>
                 <br><br>
 
                 <!-- Submit -->
@@ -249,10 +251,10 @@
     <hr>
     <!--footer-->
     <footer>
+        <p> ©2026 Prachiverma All rights reserved.</p>
         <a href="https://www.linkedin.com/in/prachivermaa26">Linkedin</a>
         <br>
         <a href="https://github.com/PrachiVerma26">Github</a>
-         <p> ©2026 Prachiverma All rights reserved.</p>
 
     </footer>
 </body>
