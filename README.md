@@ -1,5 +1,4 @@
 # Assignments
-# Assignments
 
 This repository contains all my assignments related to software engineering, covering Git, HTML, Linux, and other core concepts.
 
