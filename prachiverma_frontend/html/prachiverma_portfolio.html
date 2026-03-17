@@ -179,6 +179,45 @@
                     <textarea id="message" name="message" rows="5" cols="40" placeholder="Enter your message" required></textarea>
                     <br>
                 </fieldset>
+                <!-- drop down -->
+                 <br>
+                <label for="contact">Select reason for contact :  </label>
+                <select id="contact" name="contact">
+                <option value="">Select reason for contact: </option>
+                <option value="job">Job Opportunity</option>
+                <option value="project">Project Collaboration</option>
+                <option value="other"></option>
+                </select>
+                <br>
+
+                <!-- Checkboxes -->
+                <p>Technologies of Interest:</p>
+
+                <input type="checkbox" id="java" name="tech" value="java">
+                <label for="java">Java</label>
+
+                <input type="checkbox" id="react" name="tech" value="react">
+                <label for="react">React</label>
+
+                <input type="checkbox" id="python" name="tech" value="python">
+                <label for="python">Python</label>
+
+                <input type="checkbox" id="other" name="tech" value="other">
+                <label for="other">Other</label>
+                <br>
+
+                <!--radio-buttons-->
+                <p>Project Type:</p>
+
+                <input type="radio" id="paid" name="project_type" value="paid">
+                <label for="paid">Paid</label>
+
+                <input type="radio" id="unpaid" name="project_type" value="unpaid">
+                <label for="unpaid">Unpaid</label>
+                <br><br>
+
+                <!-- Submit -->
+                <input type="submit" value="Submit">
             </form>
         </fieldset>
     </section> 
