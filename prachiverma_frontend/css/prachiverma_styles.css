@@ -1,11 +1,30 @@
-/*global styling */
+/*global styling:  applied to the whole website*/
 *{
     margin:0;
     padding:0;
     box-sizing: border-box;
-    font-family:Arial, Helvetica, sans-serif;
-    background-color: #698ea2;
-    color:#152935;
 }
 
-/* header sections */
+/*body styling-fonts family etc*/
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background-color: #dddbf1;
+    color:cacfd6;
+    line-height: 1.6;
+    padding:2px;
+}
+
+/*header styling */
+#header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #532574;
+    color:#d2cff5;
+    width:100%;
+    height:400px;
+}
+
+
+
