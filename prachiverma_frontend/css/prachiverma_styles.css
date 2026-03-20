@@ -55,8 +55,9 @@ img {
     margin-top: 12px;
     margin:10px;
 } 
-.bio h2{
+h2{
     font-size: 22px;
+    font-family: 'Lucida Sans', 'Lucida Sans';
 }
 .bio p{
     font-size: 18px;
@@ -64,7 +65,7 @@ img {
 /*navigation styling */
 #nav {
     display: flex;
-    justify-content: flex-end;  /* push nav to right */
+    justify-content: flex-end;  /*  here, the nav text would be right end*/
     padding: 5px;
     width: 12px 20px;
     background-color: #d2cff5;
@@ -161,3 +162,29 @@ h3{
     font-size:16px;
 }
 
+/*contact form styling */
+#contact form{
+    max-width: 700px;
+    margin:0;
+    padding:0;
+}
+form label{
+    display: block;
+}
+form select,input,textarea{
+    width:50%;
+    box-sizing: border-box;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px #c8c8e8;
+    padding: 10px 5px;
+    background-color: #ddddf6;
+    color: #750797;
+    overflow: hidden;
+    cursor: pointer;
+}
+/* checkbox and radio styling */
+form input[type="checkbox"], input[type="radio"]{
+    float:left;
+    width: auto;
+    margin-right: 5px;
+}
