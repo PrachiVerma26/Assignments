@@ -9,9 +9,10 @@
 body{
     font-family:Arial, Helvetica, sans-serif;
     background-color: #dddbf1;
-    color:cacfd6;
+    color:#3e0350;
     line-height: 1.6;
     padding:2px;
+    
 }
 
 /*header styling */
@@ -91,3 +92,28 @@ nav ul li a:hover {
     background-color: #381451; /* hover background color*/
     border-radius: 5px;
 }
+
+/* section styling */
+section{
+    margin-bottom: 16px;
+    border-radius: 10px 5px;
+    background-color: #c8c8e8;
+    border: 2px solid #ad69e5;
+    margin:4px;
+    padding: 10px 15px;
+    box-shadow:0 2px 10px #381451;
+}
+
+#skills ul{
+    display:flex;
+    flex-wrap: wrap;
+    padding: 2px 5px;
+    column-gap: 20px;
+}
+#skills ul li{
+    list-style-type:none;
+    font-weight:200;
+    line-height: 1.4;
+
+}
+
