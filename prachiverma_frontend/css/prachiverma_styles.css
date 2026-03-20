@@ -17,14 +17,46 @@ body{
 /*header styling */
 #header{
     display: flex;
+    flex-direction: column;   
     justify-content: space-between;
-    align-items: center;
     padding: 20px;
     background-color: #532574;
     color:#d2cff5;
-    width:100%;
-    height:400px;
+    height:400px; 
+    
+ 
 }
-
-
-
+/* h1 styling added for the webpage*/
+#h1{
+    text-align:right;
+    font-size: 36px;
+    text-transform:uppercase; /* capitalise*/
+    margin-bottom: 5px;
+}
+/* profile image and text editing associated  */
+.profile-container{
+    display: flex;
+    justify-content:space-between;
+    width:100%;
+    gap:20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    
+} 
+img {
+    width: 150px;
+    border-radius: 50%;
+}
+.bio{
+    margin-left: auto;
+    text-align: right;
+    min-width:0;
+    margin-top: 12px;
+    margin:10px;
+} 
+.bio h2{
+    font-size: 22px;
+}
+.bio p{
+    font-size: 18px;
+}
