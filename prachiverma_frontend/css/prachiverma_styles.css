@@ -205,3 +205,17 @@ form input[type="submit"]:hover{
     text-transform: uppercase;
 }
 
+/*footer styling */
+footer{
+    text-align: center;
+    background-color: #532574;
+    color: #d2cff5;
+    width:auto;
+    font-size: 16px;
+    padding: 5px;
+}
+footer a{
+    color:#d2cff5;
+    text-decoration: none;
+}
+

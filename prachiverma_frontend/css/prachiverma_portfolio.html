@@ -13,25 +13,29 @@
                 <h1 id="h1">Prachi Verma</h1>
                 <hr>
                 <div class="profile-container">
-                    <img src="prachiverma_pic.jpg" alt="Profile Image" width="200">
+                    <div id="image-container">
+                        <img src="prachiverma_pic.jpg" alt="Profile Image" width="200">
+                    </div>
                     <div class="bio">
-                        <h2>Software Engineer </h2>
-                        <p>Software Engineer focused on building real-world applications using Java, React, and scalable web technologies.</p>
+                    <h2>Software Engineer </h2>
+                    <p>Software Engineer focused on building real-world applications using Java, React, and scalable web technologies.</p>
                     </div> 
                 </div>
             <!--navigation-->
-            <nav>
-                <div id="nav">
-                    <ul>
-                        <li><a href="#about" >About </a></li>
-                        <li><a href="#skills">Skills
-                        <li><a href= "#experience">Experience</a></li>
-                        <li><a href="#projects">Projects</a></li>
-                        <li><a href="#education">Education </a></li>
-                        <li><a href= "#contact" > Contact</a></li>
-                    </ul>
-                </div>
-            </nav>
+            <div class="nav-container">
+                <nav>
+                    <div id="nav">
+                        <ul>
+                            <li><a href="#about" >About </a></li>
+                            <li><a href="#skills">Skills
+                            <li><a href= "#experience">Experience</a></li>
+                            <li><a href="#projects">Projects</a></li>
+                            <li><a href="#education">Education </a></li>
+                            <li><a href= "#contact" > Contact</a></li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
 
         </div>
     </header>
@@ -192,31 +196,26 @@
             <form>
                 <fieldset>
                     <h3>Personal Details: </h3>
-                    <br><br>
+                    <br>
                     <!-- Name -->
                     <label for="name">Name:</label>
                     <input type="text" id="name" name="name" placeholder="Enter your name" required>
-                    <br><br>
-
+                    <br>
                     <!-- Email -->
                     <label for="email">Email:</label>
                     <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                    <br><br>
-                    
+                    <br>
                     <!--phoneno-->
                     <label for="phone">Phone Number: </label>
                     <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
-                    <br><br>
-
+                    <br>
                     <!--Gender-->
                     <h4>Gender</h4>
                     <input type="radio" id="male" name="gender" value="male">
                     <label for="male">Male</label>
-
                     <input type="radio" id="female" name="gender" value="female">
                     <label for="female">Female</label>
                     <br><br>
-
                     <!-- Message -->
                     <label for="message">Message:</label><br>
                     <textarea id="message" name="message" rows="5" cols="40" placeholder="Enter your message" required></textarea>
@@ -264,5 +263,6 @@
         <a href="https://github.com/PrachiVerma26">Github</a>
 
     </footer>
+    </div>
 </body>
 </html>
