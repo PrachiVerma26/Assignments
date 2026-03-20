@@ -129,9 +129,24 @@ section{
     padding: 5px 10px;
 }
 
-
+/*alernate row color styling in table */
 tr:nth-child(even){
     background-color: #532574;
     color:#d2cff5;
+}
+
+/*project styling */
+#projects ol{
+    margin-bottom: 10px;
+}
+#projects a{
+    text-decoration: none;
+    color:#2f053b;
+}
+#projects a:hover{
+    color:#d2cff5 ;
+    background-color: #532574;
+    border-radius: 5px;
+    padding:5px;
 }
 
