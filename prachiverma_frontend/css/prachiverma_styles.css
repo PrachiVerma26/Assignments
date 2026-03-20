@@ -117,3 +117,21 @@ section{
 
 }
 
+/*education styling */
+#education table{
+  border-collapse: collapse;
+  width:100%;
+}
+#education th, td{
+    padding: 8px;
+    text-align: center;
+    border: 2px solid #000000;
+    padding: 5px 10px;
+}
+
+
+tr:nth-child(even){
+    background-color: #532574;
+    color:#d2cff5;
+}
+
