@@ -219,3 +219,18 @@ footer a{
     text-decoration: none;
 }
 
+/*for responsive styling*/
+.table-container{
+    width:100%;
+    overflow-x:auto;
+}
+@media (max-width: 600px) { /*mobile screen size*/
+    .container {
+        flex-direction: column;  /*sections are vertically assigned*/
+        text-align: center;
+    }
+
+    .text {
+        text-align: center;
+    }
+}
