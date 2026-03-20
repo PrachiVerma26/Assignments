@@ -188,3 +188,20 @@ form input[type="checkbox"], input[type="radio"]{
     width: auto;
     margin-right: 5px;
 }
+
+/*submit button styling */
+form input[type="submit"]{
+    display: inline-block;
+    padding: 20px 10px;
+    background-color: #532574;
+    color:#d2cff5;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+form input[type="submit"]:hover{
+    background-color: #7707a3;
+    color: #e5d8eb;
+    text-transform: uppercase;
+}
+
