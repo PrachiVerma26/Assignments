@@ -94,3 +94,29 @@ function subjectHighScore(students){
 }
 console.log("3. highest Score subject wise for each student : ")
 subjectHighScore(students);
+
+//4. Subject wise average marks 
+function averageSubjectMarks(students){
+    let subjectInfo={}; //storing total mark and no of student
+    for(let student of students){
+        for (let mark of student.marks){
+            let subject=mark.subject;
+
+            //if subject info is empty
+            if(!subjectInfo[subject]){
+                subjectInfo[subject] = {totalMarks:0,studentCount:0};
+            }
+            subjectInfo[subject].totalMarks+=mark.score;
+            subjectInfo[subject].studentCount+=1;
+        }
+    }
+    //printing the result
+    for(let subject in subjectInfo){
+        let total=subjectInfo[subject].totalMarks;
+        let count=subjectInfo[subject].studentCount;
+        let avg=total/count;
+        console.log("Average "+subject+" score : "+avg);
+    }
+}
+console.log("4. Subject wise average marks : ");
+averageSubjectMarks(students);
