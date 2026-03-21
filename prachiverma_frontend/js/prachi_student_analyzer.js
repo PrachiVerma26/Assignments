@@ -25,7 +25,7 @@ const students= [
     name: "pranav",
     marks: [
         { subject: "Math", score: 60 },
-        { subject: "English", score: 95 },
+        { subject: "English", score: 87},
         { subject: "Science", score: 40 },
         { subject: "History", score: 84 },
         { subject: "Computer", score: 32 }
@@ -69,5 +69,28 @@ function avgmarks(students){
         console.log(student.name +" average " + totalmark/subjectcount);
     }
 }
-console.log("2. Average marks for eahc student : ");
+console.log("2. Average marks for each student : ");
 avgmarks(students);
+
+//3. Subject wise highest score in the class
+function subjectHighScore(students){
+    let[firstStduent,...restStudents]=students; //used spread for spliting first student and rest of the students
+    for(let mark of firstStduent.marks){
+        let currSub=mark.subject;
+        let highestScore=mark.score;
+        let name=firstStduent.name;
+        for(let student of restStudents){
+            for (let mark of student.marks){
+                if(mark.subject===currSub){
+                    if(mark.score>highestScore){
+                        highestScore=mark.score;
+                        name=student.name;
+                    }
+                }
+            }
+        }
+        console.log("Highest in " + currSub+ " : "+ name +" ( " +highestScore+" ) ");
+    }
+}
+console.log("3. highest Score subject wise for each student : ")
+subjectHighScore(students);
