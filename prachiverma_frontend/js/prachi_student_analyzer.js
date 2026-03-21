@@ -120,3 +120,19 @@ function averageSubjectMarks(students){
 }
 console.log("4. Subject wise average marks : ");
 averageSubjectMarks(students);
+
+//5.class topper
+function classTopper(students){
+    let topperMarks=0;
+    let topperName="";
+    for (let student of students){
+        if (topperMarks < calTotalMarks(student)){
+            topperMarks=calTotalMarks(student);
+            topperName=student.name;
+        }
+        console.log(topperName+ " with " + topperMarks +" marks");
+
+    }
+}
+console.log("5. Class Topper : ");
+classTopper(students);
