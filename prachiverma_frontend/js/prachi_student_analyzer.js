@@ -48,13 +48,26 @@ const students= [
 
 
 // 1. total Marks for each student
-function calTotalMarks(students){
-    for (let student of students){
-        let total=0;
-        for(let mark of student.marks){
+function calTotalMarks(student){
+    let total=0;
+    for (let mark of student.marks){
             total+=mark.score;
-        }
-        console.log(student.name + "total marks : "+ total);
+    }
+    return total;    
+}
+console.log("1. total marks for each student : ");
+students.forEach((student)=>{ 
+    totalmarks=calTotalMarks(student);
+    console.log(student.name + " total marks :"+ totalmarks);
+});
+
+//2.Average marks for each student
+function avgmarks(students){
+    for (let student of students){
+        let totalmark=calTotalMarks(student);
+        let subjectcount=student.marks.length;
+        console.log(student.name +" average " + totalmark/subjectcount);
     }
 }
-calTotalMarks(students);
+console.log("2. Average marks for eahc student : ");
+avgmarks(students);
