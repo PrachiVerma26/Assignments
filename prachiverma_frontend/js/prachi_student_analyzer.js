@@ -129,9 +129,7 @@ function classTopper(students){
             topperMarks=calTotalMarks(student);
             topperName=student.name;
         }
-        console.log(topperName+ " with " + topperMarks +" marks");
-
-    }
+    }console.log(topperName+ " with " + topperMarks +" marks");
 }
 console.log("5. Class Topper : ");
 classTopper(students);
