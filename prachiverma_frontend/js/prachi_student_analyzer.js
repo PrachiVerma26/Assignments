@@ -12,7 +12,7 @@ const students= [
     attendance: 79
     },
     {
-    name: "aman",
+    name: "Aman",
     marks: [
         { subject: "Math", score: 90 },
         { subject: "English", score: 95 },
@@ -23,7 +23,7 @@ const students= [
     attendance: 91
     },
     {
-    name: "pranav",
+    name: "Pranav",
     marks: [
         { subject: "Math", score: 60 },
         { subject: "English", score: 87},
@@ -34,7 +34,7 @@ const students= [
     attendance: 80
     },
     {
-    name:"shreya",
+    name:"Shreya",
     marks:[
         {subject:'Math',score:86},
         {subject:"English",score:77},
@@ -61,7 +61,7 @@ students.forEach((student)=>{
 });
 
 //2.Average marks for each student
-function avgmarks(students){
+function avgMarks(students){
     for (let student of students){
         let totalmark=calTotalMarks(student);
         let subjectcount=student.marks.length;
