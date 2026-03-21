@@ -136,3 +136,34 @@ function classTopper(students){
 }
 console.log("5. Class Topper : ");
 classTopper(students);
+
+//assign grades based on some criterias
+
+function gradeAssign(students){
+    //check failure of student by any subject or if the student attendance is low
+    students.forEach((student)=>{
+        //average
+        let avg=0;
+        student.forEach((mark)=>{
+            let total=calTotalMarks(student);
+            avg=total/students.marks.length;
+        });
+        student.marks.forEach((mark)=>{
+            if(mark <= 40){
+            console.log(student.name+" Grade : Fail( Failed in "+ marks.subject+ " ) ");
+        }
+        });
+        if (student.attendance<75){
+        console.log(student.name+"Grade: Fail(low Attendance)");
+        }
+            //assign grade
+        else{
+            if ( avg >=85) console.log(student.name+ ": Grade A");
+            else if(avg>=70) console.log(student.name+ ": Grade B");
+            else if( avg>=50) console.log(student.name + ": Grade C");
+            else console.log(student.name+ " : Fail");
+        }
+    });
+}
+console.log("6. Grades of each student are : ");
+gradeAssign(students);
