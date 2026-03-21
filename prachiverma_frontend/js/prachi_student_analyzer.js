@@ -26,18 +26,18 @@ const students= [
     marks: [
         { subject: "Math", score: 60 },
         { subject: "English", score: 87},
-        { subject: "Science", score: 40 },
+        { subject: "Science", score: 60 },
         { subject: "History", score: 84 },
         { subject: "Computer", score: 32 }
         ],
-    attendance: 50
+    attendance: 80
     },
     {
     name:"shreya",
     marks:[
         {subject:'Math',score:86},
         {subject:"English",score:77},
-        {subject:"Science", score:54},
+        {subject:"Science", score:40},
         {subject:"History", score:90},
         {subject:"Computer", score:67}
     ],
@@ -143,14 +143,11 @@ function gradeAssign(students){
     //check failure of student by any subject or if the student attendance is low
     students.forEach((student)=>{
         //average
-        let avg=0;
-        student.forEach((mark)=>{
-            let total=calTotalMarks(student);
-            avg=total/students.marks.length;
-        });
+        let total=calTotalMarks(student);
+        let avg=total /student.marks.length;
         student.marks.forEach((mark)=>{
-            if(mark <= 40){
-            console.log(student.name+" Grade : Fail( Failed in "+ marks.subject+ " ) ");
+            if(mark.score <= 40){
+            console.log(student.name+" Grade : Fail( Failed in "+ mark.subject+ " ) ");
         }
         });
         if (student.attendance<75){
