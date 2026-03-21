@@ -23,7 +23,6 @@ body{
     padding: 20px;
     background-color: #532574;
     color:#d2cff5;
-    height:400px; 
     
  
 }
@@ -219,12 +218,21 @@ footer a{
     text-decoration: none;
 }
 
+
 /*for responsive styling*/
 .table-container{
     width:100%;
     overflow-x:auto;
 }
 @media (max-width: 600px) { /*mobile screen size*/
+     #header {
+        align-items: center;
+        text-align: center;
+    }
+    .bio {
+        text-align: center;
+        margin: 10px 0;
+    }
     .container {
         flex-direction: column;  /*sections are vertically assigned*/
         text-align: center;
