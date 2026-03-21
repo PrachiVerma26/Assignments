@@ -1,3 +1,4 @@
+//student data
 const students= [
     {
     name: "Garima",
@@ -45,8 +46,6 @@ const students= [
     }
     
 ];
-
-
 // 1. total Marks for each student
 function calTotalMarks(student){
     let total=0;
@@ -76,12 +75,12 @@ avgmarks(students);
 function subjectHighScore(students){
     let[firstStduent,...restStudents]=students; //used spread for spliting first student and rest of the students
     for(let mark of firstStduent.marks){
-        let currSub=mark.subject;
+        let subject=mark.subject;
         let highestScore=mark.score;
         let name=firstStduent.name;
         for(let student of restStudents){
             for (let mark of student.marks){
-                if(mark.subject===currSub){
+                if(mark.subject===subject){ //comparing current subject(mark.subject) with the subject(first student subject assigned)
                     if(mark.score>highestScore){
                         highestScore=mark.score;
                         name=student.name;
@@ -145,22 +144,26 @@ function gradeAssign(students){
         //average
         let total=calTotalMarks(student);
         let avg=total /student.marks.length;
+        let subfail=false;
         student.marks.forEach((mark)=>{
             if(mark.score <= 40){
+                subfail=true;
             console.log(student.name+" Grade : Fail( Failed in "+ mark.subject+ " ) ");
         }
         });
-        if (student.attendance<75){
-        console.log(student.name+"Grade: Fail(low Attendance)");
+        if(!subfail){
+            if (student.attendance<75){
+            console.log(student.name+"Grade: Fail(low Attendance)");
+            }
+                //assign grade
+            else{
+                if ( avg >=85) console.log(student.name+ ": Grade A");
+                else if(avg>=70) console.log(student.name+ ": Grade B");
+                else if( avg>=50) console.log(student.name + ": Grade C");
+                else console.log(student.name+ " : Fail");
+            }
         }
-            //assign grade
-        else{
-            if ( avg >=85) console.log(student.name+ ": Grade A");
-            else if(avg>=70) console.log(student.name+ ": Grade B");
-            else if( avg>=50) console.log(student.name + ": Grade C");
-            else console.log(student.name+ " : Fail");
-        }
-    });
+        });
 }
 console.log("6. Grades of each student are : ");
 gradeAssign(students);
