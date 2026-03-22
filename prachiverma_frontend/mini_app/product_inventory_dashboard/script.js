@@ -25,6 +25,8 @@ let defaultProducts=[
 let products = defaultProducts;
 let selectedCategory="all";
 let searchQuery="";
+let stockFilter="all";
+let sortOption="default";
 //Rendered function
 function renderProducts() {
     let filtered=getFilteredProducts();
@@ -72,6 +74,14 @@ function bindEvents() {
     selectedCategory = e.target.value;
     renderProducts();
     });
+    document.getElementById("out-of-stock").addEventListener("change", function(e){
+    stockFilter = e.target.value;
+    renderProducts();
+    });
+    document.getElementById("sort-select").addEventListener("change", function(e){
+    sortOption = e.target.value;
+    renderProducts();
+    });
     document.getElementById("product-grid").addEventListener("click", function(e) {
         if (e.target.classList.contains("btn-delete")) {
             deleteProduct(parseInt(e.target.dataset.id));
@@ -101,7 +111,22 @@ function getFilteredProducts() {
     for (let i = 0; i < products.length; i++) {
         let matchSearch=products[i].name.toLowerCase().includes(searchQuery.toLowerCase());
         let matchCategory=selectedCategory === "all" || products[i].category.toLowerCase() === selectedCategory;
-        if (matchSearch && matchCategory) result.push(products[i]);
+        let matchStock =stockFilter === "all" ||(stockFilter === "low" && products[i].stock < 5);
+
+        if (matchSearch && matchCategory && matchStock) result.push(products[i]);
+    }
+    //sorting 
+    if (sortOption === "price-asc") {
+        result.sort((a,b)=>a.price-b.price);
+    }
+    else if (sortOption === "price-desc") {
+        result.sort((a,b)=>b.price-a.price);
+    }
+    else if (sortOption === "alpha-asc") {
+        result.sort((a,b)=>a.name.localeCompare(b.name));
+    }
+    else if (sortOption === "alpha-dsc") {
+        result.sort((a,b)=>b.name.localeCompare(a.name));
     }
     return result;
 }
