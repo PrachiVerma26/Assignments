@@ -6,7 +6,7 @@ let defaultProducts=[
 
     {"id": 4,"name":"Professional DSLR Camera","price":70000,"stock":20,"category":"Cameras"},
 
-    {"id": 5,"name":"Harry Potter by J.K Rowling","price":4000,"stock":2,"category":"Books"},
+    {"id": 5,"name":"Harry Potter by J.K Rowling","price":4000,"stock":0,"category":"Books"},
     {"id": 6,"name":"The Dreamers by Karen Thompson Walker","price":200,"stock":7,"category":"Books"},
     {"id": 7,"name":"Alchemist by Paulo Coelho","price":4000,"stock":3,"category":"Books"},
 
@@ -40,6 +40,7 @@ function renderProducts() {
         grid.appendChild(card);
     }
 }
+
 //delete function
 function deleteProduct(id) {
     let newList = [];
@@ -57,7 +58,24 @@ function bindEvents() {
     });
 }
 
+// analysis of products like total products, inventory and out of stock products
+function updateAnalytics() {
+    let total = products.length;
+    let totalValue = 0;
+    for (let i = 0; i < products.length; i++) {
+        totalValue += products[i].price * products[i].stock;
+    }
+    let outOfStock = 0;
+    for (let i = 0; i < products.length; i++) {
+        if (products[i].stock === 0) { outOfStock++; }
+    }
+    document.getElementById("total-product").textContent   = total;
+    document.getElementById("inventory-value").textContent = "Rs " + totalValue.toLocaleString("en-IN");
+    document.getElementById("stock-value").textContent     = outOfStock;
+}
+
 document.addEventListener("DOMContentLoaded", function() {
     renderProducts();
-    bindEvents();       // called once, not inside renderProducts
+    bindEvents();      // called once, not inside renderProducts
+    updateAnalytics();
 });
