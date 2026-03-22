@@ -33,6 +33,12 @@ function renderProducts() {
     let grid = document.getElementById("product-grid");
     grid.innerHTML = "";
 
+    let noResults = document.getElementById("no-results");
+    if (filtered.length === 0) {
+        noResults.style.display = "block";
+    } else {
+        noResults.style.display = "none";
+    }
     for (let i = 0; i < filtered.length; i++) {
         let product = filtered[i];
         let card = document.createElement("div");
