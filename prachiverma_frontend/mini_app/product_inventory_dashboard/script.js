@@ -27,11 +27,19 @@ let selectedCategory="all";
 let searchQuery="";
 let stockFilter="all";
 let sortOption="default";
+
+//pagination variables (bonus)
+let currentPage=1;
+let itemsPerPage=6;
+
 //Rendered function
 function renderProducts() {
     let filtered=getFilteredProducts();
     let grid = document.getElementById("product-grid");
     grid.innerHTML = "";
+
+    let start=(currentPage-1)*itemsPerPage;
+    let paginated=filtered.slice(start,start+itemsPerPage);
 
     let noResults = document.getElementById("no-results");
     if (filtered.length === 0) {
@@ -40,7 +48,7 @@ function renderProducts() {
         noResults.style.display = "none";
     }
     for (let i = 0; i < filtered.length; i++) {
-        let product = filtered[i];
+        let product = paginated[i];
         let card = document.createElement("div");
         card.className = "product-card";
         card.innerHTML = `
