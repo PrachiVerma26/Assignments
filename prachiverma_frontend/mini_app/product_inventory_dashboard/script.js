@@ -23,14 +23,24 @@ let defaultProducts=[
 ];
 
 let products = defaultProducts;
-
+//Rendered function
 function renderProducts() {
     let grid = document.getElementById("product-grid");
     grid.innerHTML = "";
-
     for (let i = 0; i < products.length; i++) {
+        let product = products[i];
         let card = document.createElement("div");
-        card.innerHTML = "<h3>" + products[i].name + "</h3>";
+        card.className = "product-card";
+        let stockLabel = "";
+        if (product.stock === 0) stockLabel = "Out of stock"; 
+        else if (product.stock < 5) stockLabel = "Low stock: " + product.stock + " left"; 
+        else  stockLabel = "In stock: " + product.stock;
+        card.innerHTML = `
+            <h3>${product.name}</h3>
+            <p><strong>Category:</strong> ${product.category}</p>
+            <p><strong>Price:</strong> Rs ${product.price.toLocaleString("en-IN")}</p>
+            <p><strong>Stock:</strong> ${stockLabel}</p>
+        `;
         grid.appendChild(card);
     }
 }
