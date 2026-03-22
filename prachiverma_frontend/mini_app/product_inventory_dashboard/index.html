@@ -27,8 +27,33 @@
                     <button type="submit">Search</button>
                 </div>
                 <!--filter options-->
+                <div class="filter-categories">
+                    <label for="category-filter">Category  </label>
+                    <select id="category-filter">
+                        <option value="all"> All Categories</option>
+                        <!--other option added using javascript function because to avoid data redundancy-->
+                    </select>
+                </div>
 
-                <!--aside-->
+                <!--sorting products-->
+                <div class="sort-product">
+                    <select id="sort-select">
+                        <option value="default">Recommended</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                        <option value="alpha-asc">Alphabetically: A-Z</option>
+                        <option value="alpha-dsc">Alphabetically: Z-A</option>
+                    </select>
+                </div>
+
+                <!--stock filer-->
+                <div class="stock-filter">
+                    <label for="out-of stock">Out of Stock</label>
+                    <select id="out-of-stock">
+                        <option value="all"> All Products</option>
+                        <option value="low">Out of stock</option>
+                    </select>
+                </div>
             </section>
         
             <!--section for inventory analtyics-->
