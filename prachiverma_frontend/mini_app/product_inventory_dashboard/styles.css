@@ -12,7 +12,7 @@ body {
 
 header {
     background: #1c2f5d;        
-    color: #fff;
+    color: #e8f8ef;
     padding: 16px;
     text-align: center;
 }
@@ -39,6 +39,7 @@ input, select, button {
     border: 1px solid #ddd;
     font-size: 14px;
 }
+
 button {
     background: #e9eef5;
     cursor: pointer;
@@ -53,6 +54,7 @@ button:hover {
     grid-template-columns: 1fr 2fr 1fr;  
     gap: 20px;
 }
+
 .product-section,
 .product-form,
 #analtyics-section {
@@ -61,43 +63,116 @@ button:hover {
     border-radius: 10px;
     border: 1px solid #d0f0dc; 
 }
+
+/* Product Grid */
 #product-grid {
     display: grid;
-    gap: 12px;
+    gap: 16px;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-}
-.product-card {
-    background: #F4FFF8;      
-    padding: 12px;
+    padding: 16px;
+    background: transparent;
     border-radius: 8px;
-    border: 1px solid #d0f0dc;  
+}
+
+/* Product Card */
+.product-card {
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid #e4e4e4;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     transition: 0.2s;
 }
 
 .product-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(45, 106, 79, 0.1);  /* ADDED — green tint shadow */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10);
 }
 
-.btn-delete {                   
-    background-color: #ffe4e4;
-    color: #c0392b;
-    border: 1px solid #f5b7b1;
-    border-radius: 4px;
-    padding: 5px 12px;
+.product-card h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.product-card p {
     font-size: 13px;
+    color: #555;
+    margin: 0;
+    border-bottom: none;
+}
+
+.product-card p strong {
+    color: #1a1a1a;
+    font-size: 13px;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+/* Category Tag pill */
+.category-tag {
+    display: inline-block;
+    background: #f0f0f0;
+    color: #555;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: none;
+}
+
+/* Price */
+.product-price {
+    font-size: 17px;
+    font-weight: 700;
+    color: #2d6a4f;
+}
+
+/* Stock status */
+.product-stock {
+    font-size: 13px;
+    font-weight: 500;
+    color: #2d6a4f;
+}
+
+.stock-out {
+    color: #c0392b;
+}
+
+/* Delete Button */
+.btn-delete {
+    width: 100%;
+    margin-top: 6px;
+    background: #ffffff;
+    color: #555;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
-    margin-top: 8px;
+    transition: 0.2s;
+    text-align: center;
 }
 
 .btn-delete:hover {
-    background-color: #f5b7b1;
-    color: #7b0000;
+    background: #fff0f0;
+    border-color: #f5b7b1;
+    color: #c0392b;
 }
+
 .muted {
     color: #777;
     font-size: 13px;
 }
+
+/* Pagination */
 #pagination {
     text-align: center;
     margin-top: 15px;
@@ -114,11 +189,13 @@ button:hover {
 }
 
 #pagination button.active { 
-    background: #1c2f5d4f;    
+    background: #1c2f5d;    
     color: #fff;
-    border-color: #1c2f5d4f;
+    border-color: #1c2f5d;
     font-weight: bold;
 }
+
+/* Loading Spinner */
 #loading-state {
     text-align: center;
     padding: 20px;
@@ -131,11 +208,12 @@ button:hover {
     width: 25px;
     height: 25px;
     border: 3px solid #ddd;
-    border-top: 3px solid #1c2f5d4f;  
+    border-top: 3px solid #1c2f5d;  
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
-/* ANALYTICS SECTION */
+
+/* Analytics */
 #analtyics-section h2 {
     font-size: 14px;
     text-transform: uppercase;
@@ -178,7 +256,7 @@ button:hover {
 #inventory-value {
     font-size: 18px;
     font-weight: 700;
-    color:#1c2f5d;    
+    color: #1c2f5d;    
     word-break: break-all;
 }
 
@@ -187,13 +265,15 @@ button:hover {
     font-weight: 700;
     color: #dc9f99;   
 }
-footer{
+
+/* Footer */
+footer {
     background-color: #1c2f5d;
-    width:auto;
+    width: auto;
     height: auto;
-    color:#d0d7e2;
+    color: #d0d7e2;
     text-align: center;
-    padding:10px;
+    padding: 10px;
 }
 
 @keyframes spin {
