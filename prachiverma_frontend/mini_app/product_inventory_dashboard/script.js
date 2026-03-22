@@ -18,7 +18,7 @@ let defaultProducts=[
     {"id":12,"name":"Smartwatch","price":4000,"stock":3,"category":"Watches"},
 
     {"id": 13,"name":"Chain Necklace","price":200,"stock":3,"category":"Accessories"},
-    {"id": 14,"name":"Stone Earings","price":500,"stock":3,"category":"Acessories"},
+    {"id": 14,"name":"Stone Earings","price":500,"stock":3,"category":"Accessories"},
     {"id": 15,"name":"Gold plated heart shape Ring","price":4000,"stock":2,"category":"Accessories"}
 ];
 
@@ -30,7 +30,7 @@ let sortOption="default";
 
 //pagination variables (bonus)
 let currentPage=1;
-let itemsPerPage=8;
+let itemsPerPage=6;
 
 //Rendered function
 function renderProducts() {
@@ -118,11 +118,11 @@ function deleteProduct(id) {
     let newList = [];
     for (let i = 0; i < products.length; i++) {
         if (products[i].id !== id) { newList.push(products[i]); }
-    
+    }
     products = newList;
     renderProducts();
     updateAnalytics(); // when a product is deleted it shoould be reflected
-}}
+}
 function bindEvents() {
     document.getElementById("search").addEventListener("input",function(e){ //search functionality
         searchQuery=e.target.value.trim();
@@ -259,4 +259,11 @@ document.addEventListener("DOMContentLoaded", function() {
     renderProducts();
     bindEvents();      // called once, not inside renderProducts
     updateAnalytics();
+
+     document.getElementById("loading-state").style.display = "block";  
+
+    setTimeout(function() {                                              
+        renderProducts();                                                
+        updateAnalytics();                                               
+    }, 2000);                                                            
 });
