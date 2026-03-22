@@ -84,6 +84,39 @@
                 <div id="pagination"></div>
                 <p id="page-info"></p>
             </section>
+
+            <!--add product form-->
+            <section class="product-form">
+                <h2>Add Product</h2>
+                <form id="product-form">
+                    <div>
+                        <label for="p-name">Product Name </label>
+                        <input type="text" id="pname" placeholder="ex. Laptop" required minlength="2">
+                    </div>
+                    <div>
+                        <label for="p-price">Price </label>
+                        <input type="number" id="pprice" placeholder="e.g 654" required minlength="100">
+                    </div>
+                    <div>
+                        <label for="no-stock">Stock Quantity</label>
+                        <input type="number" id="no-stock" placeholder="e.g 20" required min="0">
+                    </div>
+                    <div>
+                        <label for="p-category">Category</label>
+                        <select id="p-category"required>
+                            <option value="">-- Select Category --</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="books">Books</option>
+                            <option value="accessories">Accessories</option>
+                            <option value="cameras">Cameras</option>
+                            <option value="watches">Watches</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="add-button">Add</button>
+                    <button type="reset"  id="cancel">Cancel</button>
+                </form>
+            </section>
         </div>
     </main>
     <!--footer-->
