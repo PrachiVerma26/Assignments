@@ -75,13 +75,14 @@
                 </div>
             </section>
             <!--product grid section -->
-            <section class="product grid">
-            </section>
-
-            <!--add product form-->
-            <section class="product-form">
-                <form>
-                </form>
+            <section class="product-section">
+                <h2>Products</h2>
+                <div id="loading-state"><p>Loading products....</p></div> <!--loading message when product are being fetched-->
+                <div id="no-results"><p>No products match with the filters.</p></div>
+                <p id="result-count">Showing<span id="count-display">0</p>
+                <div id="product-grid"></div>
+                <div id="pagination"></div>
+                <p id="page-info"></p>
             </section>
         </div>
     </main>
@@ -89,6 +90,5 @@
     <footer>
         <div class="container"></div>
     </footer>
-
 </body>
 </html>
