@@ -22,5 +22,19 @@ let defaultProducts=[
     {"id": 15,"name":"Gold plated heart shape Ring","price":4000,"stock":2,"category":"Accessories"}
 ];
 
-let currentProducts=[];
-//1. fetch the default products
+let products = defaultProducts;
+
+function renderProducts() {
+    let grid = document.getElementById("product-grid");
+    grid.innerHTML = "";
+
+    for (let i = 0; i < products.length; i++) {
+        let card = document.createElement("div");
+        card.innerHTML = "<h3>" + products[i].name + "</h3>";
+        grid.appendChild(card);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    renderProducts();
+});
