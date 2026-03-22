@@ -27,24 +27,37 @@ let products = defaultProducts;
 function renderProducts() {
     let grid = document.getElementById("product-grid");
     grid.innerHTML = "";
+
     for (let i = 0; i < products.length; i++) {
         let product = products[i];
         let card = document.createElement("div");
         card.className = "product-card";
-        let stockLabel = "";
-        if (product.stock === 0) stockLabel = "Out of stock"; 
-        else if (product.stock < 5) stockLabel = "Low stock: " + product.stock + " left"; 
-        else  stockLabel = "In stock: " + product.stock;
         card.innerHTML = `
             <h3>${product.name}</h3>
-            <p><strong>Category:</strong> ${product.category}</p>
             <p><strong>Price:</strong> Rs ${product.price.toLocaleString("en-IN")}</p>
-            <p><strong>Stock:</strong> ${stockLabel}</p>
+            <button class="btn-delete" data-id="${product.id}">Delete</button>
         `;
         grid.appendChild(card);
     }
 }
+//delete function
+function deleteProduct(id) {
+    let newList = [];
+    for (let i = 0; i < products.length; i++) {
+        if (products[i].id !== id) { newList.push(products[i]); }
+    }
+    products = newList;
+    renderProducts();
+}
+function bindEvents() {
+    document.getElementById("product-grid").addEventListener("click", function(e) {
+        if (e.target.classList.contains("btn-delete")) {
+            deleteProduct(parseInt(e.target.dataset.id));
+        }
+    });
+}
 
 document.addEventListener("DOMContentLoaded", function() {
     renderProducts();
+    bindEvents();       // called once, not inside renderProducts
 });
