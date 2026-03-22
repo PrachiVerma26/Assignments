@@ -18,7 +18,7 @@ let defaultProducts=[
     {"id":12,"name":"Smartwatch","price":4000,"stock":3,"category":"Watches"},
 
     {"id": 13,"name":"Chain Necklace","price":200,"stock":3,"category":"Accessories"},
-    {"id": 14,"name":"Stone Earings","price":500,"stock":3,"category":"Acessories"},
+    {"id": 14,"name":"Stone Earings","price":500,"stock":3,"category":"AcCessories"},
     {"id": 15,"name":"Gold plated heart shape Ring","price":4000,"stock":2,"category":"Accessories"}
 ];
 
@@ -30,14 +30,19 @@ let sortOption="default";
 
 //pagination variables (bonus)
 let currentPage=1;
-let itemsPerPage=6;
+let itemsPerPage=8;
 
 //Rendered function
 function renderProducts() {
     let filtered=getFilteredProducts();
     let grid = document.getElementById("product-grid");
+    let paginationDiv = document.getElementById("pagination");
+    let pageInfo = document.getElementById("page-info");
     grid.innerHTML = "";
-
+    paginationDiv.innerHTML= "";
+    let totalPages = Math.ceil(filtered.length / itemsPerPage);
+    if (currentPage > totalPages) currentPage = totalPages || 1;
+    
     let start=(currentPage-1)*itemsPerPage;
     let paginated=filtered.slice(start,start+itemsPerPage);
 
@@ -47,14 +52,14 @@ function renderProducts() {
     } else {
         noResults.style.display = "none";
     }
-    for (let i = 0; i < filtered.length; i++) {
+    for (let i = 0; i < paginated.length; i++) {
         let product = paginated[i];
         let card = document.createElement("div");
         card.className = "product-card";
         card.innerHTML = `
             <h3>${product.name}</h3>
             <p><strong>Price:</strong> Rs ${product.price.toLocaleString("en-IN")}</p>
-            
+            <button class="btn-delete" data-id="${product.id}">Delete</button>
         `;
         grid.appendChild(card);
     }
@@ -75,6 +80,7 @@ function bindEvents() {
         searchQuery=e.target.value.trim();
         currentPage=1;
         renderProducts();
+        updateAnalytics();
     });
     // enter key 
     document.getElementById("search").addEventListener("keydown",function(e){
@@ -82,15 +88,18 @@ function bindEvents() {
             searchQuery=e.target.value.trim();
             currentPage=1;
             renderProducts();
+            updateAnalytics();
         }
     });
     document.getElementById("category-filter").addEventListener("change", function(e) {
     selectedCategory = e.target.value;
     renderProducts();
+    updateAnalytics();
     });
     document.getElementById("out-of-stock").addEventListener("change", function(e){
     stockFilter = e.target.value;
     renderProducts();
+    updateAnalytics();
     });
     document.getElementById("sort-select").addEventListener("change", function(e){
     sortOption = e.target.value;
@@ -106,12 +115,12 @@ function bindEvents() {
 
 // analysis of products like total products, inventory and out of stock products
 function updateAnalytics() {
-    let total = products.length;
-    let totalValue = 0;
+    let total = getFilteredProducts();
+    let totalValue = filtered.length;
     for (let i = 0; i < products.length; i++) {
-        totalValue += products[i].price * products[i].stock;
+        totalValue += products[i].price * filtered[i].stock;
     }
-    let outOfStock = 0;
+    let outOfStock = getFilteredProducts();
     for (let i = 0; i < products.length; i++) {
         if (products[i].stock === 0) { outOfStock++; }
     }
@@ -126,7 +135,7 @@ function getFilteredProducts() {
     for (let i = 0; i < products.length; i++) {
         let matchSearch=products[i].name.toLowerCase().includes(searchQuery.toLowerCase());
         let matchCategory=selectedCategory === "all" || products[i].category.toLowerCase() === selectedCategory;
-        let matchStock =stockFilter === "all" ||(stockFilter === "low" && products[i].stock < 5);
+        let matchStock =stockFilter === "all" ||(stockFilter === "low" && products[i].stock===0);
 
         if (matchSearch && matchCategory && matchStock) result.push(products[i]);
     }

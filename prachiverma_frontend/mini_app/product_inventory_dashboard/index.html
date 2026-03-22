@@ -12,7 +12,7 @@
 <body>
     <!--header-->
     <header>
-        <div class=".container">
+        <div class="container">
             <h1> Product Inventory Dashboard</h1>
         </div>
     </header>
@@ -48,7 +48,7 @@
 
                 <!--stock filer-->
                 <div class="stock-filter">
-                    <label for="out-of stock">Out of Stock</label>
+                    <label for="out-of-stock">Out of Stock</label>
                     <select id="out-of-stock">
                         <option value="all"> All Products</option>
                         <option value="low">Out of stock</option>
@@ -57,67 +57,68 @@
             </section>
         
             <!--section for inventory analtyics-->
-            <section id="analtyics-section">
-                <h2> Analytics</h2>
-                <div id="total-products">
-                    <p>total Products</p>
-                    <strong id="total-product">--</strong>
-                </div>
+            <div class="main-layout">
+                <section id="analtyics-section">
+                    <h2> Analytics</h2>
+                    <div id="total-products">
+                        <p>total Products</p>
+                        <strong id="total-product">--</strong>
+                    </div>
 
-                <div id="total-inventory">
-                    <p>Total Inventory Value</p>
-                    <strong id="inventory-value">--</strong>
-                </div>
+                    <div id="total-inventory">
+                        <p>Total Inventory Value</p>
+                        <strong id="inventory-value">--</strong>
+                    </div>
 
-                <div id="no-out-of-stack">
-                    <p>Out of Stock</p>
-                    <strong id="stock-value">--</strong>
-                </div>
-            </section>
+                    <div id="no-out-of-stack">
+                        <p>Out of Stock</p>
+                        <strong id="stock-value">--</strong>
+                    </div>
+                </section>
             <!--product grid section -->
-            <section class="product-section">
-                <h2>Products</h2>
-                <div id="loading-state"><p>Loading products....</p></div> <!--loading message when product are being fetched-->
-                <div id="no-results"><p>No products match with the filters.</p></div>
-                <p id="result-count">Showing<span id="count-display">0</p>
-                <div id="product-grid"></div>
-                <div id="pagination"></div>
-                <p id="page-info"></p>
-            </section>
+                <section class="product-section">
+                    <h2>Products</h2>
+                    <div id="loading-state"><p>Loading products....</p></div> <!--loading message when product are being fetched-->
+                    <div id="no-results"><p>No products match with the filters.</p></div>
+                    <p id="result-count">Showing<span id="count-display">0</span></p>
+                    <div id="product-grid"></div>
+                    <div id="pagination"></div>
+                    <p id="page-info"></p>
+                </section>
 
             <!--add product form-->
-            <section class="product-form">
-                <h2>Add Product</h2>
-                <form id="product-form">
-                    <div>
-                        <label for="p-name">Product Name </label>
-                        <input type="text" id="pname" placeholder="ex. Laptop" required minlength="2">
-                    </div>
-                    <div>
-                        <label for="p-price">Price </label>
-                        <input type="number" id="pprice" placeholder="e.g 654" required minlength="100">
-                    </div>
-                    <div>
-                        <label for="no-stock">Stock Quantity</label>
-                        <input type="number" id="no-stock" placeholder="e.g 20" required min="0">
-                    </div>
-                    <div>
-                        <label for="p-category">Category</label>
-                        <select id="p-category"required>
-                            <option value="">-- Select Category --</option>
-                            <option value="electronics">Electronics</option>
-                            <option value="clothing">Clothing</option>
-                            <option value="books">Books</option>
-                            <option value="accessories">Accessories</option>
-                            <option value="cameras">Cameras</option>
-                            <option value="watches">Watches</option>
-                        </select>
-                    </div>
-                    <button type="submit" id="add-button">Add</button>
-                    <button type="reset"  id="cancel">Cancel</button>
-                </form>
-            </section>
-        </div>
+                <section class="product-form">
+                    <h2>Add Product</h2>
+                    <form id="product-form">
+                        <div>
+                            <label for="p-name">Product Name </label>
+                            <input type="text" id="pname" placeholder="ex. Laptop" required minlength="2">
+                        </div>
+                        <div>
+                            <label for="p-price">Price </label>
+                            <input type="number" id="p-price" placeholder="e.g 654" required min="1">
+                        </div>
+                        <div>
+                            <label for="no-stock">Stock Quantity</label>
+                            <input type="number" id="no-stock" placeholder="e.g 20" required min="0">
+                        </div>
+                        <div>
+                            <label for="p-category">Category</label>
+                            <select id="p-category"required>
+                                <option value="">-- Select Category --</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="clothing">Clothing</option>
+                                <option value="books">Books</option>
+                                <option value="accessories">Accessories</option>
+                                <option value="cameras">Cameras</option>
+                                <option value="watches">Watches</option>
+                            </select>
+                        </div>
+                        <button type="submit" id="add-button">Add</button>
+                        <button type="reset"  id="cancel">Cancel</button>
+                    </form>
+                </section>
+            </div>
     </main>
     <!--footer-->
     <footer>
