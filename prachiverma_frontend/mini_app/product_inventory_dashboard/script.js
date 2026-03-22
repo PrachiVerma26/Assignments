@@ -93,6 +93,7 @@ function bindEvents() {
             deleteProduct(parseInt(e.target.dataset.id));
         }
     });
+    document.getElementById("product-form").addEventListener("submit", handleAddProduct);
 }
 
 // analysis of products like total products, inventory and out of stock products
@@ -135,6 +136,35 @@ function getFilteredProducts() {
         result.sort((a,b)=>b.name.localeCompare(a.name));
     }
     return result;
+}
+// add new products 
+function handleAddProduct(e) {
+    e.preventDefault();
+
+    let name = document.getElementById("pname").value.trim();
+    let price = parseFloat(document.getElementById("pprice").value);
+    let stock = parseInt(document.getElementById("no-stock").value);
+    let category = document.getElementById("p-category").value;
+
+    if (!name) return alert("Name required");
+    if (price <= 0) return alert("Invalid price");
+    if (stock < 0) return alert("Stock cannot be negative");
+    if (!category) return alert("Select category");
+
+    let newProduct = {
+        id: Date.now(),
+        name,
+        price,
+        stock,
+        category
+    };
+
+    products.push(newProduct);
+
+    renderProducts();
+    updateAnalytics();
+
+    e.target.reset();
 }
 
 document.addEventListener("DOMContentLoaded", function() {
