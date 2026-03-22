@@ -23,19 +23,22 @@ let defaultProducts=[
 ];
 
 let products = defaultProducts;
+let selectedCategory="all";
+let searchQuery="";
 //Rendered function
 function renderProducts() {
+    let filtered=getFilteredProducts();
     let grid = document.getElementById("product-grid");
     grid.innerHTML = "";
 
-    for (let i = 0; i < products.length; i++) {
-        let product = products[i];
+    for (let i = 0; i < filtered.length; i++) {
+        let product = filtered[i];
         let card = document.createElement("div");
         card.className = "product-card";
         card.innerHTML = `
             <h3>${product.name}</h3>
             <p><strong>Price:</strong> Rs ${product.price.toLocaleString("en-IN")}</p>
-            <button class="btn-delete" data-id="${product.id}">Delete</button>
+            
         `;
         grid.appendChild(card);
     }
@@ -49,8 +52,26 @@ function deleteProduct(id) {
     }
     products = newList;
     renderProducts();
+    updateAnalytics(); // when a product is deleted it shoould be reflected
 }
 function bindEvents() {
+    document.getElementById("search").addEventListener("input",function(e){ //search functionality
+        searchQuery=e.target.value.trim();
+        currentPage=1;
+        renderProducts();
+    });
+    // enter key 
+    document.getElementById("search").addEventListener("keydown",function(e){
+        if(e.key=="Enter"){
+            searchQuery=e.target.value.trim();
+            currentPage=1;
+            renderProducts();
+        }
+    });
+    document.getElementById("category-filter").addEventListener("change", function(e) {
+    selectedCategory = e.target.value;
+    renderProducts();
+    });
     document.getElementById("product-grid").addEventListener("click", function(e) {
         if (e.target.classList.contains("btn-delete")) {
             deleteProduct(parseInt(e.target.dataset.id));
@@ -72,6 +93,17 @@ function updateAnalytics() {
     document.getElementById("total-product").textContent   = total;
     document.getElementById("inventory-value").textContent = "Rs " + totalValue.toLocaleString("en-IN");
     document.getElementById("stock-value").textContent     = outOfStock;
+}
+
+//filter products function based on their name
+function getFilteredProducts() {
+    let result = [];
+    for (let i = 0; i < products.length; i++) {
+        let matchSearch=products[i].name.toLowerCase().includes(searchQuery.toLowerCase());
+        let matchCategory=selectedCategory === "all" || products[i].category.toLowerCase() === selectedCategory;
+        if (matchSearch && matchCategory) result.push(products[i]);
+    }
+    return result;
 }
 
 document.addEventListener("DOMContentLoaded", function() {
