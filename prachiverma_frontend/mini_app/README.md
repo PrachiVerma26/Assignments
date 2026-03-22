@@ -83,8 +83,8 @@ project-folder/
 ### Pagination functionality
  <img width="1895" height="966" alt="ss20_pagination" src="https://github.com/user-attachments/assets/8c942c40-06c5-4468-a11f-ed75c0f8391a" />
 * Responsive design functionality
-<img width="1895" height="966" alt="ss20_pagination" src="https://github.com/user-attachments/assets/a5e2e0fb-9aad-4a6c-9eb1-0263c8d01fd8" />
- ---
+<img width="1905" height="965" alt="ss21_responsive_design" src="https://github.com/user-attachments/assets/86106fae-ee16-4c98-b2ac-6fb9162f8a6a" />
+---
  
 ##  To run Locally
 * Download or Clone Project:git clone "https://github.com/PrachiVerma26/Assignments/tree/main/prachiverma_frontend/mini_app" 
