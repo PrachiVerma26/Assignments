@@ -53,6 +53,7 @@ button:hover {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;  
     gap: 20px;
+    max-width:1200px;
 }
 
 .product-section,
@@ -64,7 +65,7 @@ button:hover {
     border: 1px solid #d0f0dc; 
 }
 
-/* Product Grid */
+/* product grid */
 #product-grid {
     display: grid;
     gap: 16px;
@@ -74,7 +75,7 @@ button:hover {
     border-radius: 8px;
 }
 
-/* Product Card */
+/* product card */
 .product-card {
     background: #ffffff;
     padding: 16px;
@@ -113,7 +114,7 @@ button:hover {
     letter-spacing: 0;
 }
 
-/* Category Tag pill */
+/* category pill */
 .category-tag {
     display: inline-block;
     background: #f0f0f0;
@@ -127,14 +128,14 @@ button:hover {
     border: none;
 }
 
-/* Price */
+/* price */
 .product-price {
     font-size: 17px;
     font-weight: 700;
     color: #2d6a4f;
 }
 
-/* Stock status */
+/* stock status */
 .product-stock {
     font-size: 13px;
     font-weight: 500;
@@ -145,7 +146,7 @@ button:hover {
     color: #c0392b;
 }
 
-/* Delete Button */
+/* delete button */
 .btn-delete {
     width: 100%;
     margin-top: 6px;
@@ -172,7 +173,7 @@ button:hover {
     font-size: 13px;
 }
 
-/* Pagination */
+/* pagination */
 #pagination {
     text-align: center;
     margin-top: 15px;
@@ -195,7 +196,7 @@ button:hover {
     font-weight: bold;
 }
 
-/* Loading Spinner */
+/* loading spinner */
 #loading-state {
     text-align: center;
     padding: 20px;
@@ -213,7 +214,7 @@ button:hover {
     animation: spin 1s linear infinite;
 }
 
-/* Analytics */
+/* analytics */
 #analtyics-section h2 {
     font-size: 14px;
     text-transform: uppercase;
@@ -266,7 +267,7 @@ button:hover {
     color: #dc9f99;   
 }
 
-/* Footer */
+/* footer */
 footer {
     background-color: #1c2f5d;
     width: auto;
