@@ -67,21 +67,31 @@ project-folder/
 └── README.md
 ```
 
-##  How It Works
-1. Products are stored in a JavaScript array.
-2. Filters (search, category, stock) are applied to generate a filtered list.
-3. Sorting is applied to the filtered results.
-4. Pagination limits the number of displayed products.
-5. The DOM is updated dynamically using JavaScript.
-
-
-##  UI Layout
-```
-Header
-Controls Section
-Analytics Sidebar (Left)
-Main Content (Products + Form)
-Footer
+## Output
+### Dashboard UI
+<img width="1909" height="970" alt="ss1_dashboard_view" src="https://github.com/user-attachments/assets/9dc667c8-81eb-4479-bf20-a0e0425a8b17" />
+### Loading spinner
+<img width="1842" height="960" alt="ss19_spinner_loader" src="https://github.com/user-attachments/assets/4bc280c5-bc13-436d-9faf-18a870db5355" />
+### Categories filters
+<img width="1870" height="963" alt="ss2_categories filter" src="https://github.com/user-attachments/assets/5fa34ceb-d9e2-4a4c-8395-832f108c1457" />
+### Recommendaton filter
+<img width="1893" height="948" alt="ss3_recommended_filter" src="https://github.com/user-attachments/assets/c67e7f24-296d-4bf8-aa1a-50c975acaffb" />
+### Out of Stock filter 
+<img width="1915" height="904" alt="ss4_out_of_stock_filter" src="https://github.com/user-attachments/assets/1144e214-b646-42e7-b7e8-c92ab9def35b" />
+### Search bar functionality
+<img width="1846" height="761" alt="ss15_searchbar(example)" src="https://github.com/user-attachments/assets/212126b3-05bf-4148-bb83-465e0cc825d0" />
+### Pagination functionality
+ <img width="1895" height="966" alt="ss20_pagination" src="https://github.com/user-attachments/assets/8c942c40-06c5-4468-a11f-ed75c0f8391a" />
+* Responsive design functionality
+<img width="1905" height="965" alt="ss21_responsive_design" src="https://github.com/user-attachments/assets/86106fae-ee16-4c98-b2ac-6fb9162f8a6a" />
+---
+ 
+##  To run Locally
+* Download or Clone Project:git clone "https://github.com/PrachiVerma26/Assignments/tree/main/prachiverma_frontend/mini_app" 
+* Open Folder:Open in VS Code (or any editor)
+* Check Files: index.html, styles.css, script.js must be in same folder
+* To Run Project:Double click index.html
+* View in Browser
 ```
 ---
 
