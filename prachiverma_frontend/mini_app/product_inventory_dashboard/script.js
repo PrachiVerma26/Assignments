@@ -120,9 +120,15 @@ function deleteProduct(id) {
         if (products[i].id !== id) { newList.push(products[i]); }
     }
     products = newList;
+    saveToStorage();
     renderProducts();
     updateAnalytics(); // when a product is deleted it shoould be reflected
 }
+//save storage function
+function saveToStorage(){
+    localStorage.setItem("products", JSON.stringify(products));
+}
+
 function bindEvents() {
     document.getElementById("search").addEventListener("input",function(e){ //search functionality
         searchQuery=e.target.value.trim();
@@ -153,7 +159,7 @@ function bindEvents() {
     });
     document.getElementById("sort-select").addEventListener("change", function(e){
     sortOption = e.target.value;
-    currentpage=1;
+    currentPage=1;
     renderProducts();
     });
     document.getElementById("product-grid").addEventListener("click", function(e) {
@@ -230,14 +236,13 @@ function handleAddProduct(e) {
     };
 
     products.push(newProduct);
-
+    saveToStorage();
     renderProducts();
     updateAnalytics();
 
     e.target.reset();
 }
-//category filter added
-// ADD this entire function before line 183:
+
 function populateCategoryFilter() {
     let categories = [];
     for (let i = 0; i < products.length; i++) {
@@ -254,16 +259,17 @@ function populateCategoryFilter() {
         select.appendChild(opt);
     }
 }
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", async function() {
+    let saved=localStorage.getItem("products");
+    if(saved) products=JSON.parse(saved);
     populateCategoryFilter();
     renderProducts();
     bindEvents();      // called once, not inside renderProducts
     updateAnalytics();
 
-     document.getElementById("loading-state").style.display = "block";  
-
-    setTimeout(function() {                                              
-        renderProducts();                                                
-        updateAnalytics();                                               
-    }, 2000);                                                            
+    document.getElementById("loading-state").style.display = "block";  
+    await new Promise(function(resolve){setTimeout(resolve,2000);});                                             
+    renderProducts();                                                
+    updateAnalytics();                                               
+                                                           
 });
