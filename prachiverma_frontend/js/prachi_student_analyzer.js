@@ -56,7 +56,7 @@ function calTotalMarks(student){
 }
 console.log("1. total marks for each student : ");
 students.forEach((student)=>{ 
-    totalmarks=calTotalMarks(student);
+    let totalmarks=calTotalMarks(student);
     console.log(student.name + " total marks :"+ totalmarks);
 });
 
@@ -69,7 +69,7 @@ function avgMarks(students){
     }
 }
 console.log("2. Average marks for each student : ");
-avgmarks(students);
+avgMarks(students);
 
 //3. Subject wise highest score in the class
 function subjectHighScore(students){
@@ -88,7 +88,7 @@ function subjectHighScore(students){
                 }
             }
         }
-        console.log("Highest in " + currSub+ " : "+ name +" ( " +highestScore+" ) ");
+        console.log("Highest in " + subject+ " : "+ name +" ( " +highestScore+" ) ");
     }
 }
 console.log("3. highest Score subject wise for each student : ")
