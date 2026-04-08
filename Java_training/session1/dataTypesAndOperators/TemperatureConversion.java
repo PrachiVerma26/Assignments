@@ -17,15 +17,15 @@ public class TemperatureConversion {
         int input= sc.nextInt();
         switch (input){
             case 1: System.out.print("Enter temperature(in Celsius): ");
-                int t1=sc.nextInt();
-                System.out.println("In Fahrenheit: "+ celsiusToFahrenheit(t1));
-                break;
+                    int t1=sc.nextInt();
+                    System.out.println("In Fahrenheit: "+ celsiusToFahrenheit(t1));
+                    break;
             case 2: System.out.print(" Enter temperature(in Fahrenheit): ");
-                int t2=sc.nextInt();
-                System.out.println("In Celsius: "+ fahrenheitToCelsius(t2));
-                break;
+                    int t2=sc.nextInt();
+                    System.out.println("In Celsius: "+ fahrenheitToCelsius(t2));
+                    break;
             default:System.out.println("Invalid choice...Try again!");
-
+                    break;
         }
         sc.close();
     }
