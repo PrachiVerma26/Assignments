@@ -3,7 +3,7 @@ package session1.advance;
 //handled exception using try-catch block
 import java.util.Scanner;
 
-public class Exception{
+public class ExceptionEx{
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         try {
@@ -13,7 +13,7 @@ public class Exception{
             System.out.print("Enter second number: ");
             int b = sc.nextInt();
 
-            int result = a / b; // 
+            int result = a / b; // division operation
 
             System.out.println("Result: " + result);
 
@@ -23,7 +23,9 @@ public class Exception{
         } catch (Exception e) {
             System.out.println("Invalid input! Please enter numbers only.");
         }
-
+        finally {
+            System.out.println("Execution completed.");
+        }
         System.out.println("Program continues...");
         sc.close();
     }
