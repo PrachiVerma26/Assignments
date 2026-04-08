@@ -30,10 +30,10 @@ class OrderTask implements Runnable {
 public class MultiThreading{
 
     public static void main(String[] args) {
-        // Create a pool with 3 threads
+        // Create a pool with 2 threads
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
-        // Submit 6 tasks
+        // Submit 4 tasks
         for (int i = 1; i <= 4; i++) {
             executor.execute(new OrderTask(i));
         }
