@@ -1,5 +1,4 @@
 package session1.dataTypesAndOperators;
-
 import java.util.Scanner;
 
 public class TemperatureConversion {
