@@ -1,0 +1,2 @@
+Welcome to Java File Handling
+This is a test file
