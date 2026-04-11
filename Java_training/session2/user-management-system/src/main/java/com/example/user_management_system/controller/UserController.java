@@ -4,9 +4,7 @@ import com.example.user_management_system.dto.UserRequestDTO;
 import com.example.user_management_system.dto.UserResponseDTO;
 import com.example.user_management_system.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,8 +19,16 @@ public class UserController {
     }
 
     // get all users
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getAllUsers(){
         return ResponseEntity.ok(userService.getAllUsers());
     }
+
+    // add new user
+    @PostMapping
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO requestDTO){
+        UserResponseDTO createdUser=userService.createUser(requestDTO);
+        return ResponseEntity.status(201).body(createdUser);
+    }
+
 }

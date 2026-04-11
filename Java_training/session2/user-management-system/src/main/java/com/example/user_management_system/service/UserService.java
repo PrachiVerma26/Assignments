@@ -1,5 +1,6 @@
 package com.example.user_management_system.service;
 
+import com.example.user_management_system.dto.UserRequestDTO;
 import com.example.user_management_system.dto.UserResponseDTO;
 import com.example.user_management_system.entity.User;
 import com.example.user_management_system.repository.UserRepository;
@@ -19,13 +20,28 @@ public class UserService {
     public List<UserResponseDTO> getAllUsers(){
         return userRepository.findAll()
                 .stream()
-                .map(this::convertToDTO)
+                .map(this::convertToResponseDTO)
                 .toList();
     }
-    private UserResponseDTO convertToDTO(User user){
+    private UserResponseDTO convertToResponseDTO(User user){
         return new UserResponseDTO(
+            user.getId(),
             user.getName(),
             user.getEmail()
         );
         }
+
+    public UserResponseDTO createUser(UserRequestDTO requestDTO) {
+        User user=convertToEntity(requestDTO);
+        User savedUser=userRepository.save(user);
+        return convertToResponseDTO(savedUser);
+    }
+    private User convertToEntity(UserRequestDTO dto){
+        User user=new User();
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setPhoneNo(dto.getPhoneNo());
+        user.setAddress(dto.getAddress());
+        return user;
+    }
 }
