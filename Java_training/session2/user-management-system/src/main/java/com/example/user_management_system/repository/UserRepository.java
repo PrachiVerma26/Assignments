@@ -5,5 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    //checking the email already exists or not
     boolean existsByEmail(String email);
 }

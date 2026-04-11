@@ -10,11 +10,9 @@ public class UserResponseDTO {
         this.name=name;
         this.email=email;
     }
-    //getters
 
-    public long getId() {
-        return id;
-    }
+    //getters
+    public long getId() {return id;}
     public String getName() {
         return name;
     }
@@ -23,7 +21,6 @@ public class UserResponseDTO {
     }
 
     //setters
-
     public void setId(long id) {
         this.id = id;
     }

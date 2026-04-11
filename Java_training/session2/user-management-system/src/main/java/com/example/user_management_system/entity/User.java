@@ -27,46 +27,30 @@ public class User {
         this.address=address;
     }
     //getters
-
     public Long getId() {
         return id;
     }
-
-    public String getName() {
-        return name;
-    }
-
+    public String getName() {return name;}
     public String getEmail() {
         return email;
     }
-
     public String getPhoneNo() {
         return phoneNo;
     }
-
     public String getAddress() {
         return address;
     }
 
     //setters
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
+    public void setId(Long id) {this.id = id;}
     public void setName(String name) {
         this.name = name;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
-
     public void setPhoneNo(String phoneNo) {
         this.phoneNo = phoneNo;
     }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
+    public void setAddress(String address) {this.address = address;}
 }

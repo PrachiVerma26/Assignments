@@ -20,7 +20,6 @@ public class UserRequestDTO {
     public String getPhoneNo() {
         return phoneNo;
     }
-
     public String getAddress() {
         return address;
     }
@@ -29,15 +28,12 @@ public class UserRequestDTO {
     public void setName(String name) {
         this.name = name;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
-
     public void setPhoneNo(String phoneNo) {
         this.phoneNo = phoneNo;
     }
-
     public void setAddress(String address) {
         this.address = address;
     }
