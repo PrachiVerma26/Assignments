@@ -16,7 +16,10 @@ public class User {
     private String address;
 
     //default constructor
-    User(Long Id, String name, String email, String phoneNo, String address){
+    public User(){
+    }
+
+    public User(Long Id, String name, String email, String phoneNo, String address){
         this.id=id;
         this.name=name;
         this.email=email;
@@ -24,7 +27,6 @@ public class User {
         this.address=address;
     }
     //getters
-
 
     public Long getId() {
         return id;
