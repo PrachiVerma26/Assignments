@@ -1,7 +1,6 @@
 package com.example.user_management_system.service;
 
 import com.example.user_management_system.component.NotificationComponent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
