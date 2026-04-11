@@ -1,4 +1,8 @@
 package com.example.user_management_system.exception;
 
-public class InvalidMessageTypeException {
+//custom exception for handling invalid message exception
+public class InvalidMessageTypeException extends RuntimeException{
+    public InvalidMessageTypeException(String message){
+        super(message);
+    }
 }

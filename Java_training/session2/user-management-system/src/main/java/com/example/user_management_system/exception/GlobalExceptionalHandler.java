@@ -15,14 +15,18 @@ public class GlobalExceptionalHandler {
 
     //handle validation exceptions
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationException(
+    public ResponseEntity<Map<String, Object>> handleValidationException(
             MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors()
                 .forEach(error ->
                         errors.put(error.getField(), error.getDefaultMessage())
                 );
-        return ResponseEntity.badRequest().body(errors);
+        Map<String, Object> response= new HashMap<>();
+        response.put("status",HttpStatus.BAD_REQUEST.value()); // it will return 400 status code
+        response.put("timestamp", LocalDateTime.now());
+        response.put("errors", errors);
+        return ResponseEntity.badRequest().body(response);
     }
 
     //handle user not found exception
@@ -38,13 +42,35 @@ public class GlobalExceptionalHandler {
 
     //user already exists
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleUserExists(UserAlreadyExistsException ex) {
+    public ResponseEntity<Map<String, Object>> handleUserExists(UserAlreadyExistsException e) {
 
         Map<String, Object> response = new HashMap<>();
-        response.put("message", ex.getMessage());
+        response.put("message", e.getMessage());
         response.put("status", HttpStatus.CONFLICT.value());
         response.put("timestamp", LocalDateTime.now());
 
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    // handle invalid message exception
+    @ExceptionHandler(InvalidMessageTypeException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidMessageType(InvalidMessageTypeException e){
+        Map <String, Object> response=new HashMap<>();
+        response.put("message",e.getMessage());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    // handle invalid user input (manual validation)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException e) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", e.getMessage());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }
