@@ -31,4 +31,10 @@ public class UserController {
         return ResponseEntity.status(201).body(createdUser);
     }
 
+    // get specific user by it's Id
+    @GetMapping("/{id}")
+    public UserResponseDTO getUserById(@PathVariable Long id){
+        return userService.getUserById(id);
+    }
+
 }
