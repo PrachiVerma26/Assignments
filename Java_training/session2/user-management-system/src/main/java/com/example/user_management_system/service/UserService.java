@@ -4,6 +4,7 @@ import com.example.user_management_system.component.UserValidation;
 import com.example.user_management_system.dto.UserRequestDTO;
 import com.example.user_management_system.dto.UserResponseDTO;
 import com.example.user_management_system.entity.User;
+import com.example.user_management_system.exception.UserNotFoundException;
 import com.example.user_management_system.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -57,7 +58,7 @@ public class UserService {
 
     public UserResponseDTO getUserById(Long id) {
         User user= userRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("User not found"));
+                .orElseThrow(()-> new UserNotFoundException("User not found"));
         return convertToResponseDTO(user);
     }
 }
