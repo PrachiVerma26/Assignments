@@ -9,6 +9,8 @@ public class UserRequestDTO {
     public UserRequestDTO(String name, String email,String phoneNo, String address){
         this.name=name;
         this.email=email;
+        this.phoneNo=phoneNo;
+        this.address=address;
     }
     //getters
     public String getName() {
