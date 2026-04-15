@@ -1,0 +1,45 @@
+package com.example.usermanagement.v2.controller;
+
+import com.example.usermanagement.v2.dto.UserRequestDTO;
+import com.example.usermanagement.v2.dto.UserResponseDTO;
+import com.example.usermanagement.v2.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/users")
+public class UserController {
+
+    private final UserService userService;
+
+    //constructor injection
+    public UserController(UserService userService){
+        this.userService=userService;
+    }
+
+    //create user
+    @PostMapping
+    public ResponseEntity<UserResponseDTO> createUser(
+            @RequestBody UserRequestDTO request) {
+        UserResponseDTO response = userService.createUser(request);
+
+        // return response with HTTP 201 (Created) status after successfully creating a new user
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    //search endpoint
+    @GetMapping("/search")
+    public ResponseEntity<List<UserResponseDTO>> search(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String role,
+            @RequestParam(required = false) Integer age) {
+
+        //fetch filtered users from service and return response with HTTP 200 (OK)
+        return ResponseEntity.ok(userService.searchUsers(name,role,age));
+    }
+
+
+}
