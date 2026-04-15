@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class UserRequestDTO {
 
     private String name;
-    private int age;
+    private Integer age;
     private String role;
 }

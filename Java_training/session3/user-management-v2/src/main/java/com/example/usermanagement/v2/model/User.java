@@ -1,48 +1,22 @@
 package com.example.usermanagement.v2.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data // generates getter, setter, equals, hashcode and to-string method.
+@AllArgsConstructor // it will generate a all argument constructor
+@NoArgsConstructor  // it will generate no argument constructor
 public class User {
+
     private Long id;
     private String name;
-    private int age;
+    private Integer age;
     private String role;
 
-    //default-constructor
-    User(){
-    }
-
-    //all-arguments-constructor
-    User(Long id, String name, int age, String role){
-        this.id=id;
+    public User(String name,String role, Integer age){
         this.name=name;
-        this.age=age;
         this.role=role;
-    }
-
-    //getters
-    public Long getId() {
-        return id;
-    }
-    public String getName() {
-        return name;
-    }
-    public int getAge() {
-        return age;
-    }
-    public String getRole() {
-        return role;
-    }
-
-    //setters
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public void setAge(int age) {
-        this.age = age;
-    }
-    public void setRole(String role) {
-        this.role = role;
+        this.age=age;
     }
 }
