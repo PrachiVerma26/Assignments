@@ -6,6 +6,7 @@ public class UserRequestDTO {
     private String phoneNo;
     private String address;
 
+    //constructor
     public UserRequestDTO(String name, String email,String phoneNo, String address){
         this.name=name;
         this.email=email;

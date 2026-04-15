@@ -16,25 +16,29 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserValidation userValidation;
 
+    //constructor injection
     public UserService(UserRepository userRepository, UserValidation userValidation){
         this.userRepository=userRepository;
         this.userValidation=userValidation;
     }
 
+    //get all user method
     public List<UserResponseDTO> getAllUsers(){
         return userRepository.findAll()
                 .stream()
                 .map(this::convertToResponseDTO)
                 .toList();
     }
+    // maps user entity to user response dto
     private UserResponseDTO convertToResponseDTO(User user){
         return new UserResponseDTO(
             user.getId(),
             user.getName(),
             user.getEmail()
         );
-        }
+    }
 
+    //create new user
     public UserResponseDTO createUser(UserRequestDTO requestDTO) {
         // added user validation component
         userValidation.validate(requestDTO);
@@ -47,6 +51,8 @@ public class UserService {
         User savedUser=userRepository.save(user);
         return convertToResponseDTO(savedUser);
     }
+
+    //maps fields from user request dto to user entity
     private User convertToEntity(UserRequestDTO dto){
         User user=new User();
         user.setName(dto.getName());
@@ -56,6 +62,7 @@ public class UserService {
         return user;
     }
 
+    //get user by its id
     public UserResponseDTO getUserById(Long id) {
         User user= userRepository.findById(id)
                 .orElseThrow(()-> new UserNotFoundException("User not found"));

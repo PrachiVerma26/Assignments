@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestControllerAdvice
+@RestControllerAdvice // handles all the custom and existing exception centrally
 public class GlobalExceptionalHandler {
 
     //handle validation exceptions
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class) // Handles specific exceptions and returns a custom HTTP response
     public ResponseEntity<Map<String, Object>> handleValidationException(
             MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -34,7 +34,7 @@ public class GlobalExceptionalHandler {
     public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException e){
         Map<String, Object> response = new HashMap<>();
         response.put("message", e.getMessage());
-        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("status", HttpStatus.NOT_FOUND.value()); //it will return 404 status code
         response.put("timestamp", LocalDateTime.now());
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -46,7 +46,7 @@ public class GlobalExceptionalHandler {
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", e.getMessage());
-        response.put("status", HttpStatus.CONFLICT.value());
+        response.put("status", HttpStatus.CONFLICT.value()); // it will return 409 status code(means request is valid but the user is already existed).
         response.put("timestamp", LocalDateTime.now());
 
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
@@ -57,7 +57,7 @@ public class GlobalExceptionalHandler {
     public ResponseEntity<Map<String, Object>> handleInvalidMessageType(InvalidMessageTypeException e){
         Map <String, Object> response=new HashMap<>();
         response.put("message",e.getMessage());
-        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("status", HttpStatus.BAD_REQUEST.value()); // it will return 404 status code
         response.put("timestamp", LocalDateTime.now());
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -68,7 +68,7 @@ public class GlobalExceptionalHandler {
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException e) {
         Map<String, Object> response = new HashMap<>();
         response.put("message", e.getMessage());
-        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("status", HttpStatus.BAD_REQUEST.value()); // it will return 404 status code
         response.put("timestamp", LocalDateTime.now());
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);

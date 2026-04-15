@@ -8,6 +8,7 @@ public class NotificationService {
 
     private final NotificationComponent notificationComponent;
 
+    //constructor injection
     public NotificationService(NotificationComponent notificationComponent){
         this.notificationComponent=notificationComponent;
     }

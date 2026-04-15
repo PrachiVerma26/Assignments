@@ -10,10 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class NotificationController {
 
     private final NotificationService notificationService;
+
+    //constructor injection
     NotificationController(NotificationService notificationService){
         this.notificationService=notificationService;
     }
 
+    //endpoint to trigger notification
     @PostMapping("/trigger")
     public String triggerNotification() {
         return notificationService.triggerNotification();

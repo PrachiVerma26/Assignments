@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class MessageController {
     private final MessageService messageService;
 
+    //constructor injection
     public MessageController(MessageService messageService) {
         this.messageService=messageService;
     }
 
+    //endpoint to retrieve formatted message
     @GetMapping
     public String getMessage(@RequestParam String type){
         return messageService.getMessage(type);

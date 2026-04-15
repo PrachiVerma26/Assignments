@@ -5,6 +5,7 @@ public class UserResponseDTO {
     private String name;
     private String email;
 
+    //constructor
     public UserResponseDTO(Long id, String name, String email){
         this.id=id;
         this.name=name;
