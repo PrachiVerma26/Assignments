@@ -50,4 +50,16 @@ public class UserController {
         return ResponseEntity.status(201).body(createdUser);
     }
 
+    // deletes user only when confirmation is true
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteUser(
+            @PathVariable Long id,
+            @RequestParam(required = false) Boolean confirm) {
+
+        userService.deleteUser(id, confirm);
+
+        // returns 200 OK with confirmation message after successful deletion
+        return ResponseEntity.ok("User deleted successfully");
+    }
+
 }
