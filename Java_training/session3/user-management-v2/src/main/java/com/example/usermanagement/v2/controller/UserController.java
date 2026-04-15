@@ -41,5 +41,13 @@ public class UserController {
         return ResponseEntity.ok(userService.searchUsers(name,role,age));
     }
 
+    //submit endpoint
+    @PostMapping("/submit")
+    public ResponseEntity<UserResponseDTO> submit(@RequestBody UserRequestDTO requestDTO){
+        UserResponseDTO createdUser=userService.createUser(requestDTO);
+
+        // returns 201 created with the newly created user details
+        return ResponseEntity.status(201).body(createdUser);
+    }
 
 }

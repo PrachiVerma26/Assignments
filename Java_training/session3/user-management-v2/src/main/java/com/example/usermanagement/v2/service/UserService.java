@@ -18,14 +18,40 @@ public class UserService {
     }
 
     //create new user
-    public UserResponseDTO createUser(UserRequestDTO request) {
+    public UserResponseDTO createUser(UserRequestDTO requestDTO) {
+
+        // validate request data
+        validateUserRequest(requestDTO);
+
+        // convert request DTO to User entity
         User user=new User(
-        request.getName(),
-        request.getRole(),
-        request.getAge()
+        requestDTO.getName(),
+        requestDTO.getRole(),
+        requestDTO.getAge()
         );
         User savedUser=userRepository.save(user);
-        return toResponse(savedUser); // convert saved user entity into response DTO and return it
+
+        // convert saved entity to response dto
+        return toResponse(savedUser);
+    }
+
+    // validates user input fields for null or empty values
+    private void validateUserRequest(UserRequestDTO requestDTO) {
+
+        // check if name is missing or blank
+        if (requestDTO.getName() == null || requestDTO.getName().isBlank()) {
+            throw new IllegalArgumentException("Name is required");
+        }
+
+        // check if role is missing or blank
+        if (requestDTO.getRole() == null || requestDTO.getRole().isBlank()) {
+            throw new IllegalArgumentException("Role is required");
+        }
+
+        // check if age is missing
+        if (requestDTO.getAge() == null) {
+            throw new IllegalArgumentException("Age is required");
+        }
     }
     //search user with params
     public List<UserResponseDTO> searchUsers(String name, String role, Integer age){
