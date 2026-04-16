@@ -31,6 +31,14 @@ public class Todo {
     //no-argument constructor
     public Todo(){}
 
+    //all-argument constructor
+    public Todo(String title, String description, Status status, LocalDateTime createdAt){
+        this.title=title;
+        this.description=description;
+        this.status=status;
+        this.createdAt=createdAt;
+    }
+
     //getters
     public Long getId() {return id;}
     public String getTitle() {return title;}
