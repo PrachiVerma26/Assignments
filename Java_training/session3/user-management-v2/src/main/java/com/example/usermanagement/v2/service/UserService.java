@@ -66,7 +66,7 @@ public class UserService {
         }
         //
         if(!userRepository.deleteById(id)){
-            throw new UserNotFoundException("User not ")
+            throw new UserNotFoundException("User not found");
         }
 
         // Try deleting
