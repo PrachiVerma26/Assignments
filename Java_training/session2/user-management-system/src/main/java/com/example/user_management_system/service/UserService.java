@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+@Service // marks this class as a service layer component
 public class UserService {
 
     private final UserRepository userRepository;
@@ -29,16 +29,8 @@ public class UserService {
                 .map(this::convertToResponseDTO)
                 .toList();
     }
-    // maps user entity to user response dto
-    private UserResponseDTO convertToResponseDTO(User user){
-        return new UserResponseDTO(
-            user.getId(),
-            user.getName(),
-            user.getEmail()
-        );
-    }
 
-    //create new user
+    //create new user: validates input, checks for duplicate emails and saves user 
     public UserResponseDTO createUser(UserRequestDTO requestDTO) {
         // added user validation component
         userValidation.validate(requestDTO);
@@ -52,6 +44,22 @@ public class UserService {
         return convertToResponseDTO(savedUser);
     }
 
+    //find user by id, throws user not found Exception if not found
+    public UserResponseDTO getUserById(Long id) {
+        User user= userRepository.findById(id)
+                .orElseThrow(()-> new UserNotFoundException("User not found"));
+        return convertToResponseDTO(user);
+    }
+
+    // maps user entity to user response dto
+    private UserResponseDTO convertToResponseDTO(User user){
+        return new UserResponseDTO(
+            user.getId(),
+            user.getName(),
+            user.getEmail()
+        );
+    }
+
     //maps fields from user request dto to user entity
     private User convertToEntity(UserRequestDTO dto){
         User user=new User();
@@ -60,12 +68,5 @@ public class UserService {
         user.setPhoneNo(dto.getPhoneNo());
         user.setAddress(dto.getAddress());
         return user;
-    }
-
-    //get user by its id
-    public UserResponseDTO getUserById(Long id) {
-        User user= userRepository.findById(id)
-                .orElseThrow(()-> new UserNotFoundException("User not found"));
-        return convertToResponseDTO(user);
     }
 }
