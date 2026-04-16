@@ -57,7 +57,7 @@ public class GlobalExceptionalHandler {
     public ResponseEntity<Map<String, Object>> handleInvalidMessageType(InvalidMessageTypeException e){
         Map <String, Object> response=new HashMap<>();
         response.put("message",e.getMessage());
-        response.put("status", HttpStatus.BAD_REQUEST.value()); // it will return 404 status code
+        response.put("status", HttpStatus.BAD_REQUEST.value()); // it will return 400 status code
         response.put("timestamp", LocalDateTime.now());
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
