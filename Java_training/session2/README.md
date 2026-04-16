@@ -1,7 +1,7 @@
 # User Management System — Spring Boot
 
 A Spring Boot REST API project demonstrating core Spring concepts including IoC, Dependency Injection,
-Layered Architecture, Validation, and Exception Handling using an H2 in-memory database.
+Layered Architecture, Validation, and Exception Handling using an in-memory data store.
 
 ---
 
@@ -9,7 +9,7 @@ Layered Architecture, Validation, and Exception Handling using an H2 in-memory d
 * Java - 17 
 * Framework - Spring Boot(version - 3.2.5)
 * Build Tool - Maven
-* Data Storage - H2 Database( In-memory )
+* Data Storage - In-memory(HashMap)
 
 ---
 
@@ -39,8 +39,8 @@ src/main/java/com/example/user_management_system/
 ├── component/
 │   ├── UserValidator.java                  
 │   ├── NotificationComponent.java  
-    ├── formatter/
-        ├── MessageType.java
+│   ├── formatter/
+│       ├── MessageType.java
 │       ├── MessageFormatter.java                
 │       ├── ShortMessageFormatter.java           
 │       └── LongMessageFormatter.java            
@@ -83,29 +83,13 @@ src/main/resources/
 git clone https://github.com/PrachiVerma/Assignments/java_training.git
 
 # Navigate to project folder
-cd java_training/java/session2
+cd java_training/session2/user-management-system
 
 # Run the application
 mvn spring-boot:run
 ```
 
 App starts at: `http://localhost:8080`
-
-H2 Console at: `http://localhost:8080/h2-console`
-- JDBC URL: `jdbc:h2:mem:testdb`
-
----
-
-## Application Properties
-
-```properties
-spring.application.name=user-management-system
-server.port=8080
-
-# H2 in-memory database
-spring.datasource.url=jdbc:h2:mem:testdb
-
-Note: Data resets on every restart, that it is is not persited.
 
 ```
 ---
@@ -124,12 +108,12 @@ Note: Data resets on every restart, that it is is not persited.
 
 ### 3. Dynamic Message Formatter System
 
-* GET ` http://localhost:8080/message?type=SHORT` - returns concise message
-* GET ` http://localhost:8080/message?type=LONG`  - returns detailed message
+* GET ` http://localhost:8080/message?type=SHORT` - returns a concise message
+* GET ` http://localhost:8080/message?type=LONG`  - returns a detailed message
 
 ## Validation 
 * Format Validation - UserValidation
-* Business Validation - UserService(After format check passm the service check whether the email is already restered in the database using `userRepostiory.existsByEmail()'.
+* Business Validation - UserService(After format check passm the service check whether the email is already restered in the database using `userRepostiory.existsByEmail()').
 
 ## Exceptional Handling
 * GlobalExceptionHandler - handles all exceptions centrally.
@@ -137,7 +121,7 @@ Note: Data resets on every restart, that it is is not persited.
 * UserAlreadyExistedException - If the user tries to register an already existed in the database.
 * UserNotFoundException - When user Id is not found in the database.
 
-##Layered Architecture
+## Layered Architecture
 
 ```
 Controller: accepts HTTP request, delegates to service, returns ResponseEntity
