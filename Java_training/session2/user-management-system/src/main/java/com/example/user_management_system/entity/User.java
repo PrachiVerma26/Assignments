@@ -1,12 +1,7 @@
 package com.example.user_management_system.entity;
-import jakarta.persistence.*;
 
-@Entity
-@Table(name="users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // it will auto-increment to generate primary key values
     private Long id;
     private String name;
     private String email;
@@ -17,6 +12,7 @@ public class User {
     public User(){
     }
 
+    //all argument constructor
     public User(Long Id, String name, String email, String phoneNo, String address){
         this.id=Id;
         this.name=name;
