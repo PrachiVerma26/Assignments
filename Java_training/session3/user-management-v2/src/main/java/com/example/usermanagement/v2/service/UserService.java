@@ -2,6 +2,7 @@ package com.example.usermanagement.v2.service;
 
 import com.example.usermanagement.v2.dto.UserRequestDTO;
 import com.example.usermanagement.v2.dto.UserResponseDTO;
+import com.example.usermanagement.v2.exception.UserNotFoundException;
 import com.example.usermanagement.v2.model.User;
 import com.example.usermanagement.v2.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -63,13 +64,17 @@ public class UserService {
         if (confirm == null || !confirm) {
             throw new IllegalArgumentException("Confirmation required");
         }
+        //
+        if(!userRepository.deleteById(id)){
+            throw new UserNotFoundException("User not ")
+        }
 
         // Try deleting
         boolean deleted = userRepository.deleteById(id);
 
         // Handle not found
         if (!deleted) {
-            throw new IllegalArgumentException("User not found");
+            throw new IllegalArgumentException("User with id "+ id+ " not found");
         }
     }
 
