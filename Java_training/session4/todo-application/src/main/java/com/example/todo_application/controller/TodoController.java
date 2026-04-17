@@ -6,10 +6,9 @@ import com.example.todo_application.service.TodoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController // marks this class as a REST controller to handle HTTP requests and return JSON responses
 @RequestMapping("/todos") // base URL mapping for all Todo-related endpoints
@@ -30,6 +29,22 @@ public class TodoController {
 
         //return 201 CREATED after successful Todo creation
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // handles HTTP GET requests to fetch all Todo's
+    @GetMapping()
+    public ResponseEntity<List<TodoResponseDTO>> getAllTodos(){
+
+        //return ResponseEntity containing a list of TodoResponseDTO with HTTP 200 OK status
+        return ResponseEntity.ok(todoService.getAllTodos());
+    }
+
+    // get specific todo by its ID with HTTP 200 OK status
+    @GetMapping("/{id}")
+    public ResponseEntity<TodoResponseDTO> getUserById(@PathVariable Long id){
+
+        //return ResponseEntity containing TodoResponseDTO with HTTP 200 OK status
+        return ResponseEntity.ok(todoService.getTodoById(id));
     }
 
 }

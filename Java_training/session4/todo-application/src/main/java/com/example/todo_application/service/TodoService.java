@@ -7,6 +7,8 @@ import com.example.todo_application.repository.TodoRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service  // marks this class as a service layer component containing business logic
 public class TodoService {
@@ -26,6 +28,21 @@ public class TodoService {
 
         // Convert saved entity to response DTO
         return toResponse(savedTodo);
+    }
+
+    // fetches all Todo items from the database and converts them to response DTOs
+    public List<TodoResponseDTO> getAllTodos(){
+        return todoRepository.findAll()  // fetch all Todo entities from database
+                .stream()                 // convert list to stream for functional processing
+                .map(this::toResponse)    // transform each Todo entity to TodoResponseDTO
+                .toList();                // collect results back into a list
+    }
+
+    //fetches a Todo item by its unique ID from the database
+    public TodoResponseDTO getTodoById(Long id) {
+        Todo todo= todoRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Todo not found with id: " + id)); //throw exception if not found
+        return toResponse(todo); //convert entity to dto
     }
 
     //mapping request-dto to todo entity and also sets the created timestamp
@@ -48,4 +65,5 @@ public class TodoService {
                 todo.getCreatedAt()
         );
     }
+
 }
