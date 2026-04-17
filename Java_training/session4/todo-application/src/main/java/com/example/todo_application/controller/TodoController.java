@@ -59,5 +59,12 @@ public class TodoController {
         return ResponseEntity.ok(response);
     }
 
+    //deletes the Todo task by its Id
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTodo(@PathVariable Long id){
+        todoService.deleteTodoById(id);
 
+        // returns 204 no-content status after successful deletion
+        return ResponseEntity.noContent().build();
+    }
 }

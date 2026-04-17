@@ -66,6 +66,17 @@ public class TodoService {
 
     }
 
+    //deletes a Todo item from the database by its Id
+    public void deleteTodoById(Long id){
+
+        // Check if Todo exists or not
+        if (!todoRepository.existsById(id)) {
+            throw new RuntimeException("Todo not found with id: " + id); //throws RuntimeException if no Todo exists with the given Id
+        }
+        // Delete Todo from database
+        todoRepository.deleteById(id);
+    }
+
     //mapping request-dto to todo entity and also sets the created timestamp
     private Todo toEntity(TodoRequestDTO requestDTO){
         Todo todo=new Todo();
