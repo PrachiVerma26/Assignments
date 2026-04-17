@@ -4,6 +4,7 @@ import com.example.todo_application.dto.TodoRequestDTO;
 import com.example.todo_application.dto.TodoResponseDTO;
 import com.example.todo_application.model.Todo;
 import com.example.todo_application.repository.TodoRepository;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -43,6 +44,26 @@ public class TodoService {
         Todo todo= todoRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Todo not found with id: " + id)); //throw exception if not found
         return toResponse(todo); //convert entity to dto
+    }
+
+    //* Updates an existing Todo item with new data
+    public TodoResponseDTO updateTodoById(Long id, @Valid TodoRequestDTO requestDTO) {
+
+        // fetch existing Todo from database or throw exception if not found
+        Todo existingTodo = todoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Todo not found with id: " + id)); // NoSuchElementException if no Todo exists with the given ID
+
+        // replace all fields with new values
+        existingTodo.setTitle(requestDTO.getTitle());
+        existingTodo.setDescription(requestDTO.getDescription());
+        existingTodo.setStatus(requestDTO.getStatus());
+
+        // persist updated Todo to database
+        Todo updated = todoRepository.save(existingTodo);
+
+        // convert updated entity to response DTO
+        return toResponse(updated);
+
     }
 
     //mapping request-dto to todo entity and also sets the created timestamp

@@ -39,12 +39,25 @@ public class TodoController {
         return ResponseEntity.ok(todoService.getAllTodos());
     }
 
-    // get specific todo by its ID with HTTP 200 OK status
+    // get specific todo by its Id with HTTP 200 OK status
     @GetMapping("/{id}")
     public ResponseEntity<TodoResponseDTO> getUserById(@PathVariable Long id){
 
         //return ResponseEntity containing TodoResponseDTO with HTTP 200 OK status
         return ResponseEntity.ok(todoService.getTodoById(id));
     }
+
+    // updates an existing Todo task by its Id
+    @PutMapping("/{id}")
+    public ResponseEntity<TodoResponseDTO> updateTodoById(
+            @PathVariable Long id,
+            @Valid @RequestBody TodoRequestDTO requestDTO){ //requestDTO - the DTO containing updated Todo data
+
+        TodoResponseDTO response= todoService.updateTodoById(id,requestDTO);
+
+        // Return updated Todo with HTTP 200 OK status
+        return ResponseEntity.ok(response);
+    }
+
 
 }
