@@ -3,12 +3,13 @@ package com.example.todo_application.service;
 import com.example.todo_application.dto.TodoRequestDTO;
 import com.example.todo_application.dto.TodoResponseDTO;
 import com.example.todo_application.enums.Status;
+import com.example.todo_application.exception.InvalidStatusTransitionException;
+import com.example.todo_application.exception.TodoNotFoundException;
 import com.example.todo_application.model.Todo;
 import com.example.todo_application.repository.TodoRepository;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service  // marks this class as a service layer component containing business logic
 public class TodoService {
@@ -41,7 +42,7 @@ public class TodoService {
     //fetches a Todo item by its unique ID from the database
     public TodoResponseDTO getTodoById(Long id) {
         Todo todo= todoRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Todo not found with id: " + id)); //throw exception if not found
+                .orElseThrow(() -> new TodoNotFoundException("Todo not found with id: " + id)); //throw exception if not found
         return toResponse(todo); //convert entity to dto
     }
 
@@ -50,7 +51,7 @@ public class TodoService {
 
         // fetch existing Todo from database or throw exception if not found
         Todo existingTodo = todoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Todo not found with id: " + id)); // NoSuchElementException if no Todo exists with the given ID
+                .orElseThrow(() -> new TodoNotFoundException("Todo not found with id: " + id)); // TodoNotFoundException if no Todo exists with the given Id
 
         //status transition validation
         Status existingStatus=existingTodo.getStatus();
@@ -63,7 +64,7 @@ public class TodoService {
                             (existingStatus == Status.COMPLETED && currentStatus == Status.PENDING);
 
             if(!isValidTransition){
-                throw new RuntimeException(" Invalid status transition from " + existingStatus + " to "+ currentStatus);
+                throw new InvalidStatusTransitionException(" Invalid status transition from " + existingStatus + " to "+ currentStatus);
             }
         }
         // note: if status unchanged (existingStatus == currentStatus), skip validation and proceed with update
@@ -86,7 +87,7 @@ public class TodoService {
 
         // Check if Todo exists or not
         if (!todoRepository.existsById(id)) {
-            throw new RuntimeException("Todo not found with id: " + id); //throws RuntimeException if no Todo exists with the given Id
+            throw new TodoNotFoundException("Todo not found with id: " + id); //throws TodoNotFoundException if no Todo exists with the given Id
         }
         // Delete Todo from database
         todoRepository.deleteById(id);
