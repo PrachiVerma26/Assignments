@@ -2,11 +2,10 @@ package com.example.todo_application.service;
 
 import com.example.todo_application.dto.TodoRequestDTO;
 import com.example.todo_application.dto.TodoResponseDTO;
+import com.example.todo_application.enums.Status;
 import com.example.todo_application.model.Todo;
 import com.example.todo_application.repository.TodoRepository;
-import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -47,11 +46,27 @@ public class TodoService {
     }
 
     //* Updates an existing Todo item with new data
-    public TodoResponseDTO updateTodoById(Long id, @Valid TodoRequestDTO requestDTO) {
+    public TodoResponseDTO updateTodoById(Long id, TodoRequestDTO requestDTO) {
 
         // fetch existing Todo from database or throw exception if not found
         Todo existingTodo = todoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Todo not found with id: " + id)); // NoSuchElementException if no Todo exists with the given ID
+
+        //status transition validation
+        Status existingStatus=existingTodo.getStatus();
+        Status currentStatus=requestDTO.getStatus();
+
+        //validates if status is actually changing
+        if(existingStatus !=currentStatus){
+            boolean isValidTransition =
+                    (existingStatus == Status.PENDING && currentStatus == Status.COMPLETED) ||
+                            (existingStatus == Status.COMPLETED && currentStatus == Status.PENDING);
+
+            if(!isValidTransition){
+                throw new RuntimeException(" Invalid status transition from " + existingStatus + " to "+ currentStatus);
+            }
+        }
+        // note: if status unchanged (existingStatus == currentStatus), skip validation and proceed with update
 
         // replace all fields with new values
         existingTodo.setTitle(requestDTO.getTitle());
