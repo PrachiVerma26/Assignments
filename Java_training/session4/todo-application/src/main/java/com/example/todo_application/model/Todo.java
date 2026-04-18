@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity // indicates that this class is a persistent entity
-@Table(name="Todo")
+@Table(name= "todo")
 public class Todo {
 
     @Id //acts as the primary key in db
