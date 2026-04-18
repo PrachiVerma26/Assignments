@@ -15,6 +15,7 @@ public class GlobalExceptionalHandler {
     }
 
     //handles invalid state transition exception
+    @ExceptionHandler(InvalidStatusTransitionException.class)
     public ResponseEntity<String> handleInvalidStatusTransition(InvalidStatusTransitionException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }

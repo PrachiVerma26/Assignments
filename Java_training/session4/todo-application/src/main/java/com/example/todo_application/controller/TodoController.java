@@ -41,7 +41,7 @@ public class TodoController {
 
     // get specific todo by its Id with HTTP 200 OK status
     @GetMapping("/{id}")
-    public ResponseEntity<TodoResponseDTO> getUserById(@PathVariable Long id){
+    public ResponseEntity<TodoResponseDTO> getTodoById(@PathVariable Long id){
 
         //return ResponseEntity containing TodoResponseDTO with HTTP 200 OK status
         return ResponseEntity.ok(todoService.getTodoById(id));
@@ -61,7 +61,7 @@ public class TodoController {
 
     //deletes the Todo task by its Id
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTodo(@PathVariable Long id){
+    public ResponseEntity<Void> deleteTodoById(@PathVariable Long id){
         todoService.deleteTodoById(id);
 
         // returns 204 no-content status after successful deletion
