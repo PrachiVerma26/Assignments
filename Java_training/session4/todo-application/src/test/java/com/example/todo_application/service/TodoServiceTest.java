@@ -64,4 +64,27 @@ class TodoServiceTest {
         // verify: notification was triggered once
         verify(notificationClient, times(1)).sendNotification("Todo title");
     }
+
+    // Test Case: Get All Todos
+    // Approach:
+    // Mock repository to return list
+    // Verify list size and mapping
+    @Test
+    void shouldReturnAllTodos() {
+
+        // arrange
+        Todo todo = new Todo();
+        todo.setId(1L);
+        todo.setTitle("Task");
+
+        when(todoRepository.findAll()).thenReturn(List.of(todo));
+
+        // act
+        List<TodoResponseDTO> result = todoService.getAllTodos();
+
+        // assert: ensuring the list have at-least one item
+        assertEquals(1, result.size());
+        assertEquals("Task", result.get(0).getTitle());
+    }
+
 }
