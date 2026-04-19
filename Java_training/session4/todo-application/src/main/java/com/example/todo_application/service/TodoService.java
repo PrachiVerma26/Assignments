@@ -7,6 +7,8 @@ import com.example.todo_application.exception.InvalidStatusTransitionException;
 import com.example.todo_application.exception.TodoNotFoundException;
 import com.example.todo_application.model.Todo;
 import com.example.todo_application.repository.TodoRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +18,9 @@ public class TodoService {
 
     private final TodoRepository todoRepository;
 
+    // Logger instance specific to this class
+    private static final Logger log = LoggerFactory.getLogger(TodoService.class);
+
     //constructor injection
     public TodoService(TodoRepository todoRepository){
         this.todoRepository=todoRepository;
@@ -24,15 +29,20 @@ public class TodoService {
     //create a new todo
     public TodoResponseDTO createTodo(TodoRequestDTO requestDTO) {
 
+        log.debug("Converting request dto to entity");
+
         // Persist Todo entity and return the saved instance with generated ID
         Todo savedTodo=todoRepository.save(toEntity(requestDTO));
 
+        log.info("Todo saved to db with id: {} ", savedTodo.getId());
         // Convert saved entity to response DTO
         return toResponse(savedTodo);
     }
 
     // fetches all Todo items from the database and converts them to response DTOs
     public List<TodoResponseDTO> getAllTodos(){
+
+        log.info("Fetching all todos from database");
         return todoRepository.findAll()  // fetch all Todo entities from database
                 .stream()                 // convert list to stream for functional processing
                 .map(this::toResponse)    // transform each Todo entity to TodoResponseDTO
@@ -41,17 +51,27 @@ public class TodoService {
 
     //fetches a Todo item by its unique ID from the database
     public TodoResponseDTO getTodoById(Long id) {
+
         Todo todo= todoRepository.findById(id)
-                .orElseThrow(() -> new TodoNotFoundException("Todo not found with id: " + id)); //throw exception if not found
+                .orElseThrow(() ->{
+                    log.error("Todo not found with id: {}",id);
+                    return new TodoNotFoundException("Todo not found with id: " + id);
+                }); //throw exception if not found
+
+        log.info("Successfully fetched todo with id: {}",id);
         return toResponse(todo); //convert entity to dto
     }
 
     //* Updates an existing Todo item with new data
     public TodoResponseDTO updateTodoById(Long id, TodoRequestDTO requestDTO) {
 
+        log.info("Updating todo with id {}",id);
         // fetch existing Todo from database or throw exception if not found
         Todo existingTodo = todoRepository.findById(id)
-                .orElseThrow(() -> new TodoNotFoundException("Todo not found with id: " + id)); // TodoNotFoundException if no Todo exists with the given Id
+                .orElseThrow(() -> {
+                    log.error("Todo not found with id: {}",id);
+                    return new TodoNotFoundException("Todo not found with id: " + id);
+                }); // TodoNotFoundException if no Todo exists with the given Id
 
         //status transition validation
         Status existingStatus=existingTodo.getStatus();
@@ -64,6 +84,7 @@ public class TodoService {
                             (existingStatus == Status.COMPLETED && currentStatus == Status.PENDING);
 
             if(!isValidTransition){
+                log.error("Invalid state transition from {} to {}",existingStatus,currentStatus);
                 throw new InvalidStatusTransitionException(" Invalid status transition from " + existingStatus + " to "+ currentStatus);
             }
         }
@@ -77,6 +98,7 @@ public class TodoService {
         // persist updated Todo to database
         Todo updated = todoRepository.save(existingTodo);
 
+        log.info("Todo with id {} updated successfully!",id);
         // convert updated entity to response DTO
         return toResponse(updated);
 
@@ -84,11 +106,14 @@ public class TodoService {
 
     //deletes a Todo item from the database by its Id
     public void deleteTodoById(Long id){
-
+        log.info("Deleting todo with id {}",id);
         // Check if Todo exists or not
         if (!todoRepository.existsById(id)) {
+            log.error("Todo not found with id: {}",id);
             throw new TodoNotFoundException("Todo not found with id: " + id); //throws TodoNotFoundException if no Todo exists with the given Id
         }
+
+        log.info("Successfully deleted todo with id {}.",id);
         // Delete Todo from database
         todoRepository.deleteById(id);
     }
