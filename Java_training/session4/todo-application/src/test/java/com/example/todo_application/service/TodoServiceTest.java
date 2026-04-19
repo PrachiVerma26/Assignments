@@ -118,4 +118,51 @@ class TodoServiceTest {
             todoService.getTodoById(1L);
         });
     }
+
+    //update Todo successfully
+    //approach:
+    //mock existing Todo
+    //provide valid status transition
+    //verify update happens
+
+    @Test
+    void shouldUpdateTodoSuccessfully() {
+
+        //arrange
+        Todo existing = new Todo();
+        existing.setId(1L);
+        existing.setStatus(Status.PENDING);
+
+        TodoRequestDTO request = new TodoRequestDTO("Updated", "Desc", Status.COMPLETED);
+        when(todoRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(todoRepository.save(any())).thenReturn(existing);
+
+        //act
+        TodoResponseDTO response = todoService.updateTodoById(1L, request);
+
+        //assert
+        assertEquals("Updated", response.getTitle());
+    }
+
+    //invalid status transition
+    //approach:
+    //existing status = COMPLETED
+    //try invalid transition (e.g., COMPLETED → COMPLETED or illegal change)
+    //expect InvalidStatusTransitionException
+    @Test
+    void shouldThrowExceptionForInvalidStatusTransition() {
+
+        //arrange
+        Todo existing = new Todo();
+        existing.setId(1L);
+        existing.setStatus(Status.PENDING);
+        // invalid transition (ex: force wrong logic if needed)
+        TodoRequestDTO request = new TodoRequestDTO("Title", "Desc", null);
+        when(todoRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        //act+assert
+        assertThrows(InvalidStatusTransitionException.class, () -> {
+            todoService.updateTodoById(1L, request);
+        });
+    }
 }
