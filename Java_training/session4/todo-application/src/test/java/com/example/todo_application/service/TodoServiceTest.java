@@ -165,4 +165,39 @@ class TodoServiceTest {
             todoService.updateTodoById(1L, request);
         });
     }
+
+    // delete Todo (cuccess)
+    //approach:
+    // Mock existence check
+    // verify delete is called
+
+    @Test
+    void shouldDeleteTodo() {
+
+        // arrange
+        when(todoRepository.existsById(1L)).thenReturn(true);
+
+        // act
+        todoService.deleteTodoById(1L);
+
+        // assert (verify interaction)
+        verify(todoRepository, times(1)).deleteById(1L);
+    }
+
+    //delete Todo (Failure)
+    //approach:
+    //mock non-existing Todo
+    //expect exception
+
+    @Test
+    void shouldThrowExceptionWhenDeletingNonExistingTodo() {
+
+        // arrange
+        when(todoRepository.existsById(1L)).thenReturn(false);
+
+        // act + assert
+        assertThrows(TodoNotFoundException.class, () -> {
+            todoService.deleteTodoById(1L);
+        });
+    }
 }
