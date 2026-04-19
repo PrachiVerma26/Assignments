@@ -21,8 +21,12 @@ public class TodoService {
     // Logger instance specific to this class
     private static final Logger log = LoggerFactory.getLogger(TodoService.class);
 
+    // Client for sending notifications to external systems when TODO events occur
+    private final NotificationServiceClient notificationClient;
+
     //constructor injection
-    public TodoService(TodoRepository todoRepository){
+    public TodoService(TodoRepository todoRepository, NotificationServiceClient notificationClient){
+        this.notificationClient = notificationClient;
         this.todoRepository=todoRepository;
     }
 
@@ -35,6 +39,10 @@ public class TodoService {
         Todo savedTodo=todoRepository.save(toEntity(requestDTO));
 
         log.info("Todo saved to db with id: {} ", savedTodo.getId());
+
+        // Trigger notification after successful TODO creation
+        // This simulates notifying users/systems about the new TODO
+        notificationClient.sendNotification(savedTodo.getTitle());
         // Convert saved entity to response DTO
         return toResponse(savedTodo);
     }
