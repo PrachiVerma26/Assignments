@@ -3,17 +3,16 @@ package com.example.todo_application.service;
 import com.example.todo_application.dto.TodoRequestDTO;
 import com.example.todo_application.dto.TodoResponseDTO;
 import com.example.todo_application.enums.Status;
+import com.example.todo_application.exception.InvalidStatusTransitionException;
+import com.example.todo_application.exception.TodoNotFoundException;
 import com.example.todo_application.model.Todo;
 import com.example.todo_application.repository.TodoRepository;
 import com.example.todo_application.service.NotificationServiceClient;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +34,7 @@ class TodoServiceTest {
 
 
     //create todo method test case
-    //Approach:
+    //approach:
     //mock repository save behavior
     //call service method
     //verify response + notification trigger
@@ -65,10 +64,10 @@ class TodoServiceTest {
         verify(notificationClient, times(1)).sendNotification("Todo title");
     }
 
-    // Test Case: Get All Todos
-    // Approach:
-    // Mock repository to return list
-    // Verify list size and mapping
+    //get all Todos
+    // approach:
+    // mock repository to return list
+    // verify list size and mapping
     @Test
     void shouldReturnAllTodos() {
 
@@ -87,4 +86,36 @@ class TodoServiceTest {
         assertEquals("Task", result.get(0).getTitle());
     }
 
+    //get Todo by id (success)
+    //approach:
+    // mock repository to return a Todo
+    // verify correct mapping in response
+    @Test
+    void shouldReturnTodoById() {
+
+        // arrange
+        Todo todo = new Todo();
+        todo.setId(1L);
+        todo.setTitle("Task");
+        when(todoRepository.findById(1L)).thenReturn(Optional.of(todo));
+        // act
+        TodoResponseDTO result = todoService.getTodoById(1L);
+        // assert
+        assertEquals("Task", result.getTitle());
+    }
+
+    //get Todo by id (failure)
+    //approach:
+    //mock repository to return empty
+    //expect exception
+    @Test
+    void shouldThrowExceptionWhenTodoNotFound() {
+
+        // arrange
+        when(todoRepository.findById(1L)).thenReturn(Optional.empty());
+        // act + assert
+        assertThrows(TodoNotFoundException.class, () -> {
+            todoService.getTodoById(1L);
+        });
+    }
 }
