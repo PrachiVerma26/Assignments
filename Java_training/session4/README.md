@@ -44,17 +44,17 @@ todo-application/
 │   │   └── TodoResponseDTO.java
 │   ├── enums/
 │   │   └── Status.java
-│   └── exception/
-│       ├── TodoNotFoundException.java
-│       ├── InvalidStatusTransitionException.java
-│       └── GlobalExceptionalHandler.java
+│   ├── exception/
+│   │   ├── TodoNotFoundException.java
+│   │   ├── InvalidStatusTransitionException.java
+│   │   └── GlobalExceptionalHandler.java
+│   ├── resources/
+│   └── application.properties
 ├── src/test/java/com/example/todo_application/
 │   ├── service/
 │   │   └── TodoServiceTest.java
 │   └── controller/
-│       └── TodoControllerTest.java
-└── src/main/resources/
-    └── application.properties
+        └── TodoControllerTest.java
 ```
 
 ## API Endpoints
@@ -135,8 +135,12 @@ todo-application/
 - MockMvc → Controller testing
   
 ### Test Coverage
-* Service Layer:Create Todo, Get All Todos, Get Todo by ID, Update Todo (including validation) and Delete Todo
-* Controller Layer: API endpoint testing, HTTP status validation and JSON response validation
+* All CRUD operations tested at both controller and service layers
+* NotificationServiceClient integration verified in service layer
+* Exception handling - TodoNotFoundException & InvalidStatusTransitionException
+* Status workflow validation - PENDING → COMPLETED transitions
+* HTTP endpoints - All 5 REST endpoints (POST, GET, GET/{id}, PUT, DELETE)
+* Response validation - JSON structure, status codes (200, 201, 204, 400, 404)
 
 ## Testing with Postman
 
