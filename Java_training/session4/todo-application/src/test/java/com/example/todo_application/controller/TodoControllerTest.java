@@ -71,4 +71,57 @@ class TodoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size()").value(1));
     }
+
+    //get Todo By ID
+    //endpoint: GET /todos/{id}
+    //verifies: status = 200 OK
+    @Test
+    void shouldReturnTodoById() throws Exception {
+
+        // arrange
+        TodoResponseDTO response = new TodoResponseDTO(1L, "Task", "Desc", Status.PENDING, null);
+        when(todoService.getTodoById(1L)).thenReturn(response);
+
+        // act + assert
+        mockMvc.perform(get("/todos/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Task"));
+    }
+
+    // update Todo
+    // endpoint: PUT /todos/{id}
+    // verifies: status = 200 OK
+    @Test
+    void shouldUpdateTodo() throws Exception {
+
+        // arrange
+        TodoRequestDTO request = new TodoRequestDTO("Updated", "Desc", Status.COMPLETED);
+        TodoResponseDTO response = new TodoResponseDTO(1L, "Updated", "Desc", Status.COMPLETED, null);
+
+        when(todoService.updateTodoById(eq(1L), any())).thenReturn(response);
+
+        // act + assert
+        mockMvc.perform(put("/todos/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Updated"));
+    }
+
+    //delete Todo
+    //endpoint: DELETE /todos/{id}
+    //verifies:status = 204 NO CONTENT
+    @Test
+    void shouldDeleteTodo() throws Exception {
+
+        // arrange
+        doNothing().when(todoService).deleteTodoById(1L);
+
+        // act + assert
+        mockMvc.perform(delete("/todos/1"))
+                .andExpect(status().isNoContent());
+
+        // verify interaction with service layer
+        verify(todoService, times(1)).deleteTodoById(1L);
+    }
 }
