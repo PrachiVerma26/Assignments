@@ -10,6 +10,10 @@ A RESTful API for managing todo tasks built with Spring Boot. This application p
 - DTO pattern for request/response mapping
 - JPA/Hibernate for database operations
 - RESTful API design principles
+- Structured logging using SLF4J
+- Unit testing with JUnit & Mockito
+- Controller testing with MockMvc
+- Simulated external service integration (NotificationServiceClient)
 
 ## Technologies Used
 
@@ -19,6 +23,8 @@ A RESTful API for managing todo tasks built with Spring Boot. This application p
 - **PostgresSQL**
 - **Maven**
 - **Jakarta Validation**
+- **JUnit 5 & Mockito**
+- **SLF4J (Logging)**
 
 ## Project Structure
 
@@ -42,6 +48,11 @@ todo-application/
 │       ├── TodoNotFoundException.java
 │       ├── InvalidStatusTransitionException.java
 │       └── GlobalExceptionalHandler.java
+├── src/test/java/com/example/todo_application/
+│   ├── service/
+│   │   └── TodoServiceTest.java
+│   └── controller/
+│       └── TodoControllerTest.java
 └── src/main/resources/
     └── application.properties
 ```
@@ -94,7 +105,10 @@ todo-application/
    spring.jpa.hibernate.ddl-auto=update
    spring.jpa.show-sql=true
    spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-   
+
+   # Logging Configuration
+    logging.level.root=INFO
+    logging.level.com.example.todo_application=DEBUG
    ```
 3. **Build the project**
    ```bash
@@ -110,7 +124,19 @@ todo-application/
 
    The application will start on: `http://localhost:8080`
 
+6. **Testing**
+
+   mvn test
 ---
+
+## Testing Tools Used
+- JUnit 5 → Unit testing
+- Mockito → Mocking dependencies
+- MockMvc → Controller testing
+  
+### Test Coverage
+* Service Layer:Create Todo, Get All Todos, Get Todo by ID, Update Todo (including validation) and Delete Todo
+* Controller Layer: API endpoint testing, HTTP status validation and JSON response validation
 
 ## Testing with Postman
 
@@ -147,13 +173,24 @@ todo-application/
 
 ---
 
+## Logging: Uses SLF4J for structured logging
+Logs added in:
+* Controller layer (request/response)
+* Service layer (business logic)
+* Exception handling
+
+## Simulated External Service
+* NotificationServiceClient simulates external system interaction
+* Triggered on Todo creation
+* Demonstrates microservice-ready architecture
+  
 ## Dependencies
 
 * Spring Boot Starter Web - For building RESTful APIs
 * Spring Boot Starter Data JPA - For database operations
 * PostgreSQL Driver - For PostgreSQL database connectivity
 * Spring Boot Starter Validation - For request validation
-
+* Spring Boot Starter Test
 ---
 
 ## Author
