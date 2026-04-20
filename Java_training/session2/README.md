@@ -91,7 +91,6 @@ mvn spring-boot:run
 
 App starts at: `http://localhost:8080`
 
-```
 ---
 
 ## API Reference
