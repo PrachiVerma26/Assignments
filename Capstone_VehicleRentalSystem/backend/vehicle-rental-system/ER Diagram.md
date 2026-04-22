@@ -10,65 +10,7 @@ The system manages users, vehicles, locations, and bookings across a relational 
 
 ## Entity Relationship Diagram
 
-```
-erDiagram
-
-    USER {
-        UUID user_id PK
-        VARCHAR full_name
-        VARCHAR phone_number UK
-        VARCHAR address
-        VARCHAR email UK
-        VARCHAR password
-        TIMESTAMP created_at
-        TIMESTAMP updated_at
-    }
-
-    USER_ROLES {
-        UUID user_id FK
-        VARCHAR role
-    }
-
-    LOCATION {
-        UUID id PK
-        VARCHAR address
-        VARCHAR state
-        VARCHAR city
-        VARCHAR pincode
-    }
-
-    VEHICLE {
-        UUID id PK
-        INT version
-        VARCHAR model
-        VARCHAR brand
-        VARCHAR type
-        VARCHAR status
-        DECIMAL daily_rental_rate
-        VARCHAR profile_url
-        UUID location_id FK
-        TIMESTAMP created_at
-        TIMESTAMP updated_at
-    }
-
-    BOOKING {
-        UUID id PK
-        BIGINT version
-        UUID user_id FK
-        UUID vehicle_id FK
-        DATE start_date
-        DATE end_date
-        DECIMAL price
-        VARCHAR status
-        DATE created_at
-        DATE updated_at
-    }
-
-    USER ||--o{ USER_ROLES : "has"
-    USER ||--o{ BOOKING : "makes"
-    VEHICLE ||--o{ BOOKING : "included in"
-    LOCATION ||--o{ VEHICLE : "hosts"
-```
+<img width="1186" height="256" alt="image" src="https://github.com/user-attachments/assets/0a8098b2-b611-48bf-9519-0a8dc7d87b28" />
 
 ---
 
