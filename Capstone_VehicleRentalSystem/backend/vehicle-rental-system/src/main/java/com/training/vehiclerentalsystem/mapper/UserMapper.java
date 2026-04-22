@@ -1,6 +1,6 @@
 package com.training.vehiclerentalsystem.mapper;
 
-import com.training.vehiclerentalsystem.dto.auth.SignupRequest;
+import com.training.vehiclerentalsystem.dto.signup.SignupRequest;
 import com.training.vehiclerentalsystem.model.User;
 import org.springframework.stereotype.Component;
 
