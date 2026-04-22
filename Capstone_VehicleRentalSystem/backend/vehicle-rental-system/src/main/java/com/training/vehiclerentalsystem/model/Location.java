@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(name="locations",
+        uniqueConstraints = { // Prevent duplicate location entries with same address, city and pincode
+                @UniqueConstraint(columnNames = {"address", "city", "pincode"})
+        }
+)
 public class Location {
 
     @Id
@@ -28,7 +33,7 @@ public class Location {
     @Column(nullable = false, length = 6)
     private String pincode;
 
-    //one vehicle can be avaiable in many locations
+    //one vehicle can be available in many locations
     @OneToMany(mappedBy = "location")
     private List<Vehicle> vehicles = new ArrayList<>();
 

@@ -9,7 +9,11 @@ import java.util.UUID;
 //Booking entity represents a vehicle booking made by a user.
 //This entity manages the complete lifecycle of a booking, including booking creation, vehicle allocation, rental duration, pricing, and status tracking.
 @Entity
-@Table(name="bookings")
+@Table(name="bookings",
+        indexes = { // Index to optimize queries fetching bookings by user
+        @Index(name = "idx_booking_user", columnList = "user_id"), // Index to optimize queries fetching bookings by vehicle
+        @Index(name = "idx_booking_vehicle", columnList = "vehicle_id")
+})
 public class Booking {
 
     @Id

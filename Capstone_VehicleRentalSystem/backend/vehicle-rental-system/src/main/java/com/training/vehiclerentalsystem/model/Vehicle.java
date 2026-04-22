@@ -16,7 +16,10 @@ import java.util.UUID;
 //represents a vehicle available for rental.
 
 @Entity
-@Table(name="vehicles")
+@Table(name="vehicles",
+        indexes = { // Index to optimize filtering vehicles by location
+        @Index(name = "idx_vehicle_location", columnList = "location_id")
+        })
 public class Vehicle {
 
     @Id
@@ -45,6 +48,7 @@ public class Vehicle {
     @Column(nullable = false)
     private BigDecimal dailyRentalRate;
 
+    // URL for vehicle image/profile
     @Column(name="profile_url")
     private String profileUrl;
 
