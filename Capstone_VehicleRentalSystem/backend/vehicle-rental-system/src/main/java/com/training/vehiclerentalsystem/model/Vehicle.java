@@ -4,6 +4,7 @@ import com.training.vehiclerentalsystem.enums.VehicleStatus;
 import com.training.vehiclerentalsystem.enums.VehicleType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,13 +14,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-//represents a vehicle available for rental.
-
+//It represents a vehicle available for rental
 @Entity
 @Table(name="vehicles",
         indexes = { // Index to optimize filtering vehicles by location
         @Index(name = "idx_vehicle_location", columnList = "location_id")
         })
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class Vehicle {
 
     @Id
@@ -69,40 +74,4 @@ public class Vehicle {
     @OneToMany(mappedBy = "vehicle")
     private List<Booking> bookings = new ArrayList<>();
 
-    //no-args constructor
-    public Vehicle(){}
-
-    //all-args constructor
-    public Vehicle(String model, String brand, VehicleType type,BigDecimal dailyRentalRate, String profileUrl, Location location){
-        this.model=model;
-        this.brand=brand;
-        this.type=type;
-        this.dailyRentalRate=dailyRentalRate;
-        this.profileUrl=profileUrl;
-        this.location=location;
-    }
-
-    //getters
-    public UUID getId() {return id;}
-    public String getModel() {return model;}
-    public String getBrand() {return brand;}
-    public VehicleType getType() {return type;}
-    public BigDecimal getDailyRentalRate() {return dailyRentalRate;}
-    public String getProfileUrl() {return profileUrl;}
-    public Location getLocation() {return location;}
-
-    //setters
-    public void setId(UUID id) {this.id = id;}
-    public void setModel(String model) {this.model = model;}
-    public void setBrand(String brand) {this.brand = brand;}
-    public void setType(VehicleType type) {this.type = type;}
-    public void setDailyRentalRate(BigDecimal dailyRentalRate) {this.dailyRentalRate = dailyRentalRate;}
-    public void setProfileUrl(String profileUrl) {this.profileUrl = profileUrl;}
-    public void setLocation(Location location) {this.location= location;}
-
-    @Override
-    public String toString() {
-        return "Vehicle{" +
-                "modelName='" + model+ '\'' + ", brand='" + brand + '\'' + ", type=" + type + ", location" + location+'}';
-    }
 }
