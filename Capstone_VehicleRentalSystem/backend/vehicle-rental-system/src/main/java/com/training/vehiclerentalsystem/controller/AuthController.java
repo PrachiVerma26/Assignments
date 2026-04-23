@@ -1,5 +1,7 @@
 package com.training.vehiclerentalsystem.controller;
 
+import com.training.vehiclerentalsystem.constants.ApiConstants;
+import com.training.vehiclerentalsystem.constants.AuthConstants;
 import com.training.vehiclerentalsystem.dto.signup.SignupResponse;
 import com.training.vehiclerentalsystem.dto.login.LoginRequest;
 import com.training.vehiclerentalsystem.dto.signup.SignupRequest;
@@ -25,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 
  @RestController
-@RequestMapping("/auth")
 public class AuthController {
 
     private final AuthService authService;
@@ -37,19 +38,19 @@ public class AuthController {
         this.userRepository=userRepository;
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<SignupResponse> signup(@RequestBody @Valid SignupRequest dto) {
-        log.info("Signup API called with email: {}", dto.getEmail());
+    @PostMapping(AuthConstants.SIGNUP_PATH)
+    public ResponseEntity<SignupResponse> signup(@RequestBody @Valid SignupRequest signupRequestDTO) {
+        log.info("Signup API called with email: {}", signupRequestDTO.getEmail());
+        SignupResponse response = authService.signup(signupRequestDTO);
 
-        SignupResponse response = authService.signup(dto);
+        log.info("Registration successful.");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
     }
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest dto) {
-
-        log.info("Login successfully with email: {}",dto.getEmail());
-        LoginResponse response = authService.login(dto);
+    @PostMapping(AuthConstants.LOGIN_PATH)
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest LoginRequestDTO) {
+        LoginResponse response = authService.login(LoginRequestDTO);
+        log.info("Login successfully with email: {}",LoginRequestDTO.getEmail());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

@@ -26,7 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private static final String[] PUBLIC_URLS = {
             "/auth/login",
-            "auth/signup",
+            "/auth/signup",
     };
 
     @Override

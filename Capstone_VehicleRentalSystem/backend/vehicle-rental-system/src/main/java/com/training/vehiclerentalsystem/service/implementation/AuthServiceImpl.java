@@ -1,4 +1,4 @@
-package com.training.vehiclerentalsystem.service;
+package com.training.vehiclerentalsystem.service.implementation;
 
 import com.training.vehiclerentalsystem.dto.signup.SignupResponse;
 import com.training.vehiclerentalsystem.dto.login.LoginRequest;
@@ -11,6 +11,7 @@ import com.training.vehiclerentalsystem.mapper.UserMapper;
 import com.training.vehiclerentalsystem.model.User;
 import com.training.vehiclerentalsystem.repository.UserRepository;
 import com.training.vehiclerentalsystem.security.JwtUtil;
+import com.training.vehiclerentalsystem.service.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Service;
  */
 
 @Service
-public class AuthServiceImpl implements AuthService{
+public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;

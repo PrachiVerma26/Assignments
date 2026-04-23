@@ -1,5 +1,6 @@
 package com.training.vehiclerentalsystem.config;
 
+import com.training.vehiclerentalsystem.constants.ApiConstants;
 import com.training.vehiclerentalsystem.security.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +9,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class SecurityConfig {
@@ -20,24 +23,16 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        return http
             .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-
-                        // allow public access to authentication endpoints
-                        .requestMatchers("/auth/**").permitAll()
-
-                        // restrict admin APIs to ADMIN role only
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-
-                        // restrict customer APIs to CUSTOMER role only
-                        .requestMatchers("/customer/**").hasRole("CUSTOMER")
+                        .requestMatchers(ApiConstants.AUTH + "/**").permitAll()
+                        .requestMatchers(ApiConstants.ADMIN+"/**").hasRole("ADMIN")
+                        .requestMatchers(ApiConstants.CUSTOMER+"/**").hasRole("CUSTOMER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
-
-        return http.build();
     }
 
     @Bean
@@ -45,4 +40,19 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public WebMvcConfigurer corsConfigurer(){
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping(ApiConstants.AUTH+"/**")
+                        .allowedOriginPatterns("http://localhost:5500", "http://127.0.0.1:5500")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
+                        .allowedHeaders("*")
+                        .exposedHeaders("Authorization", "Content-Type")
+                        .allowCredentials(true)
+                        .maxAge(1800);
+            }
+        };
+    }
 }
