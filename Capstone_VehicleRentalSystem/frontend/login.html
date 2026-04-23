@@ -1,28 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Login</title>
+    <title>Login -Rapid Rental</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/login.css">
 </head>
-<body>
-    <header>
-       <h2>Rapid Rental</h2> 
+<body class="login-page">
+    <header >
+    <div class="container">
+
+        <!--logo-->
+        <div class="brand">
+            <img src="assets/icon.png" class="brand-logo" alt="logo">
+            <span class="brand-name">Rapid Rental</span>
+        </div>
+        <div class="header-right">
+            <div class="search-box">
+                <input type="text" placeholder="Search cars, city or type...">
+            </div>
+            <div class="auth">
+                <button class="signup-btn">Sign Up</button>
+            </div>
+        </div>
+    </div>
     </header>
 
     <nav>
-        <a href="index.html">Home</a>
-        <a href="signup.html">Signup</a>
+        <div class="container">
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="signup.html">Signup</a>
+            </div>
+        </div>
     </nav>
 
     <main>
-        <!-- RIGHT FORM -->
+        <!--form -->
         <section>
-            <div>
+            <div class="login-card">
                 <h2>Welcome back</h2>
                 <p>Login to your account</p>
                 <form>
                     <input type="email" placeholder="Email" required>
                     <input type="password" placeholder="Password" required>
-
                     <button type="submit">Sign in</button>
                 </form>
                 <p>
@@ -39,11 +59,9 @@
             <p>Email: support@rapidrental.com</p>
             <p>India</p>
         </div>
-
         <div>
             <p>© 2026 Rapid Rental. All rights reserved.</p>
         </div>
     </footer>
-
 </body>
 </html>
