@@ -5,9 +5,12 @@ import com.training.vehiclerentalsystem.dto.login.LoginRequest;
 import com.training.vehiclerentalsystem.dto.signup.SignupRequest;
 import com.training.vehiclerentalsystem.dto.login.LoginResponse;
 import com.training.vehiclerentalsystem.enums.RoleType;
+import com.training.vehiclerentalsystem.exceptions.InvalidCredentialsException;
+import com.training.vehiclerentalsystem.exceptions.UserAlreadyExistsException;
 import com.training.vehiclerentalsystem.mapper.UserMapper;
 import com.training.vehiclerentalsystem.model.User;
 import com.training.vehiclerentalsystem.repository.UserRepository;
+import com.training.vehiclerentalsystem.security.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,13 +30,15 @@ public class AuthServiceImpl implements AuthService{
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final JwtUtil jwtUtil;
     private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     //constructor injection
-    AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper){
+    AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, JwtUtil jwtUtil){
         this.userRepository=userRepository;
         this.passwordEncoder=passwordEncoder;
         this.userMapper=userMapper;
+        this.jwtUtil=jwtUtil;
     }
 
     @Override
@@ -42,7 +47,7 @@ public class AuthServiceImpl implements AuthService{
         //Check if user exists
         if (userRepository.existsByEmail(dto.getEmail())) {
             log.error("User already exists...");
-            throw new RuntimeException("User already exists");
+            throw new UserAlreadyExistsException("User already exists");
         }
 
         User user = UserMapper.toEntity(dto);
@@ -66,16 +71,18 @@ public class AuthServiceImpl implements AuthService{
         User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() ->{
                     log.error("Invalid Credentials....enter correct email or password");
-                     return new RuntimeException("Invalid email or password");
+                     return new InvalidCredentialsException("Invalid email or password");
                 });
 
             //comparing password
             if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
                 log.error("Invalid Credentials....enter correct email or password");
-                throw new RuntimeException("Invalid email or password");
+                throw new InvalidCredentialsException("Invalid email or password");
             }
+            String token = jwtUtil.generateToken(user);
             log.info("User logged in successfully!");
             return new LoginResponse(
+                    token,
                     "Logged in successfully!",
                     user.getEmail(),
                     user.getRole()
