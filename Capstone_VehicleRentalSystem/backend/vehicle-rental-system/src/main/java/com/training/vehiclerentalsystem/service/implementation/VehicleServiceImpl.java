@@ -4,7 +4,10 @@ import com.training.vehiclerentalsystem.dto.vehicle.VehicleRequest;
 import com.training.vehiclerentalsystem.dto.vehicle.VehicleResponse;
 import com.training.vehiclerentalsystem.enums.VehicleStatus;
 import com.training.vehiclerentalsystem.enums.VehicleType;
+import com.training.vehiclerentalsystem.exceptions.LocationNotFoundException;
 import com.training.vehiclerentalsystem.exceptions.ResourceNotFoundException;
+import com.training.vehiclerentalsystem.exceptions.VehicleDeletionNotAllowedException;
+import com.training.vehiclerentalsystem.exceptions.VehicleNotFoundException;
 import com.training.vehiclerentalsystem.mapper.VehicleMapper;
 import com.training.vehiclerentalsystem.model.Location;
 import com.training.vehiclerentalsystem.model.Vehicle;
@@ -34,8 +37,7 @@ public class VehicleServiceImpl implements VehicleService {
     public VehicleResponse createVehicle(VehicleRequest vehicleRequestDTO) {
         
         Location location = locationRepository.findById(vehicleRequestDTO.getLocationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Location not found with id: " + vehicleRequestDTO.getLocationId()));
-
+                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + vehicleRequestDTO.getLocationId()));
         Vehicle vehicle = vehicleMapper.toEntity(vehicleRequestDTO);
         vehicle.setLocation(location);
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
@@ -44,16 +46,13 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public VehicleResponse updateVehicle(UUID id, VehicleRequest vehicleRequestDTO) {
-    
         Vehicle existingVehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
-
+                .orElseThrow(() -> new VehicleNotFoundException("Vehicle not found with id: " + id));
         if (!existingVehicle.getLocation().getId().equals(vehicleRequestDTO.getLocationId())) {
             Location newLocation = locationRepository.findById(vehicleRequestDTO.getLocationId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Location not found with id: " + vehicleRequestDTO.getLocationId()));
+                    .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + vehicleRequestDTO.getLocationId()));
             existingVehicle.setLocation(newLocation);
         }
-
         vehicleMapper.updateEntityFromRequest(vehicleRequestDTO, existingVehicle);
         Vehicle updatedVehicle = vehicleRepository.save(existingVehicle);
         return vehicleMapper.toResponse(updatedVehicle);
@@ -64,9 +63,8 @@ public class VehicleServiceImpl implements VehicleService {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
         if (vehicle.getStatus() == VehicleStatus.BOOKED) {
-            throw new IllegalStateException("Cannot delete vehicle with active bookings");
+            throw new VehicleDeletionNotAllowedException("Cannot delete vehicle with active bookings");
         }
-
         vehicleRepository.delete(vehicle);
     }
 
@@ -74,8 +72,7 @@ public class VehicleServiceImpl implements VehicleService {
     @Transactional(readOnly = true)
     public VehicleResponse findById(UUID id) {
         Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
-
+                .orElseThrow(() -> new VehicleNotFoundException("Vehicle not found with id: " + id));
         return vehicleMapper.toResponse(vehicle);
     }
 
