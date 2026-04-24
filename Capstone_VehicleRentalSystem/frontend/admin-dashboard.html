@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <header >
+    <div class="container">
+        <div class="brand">
+            <img src="assets/icon.png" class="brand-logo" alt="logo">
+            <span class="brand-name">Rapid Rental</span>
+        </div>
+        <div class="header-right">
+            <div class="search-box">
+                <input type="text" placeholder="Search cars, city or type...">
+            </div>
+            <div class="auth">
+                <button class="signup-btn">Sign Up</button>
+            </div>
+        </div>
+    </div>
+    </header>
+    <div>
+        <aside>
+            <nav>
+                <ul>
+                    <li>Dashboard</li>
+                    <li>Vehicles</li>
+                    <li>Bookings</li>
+                    <li>Users</li>
+                    <li>Logout</li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main>
+            <section>
+                <input type="text" placeholder="Search cars, city or type...">
+                <button>Admin</button>
+            </section>
+
+            <section>
+                <h2>Browse Vehicles</h2>
+                <p>Manage your fleet of cars and bikes</p>
+
+                <div>
+                    <button>Manage Bookings</button>
+                    <button>Add Vehicle</button>
+                </div>
+            </section>
+
+            <!-- Filters -->
+            <section>
+                <input type="text" placeholder="Search vehicles">
+
+                <select>
+                    <option>All Types</option>
+                    <option>Car</option>
+                    <option>Bike</option>
+                </select>
+
+                <select>
+                    <option>All Status</option>
+                    <option>Available</option>
+                    <option>Booked</option>
+                    <option>Maintenance</option>
+                </select>
+
+                <select>
+                    <option>All Locations</option>
+                </select>
+
+                <button>Reset</button>
+            </section>
+
+            <section>
+                <section>
+                    <h3>Cars</h3>
+
+                    <div>
+
+                        <article>
+                            <img src="" alt="vehicle">
+                            <h4>Vehicle Name</h4>
+                            <p>Type</p>
+                            <p>Location</p>
+                            <p>Price</p>
+                            <p>Status</p>
+
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </article>
+
+                    </div>
+                </section>
+                <section>
+                    <h3>Bikes</h3>
+                    <div>
+                        <article>
+                            <img src="" alt="vehicle">
+                            <h4>Vehicle Name</h4>
+                            <p>Type</p>
+                            <p>Location</p>
+                            <p>Price</p>
+                            <p>Status</p>
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </article>
+                    </div>
+                </section>
+            </section>
+        </main>
+
+    </div>
+    <dialog>
+        <h3>Add Vehicle</h3>
+        <form>
+            <input type="text" placeholder="Brand">
+            <input type="text" placeholder="Model">
+
+            <select>
+                <option>Car</option>
+                <option>Bike</option>
+            </select>
+
+            <input type="text" placeholder="Location">
+            <input type="number" placeholder="Price">
+
+            <select>
+                <option>Available</option>
+                <option>Booked</option>
+                <option>Maintenance</option>
+            </select>
+            <input type="file">
+            <button type="submit">Add</button>
+            <button type="button">Cancel</button>
+        </form>
+    </dialog>
+    <dialog>
+        <h3>Vehicle Details</h3>
+        <img src="" alt="vehicle">
+        <p>Name</p>
+        <p>Type</p>
+        <p>Location</p>
+        <p>Price</p>
+        <p>Status</p>
+        <button>Edit</button>
+        <button>Close</button>
+    </dialog>
+
+    <dialog>
+        <h3>Edit Vehicle</h3>
+        <form>
+            <input type="text">
+            <input type="text">
+            <input type="number">
+
+            <button type="submit">Update</button>
+            <button type="button">Cancel</button>
+        </form>
+    </dialog>
+    <dialog>
+        <p>Are you sure?</p>
+        <button>Delete</button>
+        <button>Cancel</button>
+    </dialog>
+
+    <footer>
+        <div >
+            <h4>Contact</h4>
+            <p>Email: support@rapidrental.com</p>
+            <p>India</p>
+        </div>
+        <div>
+            <p>© 2026 Rapid Rental. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
