@@ -43,17 +43,21 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public SignupResponse signup(SignupRequest dto) {
+    public SignupResponse signup(SignupRequest SignupRequestDTO) {
 
         //Check if user exists
-        if (userRepository.existsByEmail(dto.getEmail())) {
+        if (userRepository.existsByEmail(SignupRequestDTO.getEmail())) {
             log.error("User already exists...");
             throw new UserAlreadyExistsException("User already exists");
         }
 
-        User user = UserMapper.toEntity(dto);
+        User user = UserMapper.toEntity(SignupRequestDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.getRole().add(RoleType.CUSTOMER);
+        if (SignupRequestDTO.getEmail().equals("admin@rapidrental.com")) {
+            user.getRole().add(RoleType.ADMIN);
+        } else {
+            user.getRole().add(RoleType.CUSTOMER);
+        }
 
         userRepository.save(user);
         log.info("Customer created successfully!");
@@ -66,17 +70,17 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public LoginResponse login(LoginRequest dto){
+    public LoginResponse login(LoginRequest LoginRequestDTO){
 
         //fetch user
-        User user = userRepository.findByEmail(dto.getEmail())
+        User user = userRepository.findByEmail(LoginRequestDTO.getEmail())
                 .orElseThrow(() ->{
                     log.error("Invalid Credentials....enter correct email or password");
                      return new InvalidCredentialsException("Invalid email or password");
                 });
 
             //comparing password
-            if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            if (!passwordEncoder.matches(LoginRequestDTO.getPassword(), user.getPassword())) {
                 log.error("Invalid Credentials....enter correct email or password");
                 throw new InvalidCredentialsException("Invalid email or password");
             }

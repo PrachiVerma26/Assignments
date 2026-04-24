@@ -27,6 +27,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(ApiConstants.AUTH + "/**").permitAll()
+                        .requestMatchers(ApiConstants.API + "/vehicles/**").permitAll()
                         .requestMatchers(ApiConstants.ADMIN+"/**").hasRole("ADMIN")
                         .requestMatchers(ApiConstants.CUSTOMER+"/**").hasRole("CUSTOMER")
                         .anyRequest().authenticated()
@@ -45,7 +46,7 @@ public class SecurityConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping(ApiConstants.AUTH+"/**")
+                registry.addMapping("/**")
                         .allowedOriginPatterns("http://localhost:5500", "http://127.0.0.1:5500")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*")
