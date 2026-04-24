@@ -1,6 +1,7 @@
 package com.training.vehiclerentalsystem.controller;
 
 import com.training.vehiclerentalsystem.constants.ApiConstants;
+import com.training.vehiclerentalsystem.constants.VehicleConstants;
 import com.training.vehiclerentalsystem.dto.vehicle.VehicleRequest;
 import com.training.vehiclerentalsystem.dto.vehicle.VehicleResponse;
 import com.training.vehiclerentalsystem.service.VehicleService;
@@ -19,7 +20,7 @@ import java.util.UUID;
  * Handles CRUD operations for vehicles (admin only)
  */
 @RestController
-@RequestMapping(ApiConstants.ADMIN)
+@RequestMapping(VehicleConstants.ADMIN_BASE)
 public class AdminController {
     private final VehicleService vehicleService;
     private static final Logger log = LoggerFactory.getLogger(AdminController.class);
@@ -28,7 +29,7 @@ public class AdminController {
         this.vehicleService = vehicleService;
     }
 
-    @PostMapping("/vehicles")
+    @PostMapping
     public ResponseEntity<VehicleResponse> createVehicle(@Valid @RequestBody VehicleRequest vehicleRequestDTO) {
         log.info("Create vehicle API called with: {} {}", vehicleRequestDTO.getBrand(), vehicleRequestDTO.getModel());
         VehicleResponse response = vehicleService.createVehicle(vehicleRequestDTO);
@@ -36,7 +37,7 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("/vehicles/{id}")
+    @PutMapping(VehicleConstants.BY_ID)
     public ResponseEntity<VehicleResponse> updateVehicle(
             @PathVariable UUID id,
             @Valid @RequestBody VehicleRequest vehicleRequestDTO) {
@@ -45,7 +46,7 @@ public class AdminController {
         log.info("Vehicle updated successfully: {}", id);
         return ResponseEntity.ok(response);
     }
-    @DeleteMapping("/vehicles/{id}")
+    @DeleteMapping(VehicleConstants.BY_ID)
     public ResponseEntity<Void> deleteVehicle(@PathVariable UUID id) {
         log.info("Delete vehicle API called for ID: {}", id);
         vehicleService.deleteVehicle(id);
@@ -53,7 +54,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/vehicles")
+    @GetMapping
     public ResponseEntity<List<VehicleResponse>> getAllVehiclesAdmin() {
         log.info("Get all vehicles (admin) API called");
         List<VehicleResponse> vehicles = vehicleService.findAll();
@@ -61,7 +62,7 @@ public class AdminController {
         return ResponseEntity.ok(vehicles);
     }
 
-    @GetMapping("/vehicles/{id}")
+    @GetMapping(VehicleConstants.BY_ID)
     public ResponseEntity<VehicleResponse> getVehicleByIdAdmin(@PathVariable UUID id) {
         log.info("Get vehicle by ID (admin) API called for ID: {}", id);
         VehicleResponse vehicle = vehicleService.findById(id);
