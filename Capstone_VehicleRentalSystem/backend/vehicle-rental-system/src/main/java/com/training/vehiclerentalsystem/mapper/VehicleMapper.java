@@ -8,13 +8,14 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/*
+Convert VehicleRequest DTO to Vehicle Entity
+Note: Location must be set separately in service layer
+*/
+
 @Component
 public class VehicleMapper {
 
-    /**
-     * Convert VehicleRequest DTO to Vehicle Entity
-     * Note: Location must be set separately in service layer
-     */
     public Vehicle toEntity(VehicleRequest request) {
         Vehicle vehicle = new Vehicle();
 
@@ -24,14 +25,9 @@ public class VehicleMapper {
         vehicle.setStatus(request.getStatus());
         vehicle.setDailyRentalRate(request.getDailyRentalRate());
         vehicle.setProfileUrl(request.getProfileUrl());
-        // Note: Location and timestamps are handled in service layer
-
         return vehicle;
     }
 
-    /**
-     * Convert Vehicle Entity to VehicleResponse DTO
-     */
     public VehicleResponse toResponse(Vehicle vehicle) {
         VehicleResponse response = new VehicleResponse();
 
@@ -45,7 +41,6 @@ public class VehicleMapper {
         response.setCreatedAt(vehicle.getCreatedAt());
         response.setUpdatedAt(vehicle.getUpdatedAt());
 
-        // Map location details
         if (vehicle.getLocation() != null) {
             VehicleResponse.LocationInfo locationInfo = new VehicleResponse.LocationInfo();
             locationInfo.setId(vehicle.getLocation().getId());
@@ -55,23 +50,16 @@ public class VehicleMapper {
             locationInfo.setPincode(vehicle.getLocation().getPincode());
             response.setLocation(locationInfo);
         }
-
         return response;
     }
 
-    /**
-     * Convert List of Vehicle Entities to List of VehicleResponse DTOs
-     */
+    
     public List<VehicleResponse> toResponseList(List<Vehicle> vehicles) {
         return vehicles.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Update existing Vehicle Entity with VehicleRequest data
-     * Used for update operations to preserve existing data
-     */
     public void updateEntityFromRequest(VehicleRequest request, Vehicle existingVehicle) {
         existingVehicle.setModel(request.getModel());
         existingVehicle.setBrand(request.getBrand());
@@ -79,14 +67,8 @@ public class VehicleMapper {
         existingVehicle.setStatus(request.getStatus());
         existingVehicle.setDailyRentalRate(request.getDailyRentalRate());
         existingVehicle.setProfileUrl(request.getProfileUrl());
-        // Note: Location is handled separately in service layer
-        // Timestamps are automatically updated by @UpdateTimestamp
     }
 
-    /**
-     * Create a simple Vehicle Response without location details
-     * Useful for listing operations where location details aren't needed
-     */
     public VehicleResponse toSimpleResponse(Vehicle vehicle) {
         VehicleResponse response = new VehicleResponse();
 
@@ -100,7 +82,6 @@ public class VehicleMapper {
         response.setCreatedAt(vehicle.getCreatedAt());
         response.setUpdatedAt(vehicle.getUpdatedAt());
 
-        // Only basic location info
         if (vehicle.getLocation() != null) {
             VehicleResponse.LocationInfo locationInfo = new VehicleResponse.LocationInfo();
             locationInfo.setId(vehicle.getLocation().getId());

@@ -11,10 +11,8 @@ import com.training.vehiclerentalsystem.model.Vehicle;
 import com.training.vehiclerentalsystem.repository.LocationRepository;
 import com.training.vehiclerentalsystem.repository.VehicleRepository;
 import com.training.vehiclerentalsystem.service.VehicleService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -109,7 +107,6 @@ public class VehicleServiceImpl implements VehicleService {
         } else {
             vehicles = vehicleRepository.findAll();
         }
-
         return vehicleMapper.toResponseList(vehicles);
     }
 }
