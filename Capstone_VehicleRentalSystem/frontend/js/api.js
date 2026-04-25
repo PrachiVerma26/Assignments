@@ -1,6 +1,7 @@
-const BASE_URL = "http://localhost:8080/api/auth";
+const API_ROOT = "http://localhost:8080/api";
+const AUTH_BASE_URL = `${API_ROOT}/auth`;
 
-class ApiError extends Error {
+export class ApiError extends Error {
     constructor(message, status, data) {
         super(message);
         this.status = status;
@@ -8,10 +9,36 @@ class ApiError extends Error {
         this.name = 'ApiError';
     }
 }
+
+async function request(endpoint, options = {}) {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_ROOT}${endpoint}`, {
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            ...options.headers
+        }
+    });
+
+    const data = response.status === 204 ? null : await response.json();
+
+    if (!response.ok) {
+        throw new ApiError(
+            data?.message || "Request failed",
+            response.status,
+            data
+        );
+    }
+
+    return data;
+}
+
 export async function loginUser(data) {
     try {
         console.log("Sending login request:", data);      
-        const response = await fetch(`${BASE_URL}/login`, {
+        const response = await fetch(`${AUTH_BASE_URL}/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -58,7 +85,7 @@ export async function loginUser(data) {
 
 
 export async function signupUser(data) {
-    const response = await fetch(`${BASE_URL}/signup`, {
+    const response = await fetch(`${AUTH_BASE_URL}/signup`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -71,3 +98,43 @@ export async function signupUser(data) {
     }
     return result;
 }
+
+export function getAdminVehicles() {
+    return request("/admin/vehicles", {
+        method: "GET"
+    });
+}
+
+export function getAdminVehicleById(id) {
+    return request(`/admin/vehicles/${id}`, {
+        method: "GET"
+    });
+}
+
+export function createVehicle(vehicleData) {
+    return request("/admin/vehicles", {
+        method: "POST",
+        body: JSON.stringify(vehicleData)
+    });
+}
+
+export function updateVehicle(id, vehicleData) {
+    return request(`/admin/vehicles/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(vehicleData)
+    });
+}
+
+export function deleteVehicleById(id) {
+    return request(`/admin/vehicles/${id}`, {
+        method: "DELETE"
+    });
+}
+
+export function getLocations() {
+    return request("/locations", {
+        method: "GET"
+    });
+}
+
+
