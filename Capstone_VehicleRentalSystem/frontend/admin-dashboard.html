@@ -1,180 +1,157 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/dashboard.css">
 </head>
 <body>
-    <header >
-    <div class="container">
-        <div class="brand">
-            <img src="assets/icon.png" class="brand-logo" alt="logo">
-            <span class="brand-name">Rapid Rental</span>
-        </div>
-        <div class="header-right">
-            <div class="search-box">
-                <input type="text" placeholder="Search cars, city or type...">
-            </div>
-            <div class="auth">
-                <button class="signup-btn">Sign Up</button>
-            </div>
-        </div>
-    </div>
-    </header>
-    <div>
-        <aside>
-            <nav>
-                <ul>
-                    <li>Dashboard</li>
-                    <li>Vehicles</li>
-                    <li>Bookings</li>
-                    <li>Users</li>
-                    <li>Logout</li>
-                </ul>
-            </nav>
-        </aside>
 
-        <main>
-            <section>
-                <input type="text" placeholder="Search cars, city or type...">
-                <button>Admin</button>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="./assets/icon.png" alt="logo" class="logo-img">
+            <span class="logo-text">Rapid Rental</span>
+        </div>
+
+        <nav>
+            <a href="#" class="active" data-section="dashboard">Dashboard</a>
+            <a href="#" data-section="vehicles">Vehicles</a>
+            <a href="#" data-section="bookings">Bookings</a>
+        </nav>
+    </aside>
+
+    <!-- main -->
+    <div class="main-content">
+        <!-- topbar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <span class="menu-icon">&#9776;</span>
+            </div>
+            <!-- profile -->
+            <div class="topbar-right">
+                <div class="profile" id="profileToggle">
+                    <span class="admin-badge" id="adminInitial">A</span>
+                </div>
+                <!-- profile dropdown -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-info">
+                        <div class="profile-avatar" id="profileAvatar">A</div>
+                        <div>
+                            <p id="adminName">Admin</p>
+                            <small id="adminEmail">admin@email.com</small>
+                        </div>
+                    </div>
+                    <div class="dropdown-item" id="logoutBtn">Log out</div>
+                </div>
+            </div>
+        </div>
+        <!-- content -->
+        <div class="content">
+            <div class="header">
+                <div class="header-left">
+                    <h1 id="sectionTitle">Vehicles</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="secondary" id="manageBookingsBtn">Manage Bookings</button>
+                    <button class="primary" id="addVehicleBtn">+ Add Vehicle</button>
+                </div>
+            </div>
+
+            <section id="vehiclesSection" class="dashboard-section active">
+                <!-- filters -->
+                <div class="filters" id="vehicleFilters">
+                    <input type="text" id="vehicleSearch" placeholder="Search cars, city or type...">
+                    <select id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="CAR">Car</option>
+                        <option value="BIKE">Bike</option>
+                    </select>
+                    <select id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="AVAILABLE">Available</option>
+                        <option value="BOOKED">Booked</option>
+                        <option value="MAINTENANCE">Maintenance</option>
+                    </select>
+                    <select id="locationFilter">
+                        <option value="">All Locations</option>
+                    </select>
+                    <button class="reset-btn" id="resetFiltersBtn">Reset</button>
+                </div>
+
+                <!-- vehicle List -->
+                <div class="vehicle-list" id="vehicleList"></div>
             </section>
-
-            <section>
-                <h2>Browse Vehicles</h2>
-                <p>Manage your fleet of cars and bikes</p>
-
-                <div>
-                    <button>Manage Bookings</button>
-                    <button>Add Vehicle</button>
+            <section id="bookingsSection" class="dashboard-section">
+                <div class="empty-state">
+                    Booking management UI is ready to connect when booking admin APIs are available.
                 </div>
             </section>
-
-            <!-- Filters -->
-            <section>
-                <input type="text" placeholder="Search vehicles">
-
-                <select>
-                    <option>All Types</option>
-                    <option>Car</option>
-                    <option>Bike</option>
-                </select>
-
-                <select>
-                    <option>All Status</option>
-                    <option>Available</option>
-                    <option>Booked</option>
-                    <option>Maintenance</option>
-                </select>
-
-                <select>
-                    <option>All Locations</option>
-                </select>
-
-                <button>Reset</button>
-            </section>
-
-            <section>
-                <section>
-                    <h3>Cars</h3>
-
-                    <div>
-
-                        <article>
-                            <img src="" alt="vehicle">
-                            <h4>Vehicle Name</h4>
-                            <p>Type</p>
-                            <p>Location</p>
-                            <p>Price</p>
-                            <p>Status</p>
-
-                            <button>Edit</button>
-                            <button>Delete</button>
-                        </article>
-
-                    </div>
-                </section>
-                <section>
-                    <h3>Bikes</h3>
-                    <div>
-                        <article>
-                            <img src="" alt="vehicle">
-                            <h4>Vehicle Name</h4>
-                            <p>Type</p>
-                            <p>Location</p>
-                            <p>Price</p>
-                            <p>Status</p>
-                            <button>Edit</button>
-                            <button>Delete</button>
-                        </article>
-                    </div>
-                </section>
-            </section>
-        </main>
-
+        </div>
     </div>
-    <dialog>
-        <h3>Add Vehicle</h3>
-        <form>
-            <input type="text" placeholder="Brand">
-            <input type="text" placeholder="Model">
+</div>
 
-            <select>
-                <option>Car</option>
-                <option>Bike</option>
+<!-- Add/Edit vehicle -->
+<div id="vehicleModal" class="modal">
+    <div class="modal-content">
+        <h2 id="modalTitle">Add Vehicle</h2>
+        <form id="vehicleForm">
+            <input type="text" id="model" placeholder="Model" required>
+            <input type="text" id="brand" placeholder="Brand" required>
+
+            <select id="type" required>
+                <option value="">Select Type</option>
+                <option value="CAR">Car</option>
+                <option value="BIKE">Bike</option>
             </select>
 
-            <input type="text" placeholder="Location">
-            <input type="number" placeholder="Price">
-
-            <select>
-                <option>Available</option>
-                <option>Booked</option>
-                <option>Maintenance</option>
+            <select id="status" required>
+                <option value="AVAILABLE">Available</option>
+                <option value="BOOKED">Booked</option>
+                <option value="MAINTENANCE">Maintenance</option>
             </select>
-            <input type="file">
-            <button type="submit">Add</button>
-            <button type="button">Cancel</button>
+
+            <input type="number" id="dailyRentalRate" placeholder="Daily Rental Rate" min="1" required>
+
+            <select id="profileUrl" required>
+                <option value="">Select Vehicle Image</option>
+                <option value="./assets/home_car.png">Car</option>
+                <option value="./assets/signup_bike.png">Bike</option>
+                <option value="./assets/bike.jpg">Sports Bike</option>
+            </select>
+
+            <img id="vehicleImagePreview" class="vehicle-image-preview" alt="Vehicle preview">
+
+            <select id="locationId" required>
+                <option value="">Select Location</option>
+            </select>
+
+            <div class="modal-actions">
+                <button type="submit" class="primary">Save</button>
+                <button type="button" id="cancelVehicleBtn">Cancel</button>
+            </div>
         </form>
-    </dialog>
-    <dialog>
-        <h3>Vehicle Details</h3>
-        <img src="" alt="vehicle">
-        <p>Name</p>
-        <p>Type</p>
-        <p>Location</p>
-        <p>Price</p>
-        <p>Status</p>
-        <button>Edit</button>
-        <button>Close</button>
-    </dialog>
+    </div>
+</div>
 
-    <dialog>
-        <h3>Edit Vehicle</h3>
-        <form>
-            <input type="text">
-            <input type="text">
-            <input type="number">
+<!-- Delete Confirmation  -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <h2>Delete Vehicle</h2>
+        <p>Are you sure you want to delete this vehicle?</p>
 
-            <button type="submit">Update</button>
-            <button type="button">Cancel</button>
-        </form>
-    </dialog>
-    <dialog>
-        <p>Are you sure?</p>
-        <button>Delete</button>
-        <button>Cancel</button>
-    </dialog>
-
-    <footer>
-        <div >
-            <h4>Contact</h4>
-            <p>Email: support@rapidrental.com</p>
-            <p>India</p>
+        <div class="modal-actions">
+            <button type="button" class="danger" id="confirmDeleteBtn">Delete</button>
+            <button type="button" id="cancelDeleteBtn">Cancel</button>
         </div>
-        <div>
-            <p>© 2026 Rapid Rental. All rights reserved.</p>
-        </div>
-    </footer>
+    </div>
+</div>
 
+<div id="toast" class="toast"></div>
+
+<script type="module" src="./js/dashboard.js"></script>
 </body>
 </html>
