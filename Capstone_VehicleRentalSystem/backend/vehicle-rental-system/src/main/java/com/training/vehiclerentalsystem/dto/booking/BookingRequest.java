@@ -1,31 +1,28 @@
 package com.training.vehiclerentalsystem.dto.booking;
 
-import com.training.vehiclerentalsystem.enums.BookingStatus;
-import com.training.vehiclerentalsystem.model.User;
-import com.training.vehiclerentalsystem.model.Vehicle;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import com.training.vehiclerentalsystem.enums.PaymentMethod;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class BookingRequest {
 
     @NotNull(message = "vehicle id is required")
     private UUID vehicleId;
 
     @NotNull(message = "start date is required")
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     @NotNull(message = "end date is required")
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
-    @NotBlank(message = "payment method is required")
+    @NotNull(message = "payment method is required")
     private PaymentMethod paymentMethod;
 
 }

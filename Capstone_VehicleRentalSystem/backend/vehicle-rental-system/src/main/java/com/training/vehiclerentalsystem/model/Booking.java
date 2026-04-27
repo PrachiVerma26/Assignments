@@ -1,11 +1,12 @@
 package com.training.vehiclerentalsystem.model;
 
 import com.training.vehiclerentalsystem.enums.BookingStatus;
+import com.training.vehiclerentalsystem.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /*Booking entity represents a vehicle booking made by a user.
@@ -45,15 +46,15 @@ public class Booking {
 
     //booking start date
     @Column(nullable = false)
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     //booking end date
     @Column(nullable = false)
-    private LocalDate endDate;
+    private LocalDateTime endDate;
 
     // total price for the booking ( uses big decimal for precision)
     @Column(nullable = false)
-    private BigDecimal price;
+    private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -65,10 +66,10 @@ public class Booking {
     private BookingStatus status = BookingStatus.PENDING;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
     
     @Column(name = "updated_at", nullable = false)
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
