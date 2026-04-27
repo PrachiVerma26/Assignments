@@ -31,7 +31,6 @@ public class Booking {
 
     // Used for optimistic locking to handle concurrent updates safely
     @Version
-    @Column(name = "version", nullable = false)
     private Long version;
 
     // many bookings can belong to one user
@@ -56,6 +55,10 @@ public class Booking {
     @Column(nullable = false)
     private BigDecimal price;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentMethod paymentMethod;
+
     //current status of booking 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -66,5 +69,15 @@ public class Booking {
     
     @Column(name = "updated_at", nullable = false)
     private LocalDate updatedAt;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
 
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+        
 }
