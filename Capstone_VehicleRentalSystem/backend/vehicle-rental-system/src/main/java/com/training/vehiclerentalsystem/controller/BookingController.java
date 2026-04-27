@@ -1,5 +1,5 @@
 package com.training.vehiclerentalsystem.controller;
-import com.training.vehiclerentalsystem.constants.ApiConstants;
+import com.training.vehiclerentalsystem.constants.BookingConstants;
 import com.training.vehiclerentalsystem.dto.booking.BookingRequest;
 import com.training.vehiclerentalsystem.dto.booking.BookingResponse;
 import com.training.vehiclerentalsystem.service.BookingService;
@@ -17,7 +17,7 @@ import java.util.UUID;
  * handles CRUD operations for booking(customer only)
  */
 @RestController
-@RequestMapping(ApiConstants.CUSTOMER+ "/bookings")
+@RequestMapping(BookingConstants.CUSTOMER_BOOKINGS_BASE)
 public class BookingController {
     private final BookingService bookingService;
     private static final Logger log = LoggerFactory.getLogger(BookingController.class);
@@ -47,8 +47,8 @@ public class BookingController {
         return ResponseEntity.ok(bookings);
     }
 
-    @PutMapping("{id}/cancel")
-    public ResponseEntity<BookingResponse> cancelBooking(@PathVariable UUID id, Authentication authentication) {
+    @PutMapping(BookingConstants.CANCEL)
+    public ResponseEntity<BookingResponse> cancelBooking(@PathVariable(BookingConstants.ID) UUID id, Authentication authentication) {
         String userEmail = getUserEmail(authentication);
         log.info("Cancel booking API called by {} for booking {}", userEmail, id);
         BookingResponse response = bookingService.cancelBooking(id, userEmail);

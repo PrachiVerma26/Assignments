@@ -49,6 +49,36 @@ public class GlobalExceptionalHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(BookingNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBookingNotFound(BookingNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidBookingException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidBooking(InvalidBookingException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.value(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BookingConflictException.class)
+    public ResponseEntity<ErrorResponse> handleBookingConflict(BookingConflictException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(LocationNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleLocationNotFound(LocationNotFoundException ex) {
         ErrorResponse error = new ErrorResponse(

@@ -3,6 +3,9 @@ package com.training.vehiclerentalsystem.service.implementation;
 import com.training.vehiclerentalsystem.dto.booking.BookingRequest;
 import com.training.vehiclerentalsystem.dto.booking.BookingResponse;
 import com.training.vehiclerentalsystem.enums.BookingStatus;
+import com.training.vehiclerentalsystem.exceptions.InvalidBookingException;
+import com.training.vehiclerentalsystem.exceptions.InvalidCredentialsException;
+import com.training.vehiclerentalsystem.exceptions.VehicleNotFoundException;
 import com.training.vehiclerentalsystem.mapper.BookingMapper;
 import com.training.vehiclerentalsystem.model.Booking;
 import com.training.vehiclerentalsystem.model.User;
@@ -49,14 +52,14 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponse createBooking(BookingRequest request, String userEmail) {
         User user = getUserByEmail(userEmail);
         if (request.getStartDate().isAfter(request.getEndDate())) {
-            throw new RuntimeException("Invalid date range");
+            throw new InvalidBookingException("Invalid date range");
         }
         if (request.getStartDate().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Cannot book past dates");
+            throw new InvalidBookingException("Cannot book past dates");
         }
 
         Vehicle vehicle = vehicleRepository.findById(request.getVehicleId())
-                .orElseThrow(() -> new RuntimeException("Vehicle not found"));
+                .orElseThrow(() -> new VehicleNotFoundException("Vehicle not found"));
 
         boolean conflictExists = bookingRepository.existsOverlappingBooking(
                 vehicle.getId(),
