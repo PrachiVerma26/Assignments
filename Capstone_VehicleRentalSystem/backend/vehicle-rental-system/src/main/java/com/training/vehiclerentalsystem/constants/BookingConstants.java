@@ -4,8 +4,10 @@ public class BookingConstants {
 
     private BookingConstants(){}
 
-    public static final String CUSTOMER_BOOKINGS_BASE = ApiConstants.CUSTOMER + "/bookings";
+    public static final String CUSTOMER_BOOKINGS_API= ApiConstants.CUSTOMER + "/bookings";
+    public static final String ADMIN_BOOKINGS_API = ApiConstants.ADMIN + "/bookings";
     public static final String CANCEL = "/{id}/cancel";
+    public static final String BY_ID = "/{id}";
     public static final String ID = "id";
     public static final String INVALID_DATE_RANGE = "Start date must be before end date";
     public static final String PAST_BOOKING_NOT_ALLOWED = "Cannot book past dates";

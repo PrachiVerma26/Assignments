@@ -2,6 +2,7 @@ package com.training.vehiclerentalsystem.dto.booking;
 
 import com.training.vehiclerentalsystem.enums.BookingStatus;
 import com.training.vehiclerentalsystem.enums.PaymentMethod;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,6 +36,9 @@ public class BookingResponse {
         private String address;
         private String city;
         private String state;
+
+        //pincode validation (must be exactly 6 digits) and here it is stored as string to preserve leading zeros
+        @Pattern(regexp = "\\d{6}")
         private String pincode;
     }
 }
