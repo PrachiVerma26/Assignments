@@ -1,6 +1,5 @@
 package com.training.vehiclerentalsystem.controller;
 
-import com.training.vehiclerentalsystem.constants.ApiConstants;
 import com.training.vehiclerentalsystem.constants.AuthConstants;
 import com.training.vehiclerentalsystem.dto.signup.SignupResponse;
 import com.training.vehiclerentalsystem.dto.login.LoginRequest;
@@ -16,14 +15,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * REST controller responsible for handling authentication-related APIs
- * endpoints are
- * - user registration :(signup)
- * - user authentication (login)
+/*
+ REST controller responsible for handling authentication-related APIs
+ endpoints are: user registration :(signup), user authentication (login)
  */
 
  @RestController
@@ -42,7 +38,6 @@ public class AuthController {
     public ResponseEntity<SignupResponse> signup(@RequestBody @Valid SignupRequest signupRequestDTO) {
         log.info("Signup API called with email: {}", signupRequestDTO.getEmail());
         SignupResponse response = authService.signup(signupRequestDTO);
-
         log.info("Registration successful.");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
 

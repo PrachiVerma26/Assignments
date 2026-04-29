@@ -19,10 +19,9 @@ import org.springframework.stereotype.Service;
 
 /*
  * Service responsible for handling authentication and user registration logic.
- * - Register new users with validation and default role assignment
- * - Authenticate users by verifying credentials
- * - Passwords are stored in encrypted format using BCrypt
- * - Role-based authorization will be implemented using JWT in future
+ Register new users with validation and default role assignment
+ Authenticate users by verifying credentials
+ Passwords are stored in encrypted format using BCrypt
  */
 
 @Service
@@ -50,17 +49,22 @@ public class AuthServiceImpl implements AuthService {
             log.error("User already exists...");
             throw new UserAlreadyExistsException("User already exists");
         }
-
-        User user = UserMapper.toEntity(SignupRequestDTO);
+        if (userRepository.existsByDrivingLicenseNumber(SignupRequestDTO.getDrivingLicenseNumber())) {
+            throw new UserAlreadyExistsException("Driving license number already exists");
+        }
+        User user = userMapper.toEntity(SignupRequestDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // Assign role based on email
+        String userRole;
         if (SignupRequestDTO.getEmail().equals("admin@rapidrental.com")) {
             user.getRole().add(RoleType.ADMIN);
+            userRole = "ADMIN";
         } else {
             user.getRole().add(RoleType.CUSTOMER);
+            userRole = "CUSTOMER";
         }
-
         userRepository.save(user);
-        log.info("Customer created successfully!");
+        log.info("User created successfully with role: {}", userRole);
         return new SignupResponse(
                 user.getId(),
                 user.getEmail(),
@@ -85,13 +89,14 @@ public class AuthServiceImpl implements AuthService {
                 throw new InvalidCredentialsException("Invalid email or password");
             }
             String token = jwtUtil.generateToken(user);
+            
+            // Extract first role from Set
+            String userRole = user.getRole().stream()
+                    .findFirst()
+                    .map(RoleType::name)
+                    .orElse("CUSTOMER");
+            
             log.info("User logged in successfully!");
-            return new LoginResponse(
-                    token,
-                    "Logged in successfully!",
-                    user.getEmail(),
-                    user.getRole()
-            );
+            return new LoginResponse(token, "Logged in successfully!", user.getEmail(), userRole);
         }
 }
-

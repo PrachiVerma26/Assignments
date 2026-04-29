@@ -2,7 +2,6 @@ package com.training.vehiclerentalsystem.model;
 
 import com.training.vehiclerentalsystem.enums.RoleType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,27 +23,24 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name="user_id")
     private UUID id; //primary key for the user
-
-    @NotBlank(message = "Name cannot be blank")
-    @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
     private String name;
 
     //unique phone number for contact
     @Column(unique = true, nullable = true)
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be 10 digits") // Validates format
     private String phoneNumber;
 
     //address of the user
     @Column(nullable = true)
     private String address;
 
+    @Column(nullable = false, unique = true)
+    private String drivingLicenseNumber;
+
     //unique email for authentication
-    @Email
     @Column(unique = true, nullable = false)
     private String email;
 
     @Column(nullable = false)
-    @Size(min=6)
     private String password;
 
     @Column(name = "created_at", updatable = false)
@@ -54,7 +50,7 @@ public class User {
     private LocalDateTime updatedAt;
 
     //roles assigned to the user(admin, customer)
-    @ElementCollection(fetch = FetchType.EAGER) // creates separate table for collection (users_role) and used FetchType.EAGER: Loads roles immediately with user (needed for security checks)
+    @ElementCollection(fetch = FetchType.EAGER) // creates separate table for collection (users_role) and used FetchType.LAZY: Loads roles immediately with user (needed for security checks)
     @Enumerated(EnumType.STRING) // stores enum as string instead of ordinal (0, 1)
     private Set<RoleType> role=new HashSet<>(); //prevents duplicate roles
 
@@ -72,5 +68,4 @@ public class User {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
 }

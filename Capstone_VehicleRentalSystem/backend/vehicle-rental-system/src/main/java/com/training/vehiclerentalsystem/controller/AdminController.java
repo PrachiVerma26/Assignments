@@ -1,16 +1,15 @@
 package com.training.vehiclerentalsystem.controller;
 
-import com.training.vehiclerentalsystem.constants.ApiConstants;
 import com.training.vehiclerentalsystem.constants.VehicleConstants;
 import com.training.vehiclerentalsystem.dto.vehicle.VehicleRequest;
 import com.training.vehiclerentalsystem.dto.vehicle.VehicleResponse;
 import com.training.vehiclerentalsystem.service.VehicleService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +18,8 @@ import java.util.UUID;
  * REST controller for admin vehicle management
  * Handles CRUD operations for vehicles (admin only)
  */
+
+@PreAuthorize("hasRole('ADMIN')")
 @RestController
 @RequestMapping(VehicleConstants.ADMIN_BASE)
 public class AdminController {
@@ -60,13 +61,5 @@ public class AdminController {
         List<VehicleResponse> vehicles = vehicleService.findAll();
         log.info("Retrieved {} vehicles for admin", vehicles.size());
         return ResponseEntity.ok(vehicles);
-    }
-
-    @GetMapping(VehicleConstants.BY_ID)
-    public ResponseEntity<VehicleResponse> getVehicleByIdAdmin(@PathVariable UUID id) {
-        log.info("Get vehicle by ID (admin) API called for ID: {}", id);
-        VehicleResponse vehicle = vehicleService.findById(id);
-            log.info("Vehicle found: {} {}", vehicle.getBrand(), vehicle.getModel());
-        return ResponseEntity.ok(vehicle);
     }
 }

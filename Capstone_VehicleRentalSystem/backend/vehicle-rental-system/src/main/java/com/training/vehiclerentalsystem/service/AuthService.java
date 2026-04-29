@@ -7,7 +7,6 @@ import com.training.vehiclerentalsystem.dto.login.LoginResponse;
 
 public interface AuthService {
 
-    SignupResponse signup(SignupRequest dto);
-
-    LoginResponse login(LoginRequest dto);
+    SignupResponse signup(SignupRequest signupRequestDTO);
+    LoginResponse login(LoginRequest loginRequestDTO);
 }
