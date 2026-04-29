@@ -12,8 +12,11 @@ export class ApiError extends Error {
 
 async function request(endpoint, options = {}) {
     const token = localStorage.getItem("token");
+    const url = `${API_ROOT}${endpoint}`;
+    
+    console.log(`[API] ${options.method || 'GET'} ${url}`);
 
-    const response = await fetch(`${API_ROOT}${endpoint}`, {
+    const response = await fetch(url, {
         ...options,
         headers: {
             "Content-Type": "application/json",
@@ -25,6 +28,7 @@ async function request(endpoint, options = {}) {
     const data = response.status === 204 ? null : await response.json();
 
     if (!response.ok) {
+        console.error(`[API] Error: ${response.status}`, data);
         throw new ApiError(
             data?.message || "Request failed",
             response.status,
@@ -35,20 +39,20 @@ async function request(endpoint, options = {}) {
     return data;
 }
 
-export async function loginUser(data) {
+export async function loginUser(credentials) {
     try {
-        console.log("Sending login request:", data);      
+        console.log("[API] Sending login request");      
         const response = await fetch(`${AUTH_BASE_URL}/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(credentials)
         });
-        console.log("Response status:", response.status);
-        console.log("Response headers:", response.headers);
+        
         const result = await response.json();
-        console.log("Response data:", result);
+        console.log("[API] Login response received:", result);
+        
         if (!response.ok) {
             throw new ApiError(
                 result.message || "Login failed",
@@ -56,21 +60,10 @@ export async function loginUser(data) {
                 result
             );
         }
-        // Store data
-        if (result.token) {
-            localStorage.setItem("token", result.token);
-        }
-        if (result.role) {
-            const userRole=Array.isArray(result.role)? result.role[0]:result.role;
-            localStorage.setItem("role", userRole); // Remove JSON.stringify
-        }
-        if (result.email) {
-            localStorage.setItem("email", result.email);
-        }
 
         return result;
     } catch (error) {
-        console.error("Login error:", error);
+        console.error("[API] Login error:", error);
         
         if (error instanceof ApiError) {
             throw error;
@@ -82,7 +75,6 @@ export async function loginUser(data) {
         );
     }
 }
-
 
 export async function signupUser(data) {
     const response = await fetch(`${AUTH_BASE_URL}/signup`, {
@@ -131,10 +123,105 @@ export function deleteVehicleById(id) {
     });
 }
 
+export function getAdminBookings(status) {
+    const query = status ? `?status=${encodeURIComponent(status)}` : "";
+    return request(`/admin/bookings${query}`, {
+        method: "GET"
+    });
+}
+
+export function getAdminBookingById(id) {
+    return request(`/admin/bookings/${id}`, {
+        method: "GET"
+    });
+}
+
 export function getLocations() {
     return request("/locations", {
         method: "GET"
     });
 }
 
+// User Profile APIs
+export function getUserProfile() {
+    return request("/customer/profile", {
+        method: "GET"
+    });
+}
 
+export function updateUserProfile(profileData) {
+    return request("/customer/profile", {
+        method: "PUT",
+        body: JSON.stringify(profileData)
+    });
+}
+
+// Public Vehicles APIs
+export function getAllPublicVehicles() {
+    return request("/vehicles", {
+        method: "GET"
+    });
+}
+
+export function getVehicleById(id) {
+    return request(`/vehicles/${id}`, {
+        method: "GET"
+    });
+}
+
+export function getAvailableVehiclesByDateRange(startDate, endDate, type, locationId) {
+    let url = `/vehicles/available-by-dates?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+    if (type) url += `&type=${type}`;
+    if (locationId) url += `&locationId=${locationId}`;
+    
+    return request(url, {
+        method: "GET"
+    });
+}
+
+export function getAvailableVehicles(type, locationId) {
+    let url = `/vehicles/available?type=${type}`;
+    if (locationId) url += `&locationId=${locationId}`;
+    
+    return request(url, {
+        method: "GET"
+    });
+}
+
+export function getVehiclesByType(type) {
+    return request(`/vehicles/type/${type}`, {
+        method: "GET"
+    });
+}
+
+export function getVehiclesByLocation(locationId) {
+    return request(`/vehicles/location/${locationId}`, {
+        method: "GET"
+    });
+}
+
+// Booking APIs
+export function createBooking(bookingData) {
+    return request("/customer/bookings", {
+        method: "POST",
+        body: JSON.stringify(bookingData)
+    });
+}
+
+export function getUserBookings() {
+    return request("/customer/bookings", {
+        method: "GET"
+    });
+}
+
+export function getBookingById(id) {
+    return request(`/customer/bookings/${id}`, {
+        method: "GET"
+    });
+}
+
+export function cancelBooking(id) {
+    return request(`/customer/bookings/${id}/cancel`, {
+        method: "PATCH"
+    });
+}
