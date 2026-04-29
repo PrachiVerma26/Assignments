@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -18,13 +17,13 @@ public class VehicleResponse {
     private String model;
     private String brand;
     private VehicleType type;
+    private String registrationNumber;
+    private String description;
     private VehicleStatus status;
     private BigDecimal dailyRentalRate;
     private String profileUrl;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
-    // Location details (nested)
+    // Location details
     private LocationInfo location;
 
     @Data

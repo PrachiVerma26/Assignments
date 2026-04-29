@@ -1,5 +1,6 @@
 package com.training.vehiclerentalsystem.service.implementation;
 
+import com.training.vehiclerentalsystem.constants.VehicleConstants;
 import com.training.vehiclerentalsystem.dto.vehicle.VehicleRequest;
 import com.training.vehiclerentalsystem.dto.vehicle.VehicleResponse;
 import com.training.vehiclerentalsystem.enums.VehicleStatus;
@@ -37,7 +38,7 @@ public class VehicleServiceImpl implements VehicleService {
     public VehicleResponse createVehicle(VehicleRequest vehicleRequestDTO) {
         
         Location location = locationRepository.findById(vehicleRequestDTO.getLocationId())
-                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + vehicleRequestDTO.getLocationId()));
+                .orElseThrow(() -> new LocationNotFoundException(VehicleConstants.LOCATION_NOT_FOUND + vehicleRequestDTO.getLocationId()));
         Vehicle vehicle = vehicleMapper.toEntity(vehicleRequestDTO);
         vehicle.setLocation(location);
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
@@ -47,10 +48,10 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public VehicleResponse updateVehicle(UUID id, VehicleRequest vehicleRequestDTO) {
         Vehicle existingVehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new VehicleNotFoundException("Vehicle not found with id: " + id));
+                .orElseThrow(() -> new VehicleNotFoundException(VehicleConstants.VEHICLE_NOT_FOUND+ id));
         if (!existingVehicle.getLocation().getId().equals(vehicleRequestDTO.getLocationId())) {
             Location newLocation = locationRepository.findById(vehicleRequestDTO.getLocationId())
-                    .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + vehicleRequestDTO.getLocationId()));
+                    .orElseThrow(() -> new LocationNotFoundException(VehicleConstants.LOCATION_NOT_FOUND + vehicleRequestDTO.getLocationId()));
             existingVehicle.setLocation(newLocation);
         }
         vehicleMapper.updateEntityFromRequest(vehicleRequestDTO, existingVehicle);
@@ -61,9 +62,9 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public void deleteVehicle(UUID id) {
         Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(VehicleConstants.VEHICLE_NOT_FOUND + id));
         if (vehicle.getStatus() == VehicleStatus.BOOKED) {
-            throw new VehicleDeletionNotAllowedException("Cannot delete vehicle with active bookings");
+            throw new VehicleDeletionNotAllowedException(VehicleConstants.VEHICLE_DELETE_NOT_ALLOWED);
         }
         vehicleRepository.delete(vehicle);
     }
@@ -72,7 +73,7 @@ public class VehicleServiceImpl implements VehicleService {
     @Transactional(readOnly = true)
     public VehicleResponse findById(UUID id) {
         Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new VehicleNotFoundException("Vehicle not found with id: " + id));
+                .orElseThrow(() -> new VehicleNotFoundException(VehicleConstants.VEHICLE_NOT_FOUND));
         return vehicleMapper.toResponse(vehicle);
     }
 
@@ -105,5 +106,27 @@ public class VehicleServiceImpl implements VehicleService {
             vehicles = vehicleRepository.findAll();
         }
         return vehicleMapper.toResponseList(vehicles);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<VehicleResponse> findAvailableVehicles(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate, VehicleType type, UUID locationId) {
+        // Get all vehicles available for the date range (not booked during that period)
+        List<Vehicle> availableVehicles = vehicleRepository.findAvailableVehicles(VehicleStatus.AVAILABLE, startDate, endDate);
+        
+        // Further filter by type if provided
+        if (type != null) {
+            availableVehicles = availableVehicles.stream()
+                    .filter(v -> v.getType() == type)
+                    .toList();
+        }
+        
+        // Further filter by location if provided
+        if (locationId != null) {
+            availableVehicles = availableVehicles.stream()
+                    .filter(v -> v.getLocation().getId().equals(locationId))
+                    .toList();
+        }
+        return vehicleMapper.toResponseList(availableVehicles);
     }
 }

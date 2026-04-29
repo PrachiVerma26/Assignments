@@ -4,13 +4,11 @@ import com.training.vehiclerentalsystem.dto.vehicle.VehicleRequest;
 import com.training.vehiclerentalsystem.dto.vehicle.VehicleResponse;
 import com.training.vehiclerentalsystem.model.Vehicle;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
 /*
 Convert VehicleRequest DTO to Vehicle Entity
-Note: Location must be set separately in service layer
 */
 
 @Component
@@ -22,9 +20,12 @@ public class VehicleMapper {
         vehicle.setModel(request.getModel());
         vehicle.setBrand(request.getBrand());
         vehicle.setType(request.getType());
+        vehicle.setRegistrationNumber(request.getRegistrationNumber());
+        vehicle.setDesc(request.getDescription());
         vehicle.setStatus(request.getStatus());
         vehicle.setDailyRentalRate(request.getDailyRentalRate());
         vehicle.setProfileUrl(request.getProfileUrl());
+
         return vehicle;
     }
 
@@ -35,11 +36,11 @@ public class VehicleMapper {
         response.setModel(vehicle.getModel());
         response.setBrand(vehicle.getBrand());
         response.setType(vehicle.getType());
+        response.setRegistrationNumber(vehicle.getRegistrationNumber());
+        response.setDescription(vehicle.getDesc());
         response.setStatus(vehicle.getStatus());
         response.setDailyRentalRate(vehicle.getDailyRentalRate());
         response.setProfileUrl(vehicle.getProfileUrl());
-        response.setCreatedAt(vehicle.getCreatedAt());
-        response.setUpdatedAt(vehicle.getUpdatedAt());
 
         if (vehicle.getLocation() != null) {
             VehicleResponse.LocationInfo locationInfo = new VehicleResponse.LocationInfo();
@@ -64,31 +65,10 @@ public class VehicleMapper {
         existingVehicle.setModel(request.getModel());
         existingVehicle.setBrand(request.getBrand());
         existingVehicle.setType(request.getType());
+        existingVehicle.setRegistrationNumber(request.getRegistrationNumber());
+        existingVehicle.setDesc(request.getDescription());
         existingVehicle.setStatus(request.getStatus());
         existingVehicle.setDailyRentalRate(request.getDailyRentalRate());
         existingVehicle.setProfileUrl(request.getProfileUrl());
-    }
-
-    public VehicleResponse toSimpleResponse(Vehicle vehicle) {
-        VehicleResponse response = new VehicleResponse();
-
-        response.setId(vehicle.getId());
-        response.setModel(vehicle.getModel());
-        response.setBrand(vehicle.getBrand());
-        response.setType(vehicle.getType());
-        response.setStatus(vehicle.getStatus());
-        response.setDailyRentalRate(vehicle.getDailyRentalRate());
-        response.setProfileUrl(vehicle.getProfileUrl());
-        response.setCreatedAt(vehicle.getCreatedAt());
-        response.setUpdatedAt(vehicle.getUpdatedAt());
-
-        if (vehicle.getLocation() != null) {
-            VehicleResponse.LocationInfo locationInfo = new VehicleResponse.LocationInfo();
-            locationInfo.setId(vehicle.getLocation().getId());
-            locationInfo.setCity(vehicle.getLocation().getCity());
-            response.setLocation(locationInfo);
-        }
-
-        return response;
     }
 }

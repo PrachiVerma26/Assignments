@@ -46,6 +46,12 @@ public class Vehicle {
     @Column(nullable = false)
     private VehicleType type;
 
+    @Column(name = "registration_number", unique = true, length = 50)
+    private String registrationNumber;
+
+    @Column(name="description", length=200)
+    private String desc;
+
     @Enumerated(EnumType.STRING) // stores enum as string instead of ordinal (0, 1)
     @Column(nullable = false)
     private VehicleStatus status = VehicleStatus.AVAILABLE;

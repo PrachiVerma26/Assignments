@@ -1,6 +1,5 @@
 package com.training.vehiclerentalsystem.controller;
 
-import com.training.vehiclerentalsystem.constants.ApiConstants;
 import com.training.vehiclerentalsystem.constants.VehicleConstants;
 import com.training.vehiclerentalsystem.dto.vehicle.VehicleResponse;
 import com.training.vehiclerentalsystem.enums.VehicleStatus;
@@ -10,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,6 +79,17 @@ public class VehicleController {
         log.info("Get vehicles by location API called with locationId: {}", locationId);
         List<VehicleResponse> vehicles = vehicleService.filterVehicles(null, null, locationId);
         log.info("Found {} vehicles at location {}", vehicles.size(), locationId);
+        return ResponseEntity.ok(vehicles);
+    }
+
+    @GetMapping(VehicleConstants.AVAILABLE_BY_DATES)
+    public ResponseEntity<List<VehicleResponse>> getAvailableVehiclesByDate(
+            @RequestParam LocalDateTime  startDate,
+            @RequestParam LocalDateTime endDate,
+            @RequestParam(required = false) VehicleType type,
+            @RequestParam(required = false) UUID locationId) {
+        log.info("Get available vehicles by date range: {} to {}", startDate, endDate);
+        List<VehicleResponse> vehicles = vehicleService.findAvailableVehicles(startDate, endDate, type, locationId);
         return ResponseEntity.ok(vehicles);
     }
 }

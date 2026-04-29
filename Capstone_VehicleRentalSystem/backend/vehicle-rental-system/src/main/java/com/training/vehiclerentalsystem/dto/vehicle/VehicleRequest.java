@@ -5,6 +5,7 @@ import com.training.vehiclerentalsystem.enums.VehicleType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,12 @@ public class VehicleRequest {
 
     @NotNull(message = "Vehicle type is required")
     private VehicleType type;
+
+    @NotBlank(message = "Registration number is required")
+    private String registrationNumber;
+
+    @Size(max = 200, message = "Description cannot exceed 200 characters")
+    private String description;
 
     private VehicleStatus status = VehicleStatus.AVAILABLE;
 
