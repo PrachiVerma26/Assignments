@@ -1,7 +1,6 @@
 package com.training.vehiclerentalsystem.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -34,8 +33,6 @@ public class Location {
     @Column(nullable = false, length= 50)
     private String city;
 
-    //pincode validation (must be exactly 6 digits) and here it is stored as string to preserve leading zeros
-    @Pattern(regexp = "\\d{6}")
     @Column(nullable = false, length = 6)
     private String pincode;
 
