@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Vehicles - Rapid Rental</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gelasio&family=Kantumruy+Pro&family=Noto+Serif&family=PT+Serif&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/customer-dashboard.css">
+    <link rel="stylesheet" href="css/vehicles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="index.html" class="brand brand-link">
+                <img src="assets/icon.png" alt="Rapid Rental" class="brand-logo">
+                <span class="brand-name">Rapid Rental</span>
+            </a>
+            <div class="header-right">
+                <div class="auth">
+                    <button class="login-btn" id="loginBtn">Login</button>
+                    <button class="signup-btn" id="signupBtn">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="public-vehicles-container">
+        <div class="page-header">
+            <h1>Browse Our Vehicles</h1>
+            <p>Find the perfect vehicle for your next journey</p>
+        </div>
+
+        <!-- vehicle list view -->
+        <div id="vehicleListView">
+            <!-- filters -->
+            <div class="filters">
+                <div class="form-group-inline">
+                    <label>Start Date & Time</label>
+                    <input type="datetime-local" id="filterStartDate">
+                </div>
+                <div class="form-group-inline">
+                    <label>End Date & Time</label>
+                    <input type="datetime-local" id="filterEndDate">
+                </div>
+                <select id="filterType">
+                    <option value="">All Types</option>
+                    <option value="CAR">Car</option>
+                    <option value="BIKE">Bike</option>
+                </select>
+                <select id="filterLocation">
+                    <option value="">All Locations</option>
+                </select>
+                <select id="filterStatus">
+                    <option value="">All Status</option>
+                    <option value="AVAILABLE">Available</option>
+                    <option value="BOOKED">Booked</option>
+                    <option value="MAINTENANCE">Maintenance</option>
+                </select>
+                <button class="btn btn-primary" id="searchVehiclesBtn">Search</button>
+                <button class="btn btn-secondary" id="resetFiltersBtn">Reset</button>
+            </div>
+
+            <!-- vehicle grid -->
+            <div id="vehicleGrid" class="vehicle-grid"></div>
+            <!-- pagination -->
+            <div id="pagination" class="pagination"></div>
+            <!-- loading state -->
+            <div id="loadingState" class="empty-state hidden">
+                Loading vehicles...
+            </div>
+            <!-- empty state -->
+            <div id="emptyState" class="empty-state hidden">
+                No vehicles found matching your criteria.
+            </div>
+        </div>
+
+        <!-- vehicle deatil view-->
+        <div id="vehicleDetailsView" class="vehicle-details-section hidden">
+            <div class="vehicle-details-container">
+                <div class="vehicle-details-left">
+                    <img id="detailVehicleImage" class="vehicle-detail-image" src="" alt="Vehicle">
+                </div>
+                <div class="vehicle-details-right">
+                    <div class="vehicle-info">
+                        <h2 id="detailVehicleName">Vehicle Name</h2>
+                        <div class="vehicle-price" id="detailVehiclePrice">₹0/day</div>
+                        <span class="status-badge" id="detailVehicleStatus">AVAILABLE</span>
+                        
+                        <div class="vehicle-specs" id="detailVehicleSpecs">
+                            <!-- vehilce specification will be populated dynamically -->
+                        </div>
+                        
+                        <div class="vehicle-description hidden" id="detailVehicleDesc">
+                            <strong>Description:</strong>
+                            <p id="detailDescText"></p>
+                        </div>
+                        
+                        <div class="vehicle-actions">
+                            <button class="btn btn-secondary" id="backToVehiclesBtn">Back to Vehicles</button>
+                            <button class="btn btn-primary" id="detailBookBtn">Book Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h3>Rapid Rental</h3>
+                    <p class="footer-description">Providing reliable and affordable vehicle rental services.</p>
+                </div>
+                <div class="footer-contact">
+                    <h4 class="contact-title">Contact</h4>
+                    <p>Email: support@rapidrental.com</p>
+                    <p>India</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Rapid Rental. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- booking form: for logged in users -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content booking-modal-inner">
+            <h2>Book Vehicle</h2>
+            <label>Start Date & Time</label>
+            <input type="datetime-local" id="bookStart">
+            <label>End Date & Time</label>
+            <input type="datetime-local" id="bookEnd">
+            <label>Payment Method</label>
+            <select id="bookPayment">
+                <option value="">Select Payment</option>
+                <option value="CASH">Cash</option>
+                <option value="CARD">Card</option>
+                <option value="UPI">UPI</option>
+            </select>
+            <p id="bookingError" class="form-error hidden"></p>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="confirmBookingBtn">Confirm</button>
+                <button class="btn btn-secondary" id="cancelBookingBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- toast -->
+    <div id="toast" class="toast"></div>
+    <script type="module" src="./js/vehicles.js"></script>
+</body>
+</html>
