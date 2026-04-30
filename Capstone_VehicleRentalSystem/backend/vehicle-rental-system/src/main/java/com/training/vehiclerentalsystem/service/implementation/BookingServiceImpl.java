@@ -1,5 +1,7 @@
 package com.training.vehiclerentalsystem.service.implementation;
 
+import com.training.vehiclerentalsystem.constants.BookingConstants;
+import com.training.vehiclerentalsystem.constants.VehicleConstants;
 import com.training.vehiclerentalsystem.dto.booking.BookingRequest;
 import com.training.vehiclerentalsystem.dto.booking.BookingResponse;
 import com.training.vehiclerentalsystem.enums.BookingStatus;
@@ -58,18 +60,18 @@ public class BookingServiceImpl implements BookingService {
         User user = getUserByEmail(userEmail);
         if (bookingRequestDTO.getStartDate().isAfter(bookingRequestDTO.getEndDate())) {
             log.error("Cannot create booking, selected invalid date range");
-            throw new InvalidBookingException("Invalid date range");
+            throw new InvalidBookingException(BookingConstants.INVALID_DATE_RANGE);
         }
         if (bookingRequestDTO.getStartDate().isBefore(LocalDateTime.now())) {
             log.warn("Cannot book past dates!");
-            throw new InvalidBookingException("Cannot book past dates");
+            throw new InvalidBookingException(BookingConstants.PAST_BOOKING_NOT_ALLOWED);
         }
         if (user.getDrivingLicenseNumber() == null || user.getDrivingLicenseNumber().isBlank()) {
             log.error("Customer didn't added driving license, so please add then you can book again.");
             throw new InvalidBookingException("Please add your driving license number before booking");
         }
         Vehicle vehicle = bookingRepository.findVehicleForUpdate(bookingRequestDTO.getVehicleId())
-                .orElseThrow(() -> new VehicleNotFoundException("Vehicle not found"));
+                .orElseThrow(() -> new VehicleNotFoundException(VehicleConstants.VEHICLE_NOT_FOUND));
         boolean conflictExists = bookingRepository.existsOverlappingBooking(
                 vehicle.getId(),
                 bookingRequestDTO.getStartDate(),
@@ -79,25 +81,21 @@ public class BookingServiceImpl implements BookingService {
             log.warn("Vehicle already booked for the selected dates");
             throw new BookingConflictException("Vehicle already booked for selected dates");
         }
-        //calcuate price
+        //validating start and end date
         long days = ChronoUnit.DAYS.between(bookingRequestDTO.getStartDate(), bookingRequestDTO.getEndDate()) + 1;
         if (days > 30) {
             throw new InvalidBookingException("Max booking duration is 30 days");
         }
-
         LocalDateTime minTime = LocalDateTime.now().plusHours(2);
         if (bookingRequestDTO.getStartDate().isBefore(minTime)) {
             throw new InvalidBookingException("Booking must be at least 2 hours in advance");
         }
-
         BigDecimal totalPrice = vehicle.getDailyRentalRate().multiply(BigDecimal.valueOf(days));
         Booking booking = bookingMapper.toEntity(bookingRequestDTO);
-
         booking.setUser(user);
         booking.setVehicle(vehicle);
         booking.setTotalPrice(totalPrice);
         booking.setStatus(BookingStatus.CONFIRMED);
-
         log.info("Customer booked vehicle successfully!");
         Booking saved = bookingRepository.save(booking);
 
@@ -116,7 +114,6 @@ public class BookingServiceImpl implements BookingService {
                     .map(bookingMapper::toResponse)
                     .toList();
         }
-
         @Override
         public BookingResponse getBookingById(UUID id, String email) {
             User user = getUserByEmail(email);
@@ -124,36 +121,28 @@ public class BookingServiceImpl implements BookingService {
                     .findByIdAndUser_Id(id, user.getId())
                     .orElseThrow(() -> {
                         log.error("Booking not found with user having {}. ", user.getId());
-                        return new BookingNotFoundException("Booking not found");});
+                        return new BookingNotFoundException(BookingConstants.BOOKING_NOT_FOUND);
+                    });
             return bookingMapper.toResponse(booking);
         }
-        
         @Override
         public BookingResponse cancelBooking(UUID bookingId, String userEmail) {
             User user = getUserByEmail(userEmail);
             Booking booking = bookingRepository.findByIdAndUser_Id(bookingId, user.getId())
                     .orElseThrow(() -> {
                         log.error("Booking not found with user having {}. ", user.getId());
-                        return new BookingNotFoundException("Booking not found");
+                        return new BookingNotFoundException(BookingConstants.BOOKING_NOT_FOUND);
                     });
 
             if (booking.getStatus() == BookingStatus.CANCELLED) {
-                throw new BookingConflictException("Booking already cancelled");
+                throw new BookingConflictException(BookingConstants.BOOKING_ALREADY_CANCELLED);
             }
             LocalDateTime now = LocalDateTime.now();
-
             if (booking.getStartDate().isBefore(now)) {
                 throw new BookingConflictException("Cannot cancel a booking that has already started");
             }
-
-            long hours = ChronoUnit.HOURS.between(now, booking.getStartDate());
-            if (hours < 24) {
-                throw new BookingConflictException("Cannot cancel within 24 hours");
-            }
-
             booking.setStatus(BookingStatus.CANCELLED);
             Booking updated = bookingRepository.save(booking);
-
             /* updating status in vehicle */
             Vehicle vehicle = booking.getVehicle();
             vehicle.setStatus(VehicleStatus.AVAILABLE);
