@@ -84,6 +84,7 @@ input:focus {
     border-color: var(--secondary);
     box-shadow: 0 0 0 3px rgba(196,164,132,0.2);
 }
+
 .login-card button {
     width: 100%;
     padding: 12px;

@@ -1,71 +1,82 @@
 import { signupUser } from "./api.js";
 
-// storage
-function saveToken(token) {
-    localStorage.setItem("token", token);
-}
-
-function saveUser(data) {
-    localStorage.setItem("email", data.email);
-    localStorage.setItem("role", data.role);
-}
-
 document.addEventListener("DOMContentLoaded", () => {
-
-     console.log("[SIGNUP] Page loaded"); 
     const form = document.getElementById("signupForm");
+    const firstNameInput = document.getElementById("firstName");
+    const lastNameInput = document.getElementById("lastName");
+    const emailInput = document.getElementById("email");
+    const phoneInput = document.getElementById("phoneNumber");
+    const licenseInput = document.getElementById("drivingLicense");
+    const addressInput = document.getElementById("address");
+    const passwordInput = document.getElementById("password");
+    const submitButton = form.querySelector("button[type='submit']");
 
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-        console.log("[SIGNUP] Form submitted");
-        const firstName = document.getElementById("firstName").value;
-        const lastName = document.getElementById("lastName").value;
-        const phoneInput=document.getElementById("phone");
-        const phone = phoneInput ? phoneInput.value.trim() : "";
-        const email = document.getElementById("email").value.trim();
+        const oldMessage = document.querySelector(".error-message, .success-message");
+        if (oldMessage) {
+            oldMessage.remove();
+        }
 
-        if (!firstName || !lastName || !email || !password) {
-            alert("All fields are required");
+        const firstName = firstNameInput.value.trim();
+        const lastName = lastNameInput.value.trim();
+        const email = emailInput.value.trim();
+        const phoneNumber = phoneInput.value.trim();
+        const drivingLicense = licenseInput.value.trim();
+        const address = addressInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        let message = "";
+
+        if (!firstName || !lastName || !email || !phoneNumber || !drivingLicense || !address || !password) {
+            message = "Please fill all fields";
+        } else if (!email.includes("@") || !email.includes(".")) {
+            message = "Please enter a valid email";
+        } else if (password.length < 6) {
+            message = "Password must be at least 6 characters";
+        }
+
+        if (message) {
+            const errorDiv = document.createElement("div");
+            errorDiv.className = "error-message";
+            errorDiv.textContent = message;
+            form.insertBefore(errorDiv, form.firstChild);
             return;
         }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        console.log("Email value:", email);
-        if (!emailRegex.test(email)) {
-            alert("Invalid email format");
-            return;
-        }
-        if (password.length < 6) {
-            alert("Password must be at least 6 characters");
-            return;
-        }
-        const phoneRegex=/^\d{10}$/;
-        if(!phoneRegex.test(phone)){
-            alert("Invalid phone number format");
-        }
-        const payload = {
-            name: firstName + " " + lastName,
-            email: document.getElementById("email").value,
-            password: document.getElementById("password").value,
-            phoneNumber:phone || null
-        };
+
+        const oldButtonText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.textContent = "Creating account...";
 
         try {
-            const response = await signupUser(payload);
-            console.log("[SIGNUP] API success:", response);
-            // If your backend returns token on signup
-            if (response.token) {
-                saveToken(response.token);
-                saveUser(response);
-                window.location.href = "./home.html";
-            } else {
-                alert("Signup successful. Please login.");
-                window.location.href = "login.html";
-            }
+            const userData = {
+                name: firstName + " " + lastName,
+                email: email,
+                password: password,
+                phoneNumber: phoneNumber,
+                drivingLicenseNumber: drivingLicense,
+                address: address
+            };
 
+            await signupUser(userData);
+
+            const successDiv = document.createElement("div");
+            successDiv.className = "success-message";
+            successDiv.textContent = "Account created successfully! Redirecting to login...";
+            form.insertBefore(successDiv, form.firstChild);
+
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 2000);
         } catch (error) {
-            alert(error.message);
+            const errorDiv = document.createElement("div");
+            errorDiv.className = "error-message";
+            errorDiv.textContent = error.message || "Signup failed. Please try again.";
+            form.insertBefore(errorDiv, form.firstChild);
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = oldButtonText;
         }
     });
-
 });

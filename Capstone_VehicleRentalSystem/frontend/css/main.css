@@ -2,18 +2,24 @@
 :root {
     --pearl-beige: #F2E3BC;
     --soft-beige: #F7F1E1;
-
     --dark-primary: #2F2A24;
     --dark-secondary: #3E372F;
     --dark-hover: #1F1B17;
-
     --accent-camel: #C19875;
-
     --text-main: #2F2A24;
+    --text-dark: #2F2A24;
     --text-light: #6E6257;
-
+    --text-muted: #6E6257;
     --border-soft: #E0D3B8;
     --card-bg: #FFF9F0;
+    --primary-dark: #2F2A24;
+    --success-light: #E8F5E8;
+    --success-dark: #2E7D32;
+    --danger-light: #FDECEA;
+    --danger-dark: #C62828;
+    --text: #2F2A24;
+    --border: #E0D3B8;
+    --secondary: #C19875;
 }
 
 /* reset */
@@ -33,6 +39,10 @@ body {
     max-width: 1200px;
     margin: auto;
     padding: 0 20px;
+}
+
+.hidden {
+    display: none !important;
 }
 
 header {
@@ -55,6 +65,12 @@ header .container {
     align-items: center;
     gap: 12px;
 }
+
+.brand-link {
+    text-decoration: none;
+    color: inherit;
+}
+
 .brand-logo {
     height: 55px;
 }
@@ -69,17 +85,6 @@ header .container {
     gap: 15px;
 }
 
-/* search */
-.search-box input {
-    padding: 8px 14px;
-    border-radius: 20px;
-    border: none;
-    outline: none;
-    width: 220px;
-}
-.search-box input:focus {
-    box-shadow: 0 0 0 3px rgba(193,152,117,0.3);
-}
 
 /* auth */
 .auth button {
@@ -91,46 +96,23 @@ header .container {
 }
 
 .login-btn {
-    background: transparent;
-    color: white;
+    background: var(--pearl-beige);
+    color: var(--dark-secondary);
+    font-size: 15px;
+}
+.login-btn:hover {
+    transform: translateY(-2px);
 }
 .signup-btn {
-    background: var(--accent-camel);
-    color: white;
+    background: var(--pearl-beige);
+    color: var(--dark-secondary);
+    font-size: 15px;
 }
 .signup-btn:hover {
     transform: translateY(-2px);
 }
-nav {
-    background: var(--dark-primary);
-}
-.nav-links {
-    display: flex;
-    gap: 25px;
-    padding: 12px 0;
-}
 
-.nav-links a {
-    text-decoration: none;
-    color: white;
-    position: relative;
-}
 
-/* underline animation */
-.nav-links a::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: -4px;
-    width: 0%;
-    height: 2px;
-    background: var(--accent-camel);
-    transition: width 0.3s ease;
-}
-
-.nav-links a:hover::after {
-    width: 100%;
-}
 .btn {
     padding: 10px 18px;
     border-radius: 8px;
@@ -150,14 +132,80 @@ nav {
 }
 
 .btn-secondary {
-    background: transparent;
-    border: 1px solid var(--dark-primary);
+    background: var(--soft-beige);
+    border: 1px solid var(--dark-secondary);
     color: var(--dark-primary);
+}   
+
+.error-message, .success-message {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-size: 14px;
 }
 
-.btn-secondary:hover {
-    background: var(--dark-primary);
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 14px;
+    padding: 24px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.booking-modal-inner {
+    max-width: 420px;
+    width: 100%;
+}
+
+.booking-modal-inner h2 {
+    margin-bottom: 16px;
+    color: var(--text-main);
+}
+
+.booking-modal-inner label {
+    font-size: 13px;
+    color: var(--text-light);
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 4px;
+}
+
+header .btn-secondary:focus, header .btn-secondary:active {
+    background: var(--accent-camel);
     color: white;
+    outline: none;
+    box-shadow: none;
 }
 
 /*footer*/
@@ -188,9 +236,6 @@ nav {
     .auth {
         display: flex;
         justify-content: space-between;
-    }
-    nav {
-        display: none;
     }
     .container {
         padding: 0 15px;

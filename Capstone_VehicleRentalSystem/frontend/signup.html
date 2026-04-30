@@ -8,25 +8,17 @@
 <body>
     <header>
         <div class="container">
-            <div class="brand">
+            <a href="index.html" class="brand brand-link">
                 <img src="assets/icon.png" class="brand-logo">
                 <span class="brand-name">Rapid Rental</span>
-            </div>
+            </a>
             <div class="header-right">
-                <div class="search-box">
-                    <input type="text" placeholder="Search cars, city or type...">
-                </div>
                 <div class="auth">
-                    <button class="login-btn">Login</button>
+                    <button class="login-btn" onclick="window.location.href='login.html'">Login</button>
                 </div>
             </div>
         </div>
     </header>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="login.html">Login</a>
-    </nav>
-
     <div class="signup-wrapper">
         <main class="signup-container">
             <div class="signup-image">
@@ -41,16 +33,18 @@
             <section class="signup-form">
                 <div class="form-card">
                     <h2>Create an account</h2>
-                    <p> Get started with RapidRental today</p>
+                    <p>Get started with RapidRental today</p>
 
                     <form id="signupForm">
                         <div class="row">
                             <input type="text" id="firstName" placeholder="First Name" required>
                             <input type="text" id="lastName" placeholder="Last Name" required>
                         </div>
-                        <input type="text" id=""phoneNumber"  placeholder="Phone Number">
                         <input type="email" id="email" placeholder="Email Address" required>
-                        <input type="password" id="password" placeholder="Password" required>
+                        <input type="tel" id="phoneNumber" placeholder="Phone Number (10 digits)" required>
+                        <input type="text" id="drivingLicense" placeholder="Driving License Number" required>
+                        <input type="text" id="address" placeholder="Address" required>
+                        <input type="password" id="password" placeholder="Password (min 6 characters)" required>
                         <button type="submit">Create account</button>
                     </form>
                     <p>
@@ -63,13 +57,21 @@
     </div>
 
     <footer class="main-footer">
-        <div class="container footer">
-            <h4>Contact</h4>
-            <p>Email: support@rapidrental.com</p>
-            <p>India</p>
-        </div>
-        <div>
-            <p>© 2026 Rapid Rental. All rights reserved.</p>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h3>Rapid Rental</h3>
+                    <p class="footer-description">Providing reliable and affordable vehicle rental services.</p>
+                </div>
+                <div class="footer-contact">
+                    <h4 class="contact-title">Contact</h4>
+                    <p>Email: support@rapidrental.com</p>
+                    <p>India</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Rapid Rental. All rights reserved.</p>
+            </div>
         </div>
     </footer>
     <script type="module" src="./js/signup.js"></script>

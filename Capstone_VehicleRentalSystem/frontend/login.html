@@ -8,31 +8,17 @@
 <body class="login-page">
     <header >
     <div class="container">
-
-        <!--logo-->
-        <div class="brand">
+        <a href="index.html" class="brand brand-link">
             <img src="assets/icon.png" class="brand-logo" alt="logo">
             <span class="brand-name">Rapid Rental</span>
-        </div>
+        </a>
         <div class="header-right">
-            <div class="search-box">
-                <input type="text" placeholder="Search cars, city or type...">
-            </div>
             <div class="auth">
-                <button class="signup-btn">Sign Up</button>
+                <button class="signup-btn" onclick="window.location.href='signup.html'">Sign Up</button>
             </div>
         </div>
     </div>
     </header>
-
-    <nav>
-        <div class="container">
-            <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="signup.html">Signup</a>
-            </div>
-        </div>
-    </nav>
 
     <main>
         <!--form -->
@@ -53,14 +39,22 @@
         </section>
     </main>
 
-    <footer>
-        <div >
-            <h4>Contact</h4>
-            <p>Email: support@rapidrental.com</p>
-            <p>India</p>
-        </div>
-        <div>
-            <p>© 2026 Rapid Rental. All rights reserved.</p>
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h3>Rapid Rental</h3>
+                    <p class="footer-description">Providing reliable and affordable vehicle rental services.</p>
+                </div>
+                <div class="footer-contact">
+                    <h4 class="contact-title">Contact</h4>
+                    <p>Email: support@rapidrental.com</p>
+                    <p>India</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Rapid Rental. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 
