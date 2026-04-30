@@ -1,10 +1,4 @@
-import {
-    getUserProfile, updateUserProfile,
-    getUserBookings, cancelBooking,
-    getAllPublicVehicles, getLocations,
-    createBooking, getVehicleById,
-    getAvailableVehiclesByDateRange
-} from './api.js';
+import {cancelBooking, createBooking, getAllPublicVehicles, getAvailableVehiclesByDateRange, getLocations, getUserBookings, getUserProfile,getVehicleById, updateUserProfile } from './api.js';
 
 const ITEMS_PER_PAGE = 8;
 const state = {
@@ -17,13 +11,66 @@ const state = {
     previousSection: 'browse'
 };
 
-/* init */
 document.addEventListener('DOMContentLoaded', async () => {
     guardAuth();
-    setupNav();
+    setupEvents();
     await Promise.all([loadProfile(), loadLocations(), loadVehicles(), loadBookings()]);
     renderDashboard();
 });
+
+function setupEvents() {
+    document.querySelectorAll('.sidebar nav a[data-section]').forEach(link => {
+        link.addEventListener('click', event => {
+            event.preventDefault();
+            switchSection(link.dataset.section);
+        });
+    });
+
+    document.querySelector('.menu-icon')?.addEventListener('click', () => {
+        document.querySelector('.sidebar')?.classList.toggle('collapsed');
+        document.querySelector('.main-content')?.classList.toggle('expanded');
+    });
+
+    document.getElementById('profileToggle')?.addEventListener('click', () => {
+        document.getElementById('profileDropdown')?.classList.toggle('active');
+    });
+
+    document.getElementById('logoutBtn')?.addEventListener('click', logout);
+    document.getElementById('logoutLink')?.addEventListener('click', event => {
+        event.preventDefault();
+        logout();
+    });
+
+    document.getElementById('searchVehiclesBtn')?.addEventListener('click', searchVehicles);
+    document.getElementById('applyBrowseFiltersBtn')?.addEventListener('click', applyBrowseFilters);
+    document.getElementById('resetBrowseFiltersBtn')?.addEventListener('click', resetBrowseFilters);
+    document.getElementById('viewAllVehiclesLink')?.addEventListener('click', event => {
+        event.preventDefault();
+        switchSection('browse');
+    });
+
+    document.querySelectorAll('.js-browse-link').forEach(button => {
+        button.addEventListener('click', () => switchSection('browse'));
+    });
+    document.getElementById('editProfileBtn')?.addEventListener('click', enterEditProfile);
+    document.getElementById('saveProfileBtn')?.addEventListener('click', saveProfile);
+    document.getElementById('cancelEditProfileBtn')?.addEventListener('click', cancelEditProfile);
+    document.getElementById('backToVehiclesBtn')?.addEventListener('click', goBackToVehicles);
+    document.getElementById('vehicleDetailBookBtn')?.addEventListener('click', bookVehicleFromDetails);
+    document.getElementById('confirmBookingBtn')?.addEventListener('click', confirmBooking);
+    document.getElementById('cancelBookingBtn')?.addEventListener('click', closeModals);
+    document.getElementById('cancelConfirmBtn')?.addEventListener('click', closeConfirmModal);
+    window.addEventListener('click', event => {
+        if (event.target === document.getElementById('bookingModal')) closeModals();
+        if (event.target === document.getElementById('confirmModal')) closeConfirmModal();
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            closeModals();
+            closeConfirmModal();
+        }
+    });
+}
 
 function guardAuth() {
     if (!localStorage.getItem('token')) {
@@ -31,217 +78,193 @@ function guardAuth() {
     }
 }
 
-/*login */
-function setupNav() {
-    document.querySelectorAll('.sidebar nav a[data-section]').forEach(link => {
-        link.addEventListener('click', e => {
-            e.preventDefault();
-            switchSection(link.dataset.section);
-        });
-    });
-
-    document.querySelector('.menu-icon')?.addEventListener('click', () => {
-        const sidebar = document.querySelector('.sidebar');
-        const mainContent = document.querySelector('.main-content');
-        sidebar.classList.toggle('collapsed');
-        mainContent.classList.toggle('expanded');
-    });
-
-    document.getElementById('profileToggle')?.addEventListener('click', () => {
-        document.getElementById('profileDropdown')?.classList.toggle('active');
-    });
-
-    const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('email');
-        localStorage.removeItem('role');
-        window.location.href = 'index.html';
-    };
-    document.getElementById('logoutBtn')?.addEventListener('click', logout);
-    document.getElementById('logoutLink')?.addEventListener('click', e => { e.preventDefault(); logout(); });
-
-    // Modal close handlers
-    window.addEventListener('click', e => {
-        const modal = document.getElementById('bookingModal');
-        if (e.target === modal) closeModals();
-    });
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') closeModals();
-    });
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('email');
+    localStorage.removeItem('role');
+    window.location.href = 'index.html';
 }
 
-window.switchSection = function(section) {
-    // Hide all sections
-    document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active'));
-    // Show target section
+function switchSection(section) {
+    document.querySelectorAll('.dashboard-section').forEach(panel => panel.classList.remove('active'));
     document.getElementById(`${section}Section`)?.classList.add('active');
-    // Update sidebar active state
+
     document.querySelectorAll('.sidebar nav a[data-section]').forEach(link => {
         link.classList.toggle('active', link.dataset.section === section);
     });
 
-    // Update title
-    const titles = { 
-        dashboard: 'Dashboard', 
-        browse: 'Browse Vehicles', 
-        bookings: 'My Bookings', 
+    const titles = {
+        dashboard: 'Dashboard',
+        browse: 'Browse Vehicles',
+        bookings: 'My Bookings',
         profile: 'Profile',
         vehicleDetails: 'Vehicle Details'
     };
     document.getElementById('sectionTitle').textContent = titles[section] || '';
 
-    // Load section-specific data
     if (section === 'bookings') renderAllBookings();
     if (section === 'browse') renderBrowseGrid();
-    
-    // Store previous section for back navigation
+
     if (section !== 'vehicleDetails') {
         state.previousSection = section;
     }
-};
+}
 
-/*profile*/
 async function loadProfile() {
     try {
-        const p = await getUserProfile();
-        const name = p.name || 'User';
+        const profile = await getUserProfile();
+        const name = profile.name || 'User';
         const initial = name.charAt(0).toUpperCase();
-        document.getElementById('welcomeMsg').textContent = `Welcome, ${name}`;
-        document.getElementById('userInitial').textContent = initial;
-        document.getElementById('dropdownAvatar').textContent = initial;
-        document.getElementById('dropdownName').textContent = name;
-        document.getElementById('dropdownEmail').textContent = p.email || '';
-        document.getElementById('pName').textContent = p.name || '—';
-        document.getElementById('pEmail').textContent = p.email || '—';
-        document.getElementById('pPhone').textContent = p.phoneNumber || '—';
-        document.getElementById('pLicense').textContent = p.drivingLicenseNumber || '—';
-        document.getElementById('editName').value = p.name || '';
-        document.getElementById('editPhone').value = p.phoneNumber || '';
-        document.getElementById('editAddress').value = p.address || '';
-        document.getElementById('editLicense').value = p.drivingLicenseNumber || '';
-    } catch (err) {
-        console.error('Profile load failed:', err);
+
+        setText('welcomeMsg', `Welcome, ${name}`);
+        setText('userInitial', initial);
+        setText('dropdownAvatar', initial);
+        setText('dropdownName', name);
+        setText('dropdownEmail', profile.email || '');
+        setText('pName', profile.name || '-');
+        setText('pEmail', profile.email || '-');
+        setText('pPhone', profile.phoneNumber || '-');
+        setText('pLicense', profile.drivingLicenseNumber || '-');
+
+        document.getElementById('editName').value = profile.name || '';
+        document.getElementById('editPhone').value = profile.phoneNumber || '';
+        document.getElementById('editAddress').value = profile.address || '';
+        document.getElementById('editLicense').value = profile.drivingLicenseNumber || '';
+    } catch (error) {
+        console.error('Profile load failed:', error);
     }
 }
 
-window.enterEditProfile = () => {
-    document.getElementById('profileView').style.display = 'none';
-    document.getElementById('profileEdit').style.display = 'block';
-};
+function enterEditProfile() {
+    document.getElementById('profileView').classList.add('hidden');
+    document.getElementById('profileEdit').classList.remove('hidden');
+}
 
-window.cancelEditProfile = () => {
-    document.getElementById('profileView').style.display = 'block';
-    document.getElementById('profileEdit').style.display = 'none';
-    clearFieldErrors();
-};
+function cancelEditProfile() {
+    document.getElementById('profileView').classList.remove('hidden');
+    document.getElementById('profileEdit').classList.add('hidden');
+    document.querySelectorAll('.form-input').forEach(input => input.classList.remove('error'));
+    document.querySelectorAll('.field-error').forEach(error => {
+        error.textContent = '';
+    });
+}
 
-window.saveProfile = async () => {
-    clearFieldErrors();
-    
-    const name = document.getElementById('editName').value.trim();
-    const phone = document.getElementById('editPhone').value.trim();
-    const address = document.getElementById('editAddress').value.trim();
-    const license = document.getElementById('editLicense').value.trim();
-    
+async function saveProfile() {
+    document.querySelectorAll('.form-input').forEach(input => input.classList.remove('error'));
+    document.querySelectorAll('.field-error').forEach(error => {
+        error.textContent = '';
+    });
+
+    const nameInput = document.getElementById('editName');
+    const phoneInput = document.getElementById('editPhone');
+    const addressInput = document.getElementById('editAddress');
+    const licenseInput = document.getElementById('editLicense');
+
+    const name = nameInput.value.trim();
+    const phone = phoneInput.value.trim();
+    const address = addressInput.value.trim();
+    const license = licenseInput.value.trim();
+
     let hasErrors = false;
 
-    // Validation
     if (!name || name.length < 3 || name.length > 50) {
-        showFieldError('editName', 'nameError', 'Name must be 3-50 characters');
+        nameInput.classList.add('error');
+        document.getElementById('nameError').textContent = 'Name must be 3-50 characters';
         hasErrors = true;
     }
+
     if (!phone || !/^[0-9]{10}$/.test(phone)) {
-        showFieldError('editPhone', 'phoneError', 'Phone must be exactly 10 digits');
+        phoneInput.classList.add('error');
+        document.getElementById('phoneError').textContent = 'Phone must be exactly 10 digits';
         hasErrors = true;
     }
+
     if (!address) {
-        showFieldError('editAddress', 'addressError', 'Address is required');
+        addressInput.classList.add('error');
+        document.getElementById('addressError').textContent = 'Address is required';
         hasErrors = true;
     }
+
     if (!license || !license.startsWith('DL') || license.length !== 16) {
-        showFieldError('editLicense', 'licenseError', 'License must start with "DL" and be exactly 16 characters');
+        licenseInput.classList.add('error');
+        document.getElementById('licenseError').textContent = 'License must start with "DL" and be exactly 16 characters';
         hasErrors = true;
     }
+
     if (hasErrors) return;
+
     try {
         await updateUserProfile({ name, phoneNumber: phone, address, drivingLicenseNumber: license });
         showToast('Profile updated successfully', 'success');
         await loadProfile();
         cancelEditProfile();
-    } catch (err) {
-        showToast(err.message || 'Update failed', 'error');
-    }
-};
-
-/*locations*/
-async function loadLocations() {
-    try {
-        const locations = await getLocations();
-        const opts = locations.map(l => `<option value="${l.id}">${l.city}, ${l.state}</option>`).join('');
-        document.getElementById('searchLocation').innerHTML += opts;
-        document.getElementById('browseLocation').innerHTML += opts;
-    } catch (err) {
-        console.error('Locations load failed:', err);
+    } catch (error) {
+        showToast(error.message || 'Update failed', 'error');
     }
 }
 
-/* vehicles */
+async function loadLocations() {
+    try {
+        const locations = await getLocations() || [];
+        populateLocationSelect('searchLocation', locations);
+        populateLocationSelect('browseLocation', locations);
+    } catch (error) {
+        console.error('Locations load failed:', error);
+    }
+}
+
+function populateLocationSelect(selectId, locations) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+
+    clearElement(select);
+    select.appendChild(new Option('All Locations', ''));
+
+    locations.forEach(location => {
+        select.appendChild(new Option(`${location.city}, ${location.state}`, location.id));
+    });
+}
+
 async function loadVehicles() {
     try {
         state.allVehicles = await getAllPublicVehicles() || [];
         state.filteredVehicles = [...state.allVehicles];
-    } catch (err) {
-        console.error('Vehicles load failed:', err);
+    } catch (error) {
+        console.error('Vehicles load failed:', error);
     }
 }
 
-function getImageUrl(v) {
-    return v.profileUrl || 'assets/home_car.png';
+async function loadBookings() {
+    try {
+        state.bookings = await getUserBookings() || [];
+    } catch (error) {
+        console.error('Bookings load failed:', error);
+    }
 }
 
-function vehicleCardHtml(v, compact = false) {
-    const name = `${v.brand || ''} ${v.model || ''}`.trim();
-    const available = v.status === 'AVAILABLE';
-    const buttonText = available ? 'Book Now' : 'Not Available';
-    const location = v.location ? `${v.location.city}, ${v.location.state}` : 'N/A';
-    
-    return `
-        <div class="vehicle-card">
-            <div class="vehicle-card-header">
-                <span class="status-badge ${v.status?.toLowerCase()}">${v.status}</span>
-            </div>
-            <img src="${getImageUrl(v)}" onerror="this.src='assets/home_car.png'" alt="${name}">
-            <div class="vehicle-card-content">
-                <h3>${name}</h3>
-                <div class="vehicle-location">${location}</div>
-                <div class="vehicle-price">₹${v.dailyRentalRate || 0}/day</div>
-                <div class="vehicle-card-actions">
-                    <button class="btn btn-secondary" onclick="viewVehicleDetails('${v.id}')">View Details</button>
-                    <button class="btn btn-primary" ${!available ? 'disabled' : ''} onclick="bookNow('${v.id}')">${buttonText}</button>
-                </div>
-            </div>
-        </div>`;
-}
-
-/*dashboard badge*/
 function renderDashboard() {
     const recent = state.bookings.slice(0, 4);
-
-    if (recent.length > 0) {
-        document.getElementById('recentBookingsWrap').style.display = 'block';
-        document.getElementById('emptyBookingState').style.display = 'none';
-        document.getElementById('recentBookingsBody').innerHTML = recent.map(bookingRowHtml).join('');
-        attachCancelListeners('recentBookingsBody');
+    const recentWrap = document.getElementById('recentBookingsWrap');
+    const emptyState = document.getElementById('emptyBookingState');
+    const recentBody = document.getElementById('recentBookingsBody');
+    clearElement(recentBody);
+    if (recent.length) {
+        recentWrap.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+        recent.forEach(booking => recentBody.appendChild(createBookingRow(booking)));
     } else {
-        document.getElementById('recentBookingsWrap').style.display = 'none';
-        document.getElementById('emptyBookingState').style.display = 'block';
+        recentWrap.classList.add('hidden');
+        emptyState.classList.remove('hidden');
     }
-    const recommended = state.allVehicles.filter(v => v.status === 'AVAILABLE').slice(0, 4);
-    document.getElementById('recommendedGrid').innerHTML = recommended.map(v => vehicleCardHtml(v, true)).join('');
+    const recommendedGrid = document.getElementById('recommendedGrid');
+    clearElement(recommendedGrid);
+    state.allVehicles
+        .filter(vehicle => vehicle.status === 'AVAILABLE')
+        .slice(0, 4)
+        .forEach(vehicle => recommendedGrid.appendChild(createVehicleCard(vehicle)));
 }
 
-/* search functionality */
-window.searchVehicles = async () => {
+async function searchVehicles() {
     const startDate = document.getElementById('searchStart').value;
     const endDate = document.getElementById('searchEnd').value;
     const type = document.getElementById('searchType').value;
@@ -250,294 +273,391 @@ window.searchVehicles = async () => {
         showToast('Please select pickup and drop-off dates', 'error');
         return;
     }
+
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (start >= end) {
         showToast('Drop-off date must be after pickup date', 'error');
         return;
     }
+
     try {
-        const searchResults = await getAvailableVehiclesByDateRange(startDate, endDate, type, locationId);   
-        switchSection('browse');
+        const searchResults = await getAvailableVehiclesByDateRange(startDate, endDate, type, locationId);
         state.filteredVehicles = searchResults || [];
         state.currentPage = 1;
+        switchSection('browse');
         renderBrowseGrid();
-        
-        if (state.filteredVehicles.length === 0) {
+
+        if (!state.filteredVehicles.length) {
             showToast('No vehicles available for selected criteria', 'info');
         } else {
             showToast(`Found ${state.filteredVehicles.length} available vehicles`, 'success');
         }
-    } catch (err) {
-        console.error('Search failed:', err);
-        showToast(err.message || 'Search failed', 'error');
-    }
-};
-
-/*booking */
-async function loadBookings() {
-    try {
-        state.bookings = await getUserBookings() || [];
-    } catch (err) {
-        console.error('Bookings load failed:', err);
+    } catch (error) {
+        console.error('Search failed:', error);
+        showToast(error.message || 'Search failed', 'error');
     }
 }
 
-function bookingRowHtml(b) {
-    const vehicle = `${b.vehicleBrand || ''} ${b.vehicleModel || ''}`.trim() || 'Vehicle';
-    const start = b.startDate ? new Date(b.startDate).toLocaleDateString() : '—';
-    const end = b.endDate ? new Date(b.endDate).toLocaleDateString() : '—';
-    const amount = b.totalPrice ? `₹${b.totalPrice}` : '—';
-    
-    let actionHtml = '—';
-    if (b.status === 'CONFIRMED') {
-        actionHtml = `<button class="action-btn cancel" data-id="${b.id}">Cancel</button>`;
-    } else if (b.status === 'COMPLETED' || b.status === 'CANCELLED') {
-        actionHtml = `<button class="action-btn view" onclick="viewBookingDetails('${b.id}')">View</button>`;
+function createVehicleCard(vehicle) {
+    const card = document.createElement('article');
+    card.className = 'vehicle-card';
+
+    const header = document.createElement('div');
+    header.className = 'vehicle-card-header';
+    header.appendChild(createStatusBadge(vehicle.status));
+
+    const image = document.createElement('img');
+    image.src = getImageUrl(vehicle);
+    image.alt = getVehicleName(vehicle);
+    image.addEventListener('error', () => {
+        image.src = 'assets/home_car.png';
+    });
+
+    const content = document.createElement('div');
+    content.className = 'vehicle-card-content';
+    content.append(
+        createTextElement('h3', getVehicleName(vehicle)),
+        createTextElement('div', getLocationText(vehicle.location), 'vehicle-location'),
+        createTextElement('div', `Rs ${vehicle.dailyRentalRate || 0}/day`, 'vehicle-price'),
+        createVehicleActions(vehicle)
+    );
+
+    card.append(header, image, content);
+    return card;
+}
+
+function createVehicleActions(vehicle) {
+    const actions = document.createElement('div');
+    actions.className = 'vehicle-card-actions';
+
+    const detailsButton = createTextElement('button', 'View Details', 'btn btn-secondary');
+    detailsButton.type = 'button';
+    detailsButton.addEventListener('click', () => viewVehicleDetails(vehicle.id));
+
+    const available = vehicle.status === 'AVAILABLE';
+    const bookButton = createTextElement('button', available ? 'Book Now' : 'Not Available', 'btn btn-primary');
+    bookButton.type = 'button';
+    bookButton.disabled = !available;
+    bookButton.addEventListener('click', () => bookNow(vehicle.id));
+
+    actions.append(detailsButton, bookButton);
+    return actions;
+}
+
+function createBookingRow(booking) {
+    const row = document.createElement('tr');
+    row.append(
+        createCell(getVehicleLabel(booking), true),
+        createCell(formatDate(booking.startDate)),
+        createCell(formatDate(booking.endDate)),
+        createCell(booking.totalPrice ? `Rs ${booking.totalPrice}` : '-', true),
+        createStatusCell(booking.status),
+        createActionCell(booking)
+    );
+    return row;
+}
+
+function createCell(text, strong = false) {
+    const cell = document.createElement('td');
+    if (strong) {
+        const value = createTextElement('strong', text);
+        cell.appendChild(value);
+    } else {
+        cell.textContent = text;
     }
-    
-    return `
-        <tr>
-            <td><strong>${vehicle}</strong></td>
-            <td>${start}</td>
-            <td>${end}</td>
-            <td><strong>${amount}</strong></td>
-            <td><span class="status-badge ${b.status?.toLowerCase()}">${b.status}</span></td>
-            <td>${actionHtml}</td>
-        </tr>`;
+    return cell;
+}
+
+function createStatusCell(status) {
+    const cell = document.createElement('td');
+    cell.appendChild(createStatusBadge(status));
+    return cell;
+}
+
+function createActionCell(booking) {
+    const cell = document.createElement('td');
+    if (booking.status === 'CONFIRMED') {
+        const cancelButton = createTextElement('button', 'Cancel', 'action-btn cancel');
+        cancelButton.type = 'button';
+        cancelButton.addEventListener('click', () => cancelSelectedBooking(booking.id));
+        cell.appendChild(cancelButton);
+        return cell;
+    }
+    if (booking.status === 'COMPLETED' || booking.status === 'CANCELLED') {
+        const viewButton = createTextElement('button', 'View', 'action-btn view');
+        viewButton.type = 'button';
+        viewButton.addEventListener('click', () => viewBookingDetails(booking.id));
+        cell.appendChild(viewButton);
+        return cell;
+    }
+    cell.textContent = '-';
+    return cell;
+}
+
+async function cancelSelectedBooking(bookingId) {
+    if (!confirm('Cancel this booking?')) return;
+    try {
+        await cancelBooking(bookingId);
+        showToast('Booking cancelled successfully', 'success');
+        await loadBookings();
+        renderDashboard();
+        renderAllBookings();
+    } catch (error) {
+        showToast(error.message || 'Cancel failed', 'error');
+    }
+}
+
+function viewBookingDetails() {
+    showToast('Booking details view - Feature coming soon', 'info');
 }
 
 function renderAllBookings() {
     const tbody = document.getElementById('allBookingsBody');
     const empty = document.getElementById('bookingsEmpty');
+    clearElement(tbody);
+
     if (!state.bookings.length) {
-        tbody.innerHTML = '';
-        empty.style.display = 'block';
+        empty.classList.remove('hidden');
         return;
     }
-    empty.style.display = 'none';
-    tbody.innerHTML = state.bookings.map(bookingRowHtml).join('');
-    attachCancelListeners('allBookingsBody');
+
+    empty.classList.add('hidden');
+    state.bookings.forEach(booking => tbody.appendChild(createBookingRow(booking)));
 }
 
-function attachCancelListeners(tbodyId) {
-    document.getElementById(tbodyId)?.querySelectorAll('.action-btn.cancel').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            if (!confirm('Cancel this booking?')) return;
-            try {
-                await cancelBooking(btn.dataset.id);
-                showToast('Booking cancelled successfully', 'success');
-                await loadBookings();
-                renderDashboard();
-                if (tbodyId === 'allBookingsBody') renderAllBookings();
-            } catch (err) {
-                showToast(err.message || 'Cancel failed', 'error');
-            }
-        });
-    });
-}
-
-// Add view booking details function
-window.viewBookingDetails = (bookingId) => {
-    // For now, just show a toast - can be expanded later
-    showToast('Booking details view - Feature coming soon', 'info');
-};
-
-/*browse*/
 function renderBrowseGrid() {
+    const browseGrid = document.getElementById('browseGrid');
     const start = (state.currentPage - 1) * ITEMS_PER_PAGE;
     const page = state.filteredVehicles.slice(start, start + ITEMS_PER_PAGE);
-    document.getElementById('browseGrid').innerHTML = page.map(v => vehicleCardHtml(v)).join('');
+
+    clearElement(browseGrid);
+    page.forEach(vehicle => browseGrid.appendChild(createVehicleCard(vehicle)));
     renderPagination();
 }
 
 function renderPagination() {
-    const total = Math.ceil(state.filteredVehicles.length / ITEMS_PER_PAGE);
-    document.getElementById('browsePagination').innerHTML = Array.from({ length: total }, (_, i) =>
-        `<button class="btn ${i + 1 === state.currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="changePage(${i + 1})">${i + 1}</button>`
-    ).join('');
+    const pagination = document.getElementById('browsePagination');
+    const totalPages = Math.ceil(state.filteredVehicles.length / ITEMS_PER_PAGE);
+    clearElement(pagination);
+    if (totalPages <= 1) return;
+    for (let page = 1; page <= totalPages; page += 1) {
+        const buttonClass = page === state.currentPage ? 'btn btn-primary' : 'btn btn-secondary';
+        const button = createTextElement('button', String(page), buttonClass);
+        button.type = 'button';
+        button.addEventListener('click', () => changePage(page));
+        pagination.appendChild(button);
+    }
 }
 
-window.changePage = (page) => {
+function changePage(page) {
     state.currentPage = page;
     renderBrowseGrid();
-};
+}
 
-window.applyBrowseFilters = () => {
+function applyBrowseFilters() {
     const type = document.getElementById('browseType').value;
-    const loc = document.getElementById('browseLocation').value;
+    const location = document.getElementById('browseLocation').value;
     const status = document.getElementById('browseStatus').value;
-
-    state.filteredVehicles = state.allVehicles.filter(v =>
-        (!type || v.type === type) &&
-        (!loc || v.location?.id === loc) &&
-        (!status || v.status === status)
+    state.filteredVehicles = state.allVehicles.filter(vehicle =>
+        (!type || vehicle.type === type) &&
+        (!location || String(vehicle.location?.id) === location) &&
+        (!status || vehicle.status === status)
     );
+
     state.currentPage = 1;
     renderBrowseGrid();
-};
+}
 
-window.resetBrowseFilters = () => {
+function resetBrowseFilters() {
     document.getElementById('browseType').value = '';
     document.getElementById('browseLocation').value = '';
     document.getElementById('browseStatus').value = '';
     state.filteredVehicles = [...state.allVehicles];
     state.currentPage = 1;
     renderBrowseGrid();
-};
+}
 
-/*vehicle detaisl */
-window.viewVehicleDetails = async (id) => {
+async function viewVehicleDetails(id) {
     try {
         const vehicle = await getVehicleById(id);
         state.currentVehicle = vehicle;
-        
-        // Populate vehicle details
-        const name = `${vehicle.brand} ${vehicle.model}`;
+        setText('vehicleDetailName', getVehicleName(vehicle));
+        setText('vehicleDetailPrice', `Rs ${vehicle.dailyRentalRate}/day`);
+        setText('vehicleDetailType', vehicle.type || 'N/A');
+        setText('vehicleDetailLocation', getLocationText(vehicle.location));
         document.getElementById('vehicleDetailImage').src = getImageUrl(vehicle);
-    document.getElementById('vehicleDetailName').textContent = name;
-        document.getElementById('vehicleDetailPrice').textContent = `₹${vehicle.dailyRentalRate}/day`;
-        
-        const statusEl = document.getElementById('vehicleDetailStatus');
-        statusEl.textContent = vehicle.status;
-        statusEl.className = `status ${vehicle.status?.toLowerCase()}`;
-        
-        document.getElementById('vehicleDetailType').textContent = vehicle.type || 'N/A';
-        document.getElementById('vehicleDetailLocation').textContent = 
-            vehicle.location ? `${vehicle.location.city}, ${vehicle.location.state}` : 'N/A';
-        
-        // Registration (optional)
-        const regRow = document.getElementById('vehicleRegRow');
-        if (vehicle.registrationNumber) {
-            document.getElementById('vehicleDetailReg').textContent = vehicle.registrationNumber;
-            regRow.style.display = 'block';
-        } else {
-            regRow.style.display = 'none';
-        }
-        
-        // Description (optional)
-        const descEl = document.getElementById('vehicleDetailDesc');
-        if (vehicle.description) {
-            document.getElementById('vehicleDescText').textContent = vehicle.description;
-            descEl.style.display = 'block';
-        } else {
-            descEl.style.display = 'none';
-        }
-        
-        // Book button state
-        const bookBtn = document.getElementById('vehicleDetailBookBtn');
-        const available = vehicle.status === 'AVAILABLE';
-        bookBtn.disabled = !available;
-        bookBtn.textContent = available ? 'Book Now' : 'Not Available';
-        
+
+        const statusElement = document.getElementById('vehicleDetailStatus');
+        statusElement.textContent = vehicle.status;
+        statusElement.className = `status ${String(vehicle.status).toLowerCase()}`;
+        updateRegistrationRow(vehicle.registrationNumber);
+        updateVehicleDescription(vehicle.description);
+        updateVehicleDetailBookButton(vehicle.status);
         switchSection('vehicleDetails');
-    } catch (err) {
-        showToast(err.message || 'Failed to load vehicle details', 'error');
+    } catch (error) {
+        showToast(error.message || 'Failed to load vehicle details', 'error');
     }
-};
+}
 
-window.goBackToVehicles = () => {
+function updateRegistrationRow(registrationNumber) {
+    const row = document.getElementById('vehicleRegRow');
+    if (registrationNumber) {
+        setText('vehicleDetailReg', registrationNumber);
+        row.classList.remove('hidden');
+        return;
+    }
+    setText('vehicleDetailReg', 'N/A');
+    row.classList.add('hidden');
+}
+
+function updateVehicleDescription(description) {
+    const descriptionWrap = document.getElementById('vehicleDetailDesc');
+    if (description) {
+        setText('vehicleDescText', description);
+        descriptionWrap.classList.remove('hidden');
+        return;
+    }
+    setText('vehicleDescText', '');
+    descriptionWrap.classList.add('hidden');
+}
+
+function updateVehicleDetailBookButton(status) {
+    const button = document.getElementById('vehicleDetailBookBtn');
+    const available = status === 'AVAILABLE';
+    button.disabled = !available;
+    button.textContent = available ? 'Book Now' : 'Not Available';
+}
+
+function goBackToVehicles() {
     switchSection(state.previousSection);
-};
+}
 
-window.bookVehicleFromDetails = () => {
+function bookVehicleFromDetails() {
     if (state.currentVehicle) {
         bookNow(state.currentVehicle.id);
     }
-};
+}
 
-/* ── BOOKING MODAL ── */
-window.bookNow = (vehicleId) => {
+function bookNow(vehicleId) {
     if (!localStorage.getItem('token')) {
         localStorage.setItem('pendingVehicleId', vehicleId);
         window.location.href = 'login.html';
         return;
     }
+
     state.selectedVehicleId = vehicleId;
     document.getElementById('bookStart').value = '';
     document.getElementById('bookEnd').value = '';
     document.getElementById('bookPayment').value = '';
-    document.getElementById('bookingError').style.display = 'none';
+    document.getElementById('bookingError').classList.add('hidden');
+    document.getElementById('bookingError').textContent = '';
     document.getElementById('bookingModal').classList.add('show');
-};
+}
 
-window.confirmBooking = async () => {
+async function confirmBooking() {
     const startDate = document.getElementById('bookStart').value;
     const endDate = document.getElementById('bookEnd').value;
     const paymentMethod = document.getElementById('bookPayment').value;
-    const errEl = document.getElementById('bookingError');
 
     if (!startDate || !endDate || !paymentMethod) {
-        showError(errEl, 'All fields are required.');
+        showError('All fields are required.');
         return;
     }
 
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (start >= end) {
-        showError(errEl, 'End date must be after start date.');
+        showError('End date must be after start date.');
         return;
     }
-
     try {
         await createBooking({
             vehicleId: state.selectedVehicleId,
-            startDate: startDate,
-            endDate: endDate,
-            paymentMethod: paymentMethod
+            startDate,
+            endDate,
+            paymentMethod
         });
-        
         closeModals();
-        showToast('Booking Successful 🎉', 'success');
-        setTimeout(() => showToast('Payment Successful. Booking Confirmed', 'success'), 1500);
-        
+        showToast('Booking successful', 'success');
+        setTimeout(() => showToast('Payment successful. Booking confirmed', 'success'), 1500);
         await loadBookings();
         renderDashboard();
         switchSection('bookings');
-    } catch (err) {
-        showError(errEl, err.message || 'Booking failed.');
+    } catch (error) {
+        showError(error.message || 'Booking failed.');
     }
-};
+}
 
-window.closeModals = () => {
+function closeModals() {
     document.getElementById('bookingModal').classList.remove('show');
-};
+}
 
-/* utility functions */
-function showFieldError(inputId, errorId, message) {
-    const input = document.getElementById(inputId);
-    const error = document.getElementById(errorId);
-    input.classList.add('error');
+function closeConfirmModal() {
+    document.getElementById('confirmModal').classList.remove('show');
+}
+
+function showError(message) {
+    const error = document.getElementById('bookingError');
     error.textContent = message;
-}
-
-function clearFieldErrors() {
-    document.querySelectorAll('.form-input').forEach(input => {
-        input.classList.remove('error');
-    });
-    document.querySelectorAll('.field-error').forEach(error => {
-        error.textContent = '';
-    });
-}
-
-function showError(element, message) {
-    element.textContent = message;
-    element.style.display = 'block';
+    error.classList.remove('hidden');
 }
 
 function showToast(message, type = 'info') {
     const toast = document.getElementById('toast');
     toast.textContent = message;
     toast.className = `toast ${type} show`;
-    
+
     setTimeout(() => {
         toast.classList.remove('show');
     }, 3000);
 }
 
-// Handle pending vehicle booking after login
-if (localStorage.getItem('pendingVehicleId')) {
-    const vehicleId = localStorage.getItem('pendingVehicleId');
+function createStatusBadge(status) {
+    return createTextElement('span', status || 'N/A', `status-badge ${String(status).toLowerCase()}`);
+}
+
+function createTextElement(tagName, text, className = '') {
+    const element = document.createElement(tagName);
+    element.textContent = text;
+    if (className) element.className = className;
+    return element;
+}
+
+function clearElement(element) {
+    if (!element) return;
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
+    }
+}
+
+function setText(id, text) {
+    document.getElementById(id).textContent = text;
+}
+
+function getImageUrl(vehicle) {
+    return vehicle.profileUrl || 'assets/home_car.png';
+}
+
+function getVehicleName(vehicle) {
+    return `${vehicle.brand || ''} ${vehicle.model || ''}`.trim() || 'Vehicle';
+}
+
+function getVehicleLabel(booking) {
+    return `${booking.vehicleBrand || ''} ${booking.vehicleModel || ''}`.trim() || 'Vehicle';
+}
+
+function getLocationText(location) {
+    if (!location) return 'N/A';
+    return `${location.city}, ${location.state}`;
+}
+
+function formatDate(value) {
+    return value ? new Date(value).toLocaleDateString() : '-';
+}
+
+const pendingVehicleId = localStorage.getItem('pendingVehicleId');
+if (pendingVehicleId) {
     localStorage.removeItem('pendingVehicleId');
-    setTimeout(() => bookNow(vehicleId), 1000);
+    setTimeout(() => bookNow(pendingVehicleId), 1000);
 }

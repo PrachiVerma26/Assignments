@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Dashboard</title>
     <link rel="stylesheet" href="./css/main.css">
-    <link rel="stylesheet" href="./css/dashboard.css">
     <link rel="stylesheet" href="./css/customer-dashboard.css">
 </head>
 <body>
@@ -18,11 +17,11 @@
             <span class="logo-text">Rapid Rental</span>
         </div>
         <nav>
-            <a href="#" class="active" data-section="dashboard">&#9632; Dashboard</a>
-            <a href="#" data-section="browse">&#128663; Browse Vehicles</a>
-            <a href="#" data-section="bookings">&#128203; My Bookings</a>
-            <a href="#" data-section="profile">&#128100; Profile</a>
-            <a href="#" id="logoutLink">&#10148; Logout</a>
+            <a href="#" class="active" data-section="dashboard">Dashboard</a>
+            <a href="#" data-section="browse">Browse Vehicles</a>
+            <a href="#" data-section="bookings">My Bookings</a>
+            <a href="#" data-section="profile">Profile</a>
+            <a href="#" id="logoutLink">Logout</a>
         </nav>
     </aside>
 
@@ -31,7 +30,7 @@
         <!-- Topbar -->
         <div class="topbar">
             <div class="topbar-left">
-                <span class="menu-icon">&#9776;</span>
+                <span class="menu-icon">☰</span>
                 <span class="topbar-title" id="sectionTitle">Dashboard</span>
             </div>
             <div class="topbar-right">
@@ -53,10 +52,9 @@
         </div>
 
         <div class="content">
-
-            <!-- ===== DASHBOARD SECTION ===== -->
+            <!-- dashboard section -->
             <section id="dashboardSection" class="dashboard-section active">
-                <!-- Search Form -->
+                <!-- filter-->
                 <div class="search-card">
                     <h2>Find Your Vehicle</h2>
                     <div class="search-form">
@@ -80,14 +78,19 @@
                             <label>Location</label>
                             <select id="searchLocation">
                                 <option value="">All Locations</option>
+                                <option value="Indore">Indore</option>
+                                <option value="Bhopal">Bhopal</option>
+                                <option value="Pune">Pune</option>
+                                <option value="Mumbai">Mumbai</option>
+                                <option value="Kolkata">Kolkata</option>
                             </select>
                         </div>
-                        <button class="btn btn-primary" onclick="searchVehicles()">Search</button>
+                        <button class="btn btn-primary" id="searchVehiclesBtn">Search</button>
                     </div>
                 </div>
 
-                <!-- Recent Bookings (if any) -->
-                <div id="recentBookingsWrap" style="display:none;">
+                <!-- recent bookings-->
+                <div id="recentBookingsWrap" class="hidden">
                     <h3 class="section-heading">Recent Bookings</h3>
                     <div class="table-wrap">
                         <table class="booking-table">
@@ -107,25 +110,25 @@
                 </div>
 
                 <!-- Empty state (no bookings) -->
-                <div id="emptyBookingState" class="empty-state" style="display:none;">
+                <div id="emptyBookingState" class="empty-state hidden">
                     <p>&#128663; No Bookings Yet</p>
-                    <div style="margin-top:12px; display:flex; gap:10px; justify-content:center;">
-                        <button class="btn btn-secondary" onclick="switchSection('browse')">Browse Vehicles</button>
-                        <button class="btn btn-primary" onclick="switchSection('browse')">Book Now</button>
+                    <div class="empty-actions">
+                        <button class="btn btn-secondary js-browse-link">Browse Vehicles</button>
+                        <button class="btn btn-primary js-browse-link">Book Now</button>
                     </div>
                 </div>
 
-                <!-- Recommended Vehicles -->
+                <!-- recommended vehicles -->
                 <div id="recommendedWrap">
                     <div class="section-heading-row">
                         <h3 class="section-heading">Recommended Vehicles</h3>
-                        <a href="#" class="view-all-link" onclick="switchSection('browse'); return false;">View All Vehicles</a>
+                        <a href="#" class="view-all-link" id="viewAllVehiclesLink">View All Vehicles</a>
                     </div>
                     <div id="recommendedGrid" class="vehicle-grid"></div>
                 </div>
             </section>
 
-            <!-- ===== BROWSE SECTION ===== -->
+            <!--browse section-->
             <section id="browseSection" class="dashboard-section">
                 <div class="filters">
                     <select id="browseType">
@@ -142,14 +145,14 @@
                         <option value="BOOKED">Booked</option>
                         <option value="MAINTENANCE">Maintenance</option>
                     </select>
-                    <button class="btn btn-primary" onclick="applyBrowseFilters()">Search</button>
-                    <button class="btn btn-secondary" onclick="resetBrowseFilters()">Reset</button>
+                    <button class="btn btn-primary" id="applyBrowseFiltersBtn">Search</button>
+                    <button class="btn btn-secondary" id="resetBrowseFiltersBtn">Reset</button>
                 </div>
                 <div id="browseGrid" class="vehicle-grid"></div>
                 <div id="browsePagination" class="pagination"></div>
             </section>
 
-            <!-- ===== MY BOOKINGS SECTION ===== -->
+            <!-- booking section-->
             <section id="bookingsSection" class="dashboard-section">
                 <div class="table-wrap">
                     <table class="booking-table">
@@ -166,10 +169,10 @@
                         <tbody id="allBookingsBody"></tbody>
                     </table>
                 </div>
-                <div id="bookingsEmpty" class="empty-state" style="display:none;">No bookings found.</div>
+                <div id="bookingsEmpty" class="empty-state hidden">No bookings found.</div>
             </section>
 
-            <!-- ===== PROFILE SECTION ===== -->
+            <!--profile section-->
             <section id="profileSection" class="dashboard-section">
                 <div class="profile-card">
                     <div id="profileView">
@@ -177,9 +180,9 @@
                         <div class="profile-row"><span class="profile-label">Email</span><span id="pEmail" class="profile-value"></span></div>
                         <div class="profile-row"><span class="profile-label">Phone</span><span id="pPhone" class="profile-value"></span></div>
                         <div class="profile-row"><span class="profile-label">Driving License</span><span id="pLicense" class="profile-value"></span></div>
-                        <button class="btn btn-primary" style="margin-top:16px;" onclick="enterEditProfile()">Edit Profile</button>
+                        <button class="btn btn-primary profile-edit-btn" id="editProfileBtn">Edit Profile</button>
                     </div>
-                    <div id="profileEdit" style="display:none;">
+                    <div id="profileEdit" class="hidden">
                         <div class="form-group-inline">
                             <label>Name</label>
                             <input type="text" id="editName" placeholder="Full Name" class="form-input">
@@ -200,15 +203,15 @@
                             <input type="text" id="editLicense" placeholder="DL00000000000000" maxlength="16" class="form-input">
                             <small class="field-error" id="licenseError"></small>
                         </div>
-                        <div style="display:flex; gap:10px; margin-top:16px;">
-                            <button class="btn btn-primary" onclick="saveProfile()">Save</button>
-                            <button class="btn btn-secondary" onclick="cancelEditProfile()">Cancel</button>
+                        <div class="profile-actions">
+                            <button class="btn btn-primary" id="saveProfileBtn">Save</button>
+                            <button class="btn btn-secondary" id="cancelEditProfileBtn">Cancel</button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- ===== VEHICLE DETAILS SECTION ===== -->
+            <!-- vehicle detail section-->
             <section id="vehicleDetailsSection" class="dashboard-section">
                 <div class="vehicle-details-container">
                     <div class="vehicle-details-left">
@@ -227,35 +230,34 @@
                                 <div class="spec-item">
                                     <strong>Location:</strong> <span id="vehicleDetailLocation">N/A</span>
                                 </div>
-                                <div class="spec-item" id="vehicleRegRow" style="display:none;">
+                                <div class="spec-item hidden" id="vehicleRegRow">
                                     <strong>Registration:</strong> <span id="vehicleDetailReg">N/A</span>
                                 </div>
                             </div>
                             
-                            <div class="vehicle-description" id="vehicleDetailDesc" style="display:none;">
+                            <div class="vehicle-description hidden" id="vehicleDetailDesc">
                                 <strong>Description:</strong>
                                 <p id="vehicleDescText"></p>
                             </div>
                             
                             <div class="vehicle-actions">
-                                <button class="btn btn-secondary" onclick="goBackToVehicles()">← Back</button>
-                                <button class="btn btn-primary" id="vehicleDetailBookBtn" onclick="bookVehicleFromDetails()">Book Now</button>
+                                <button class="btn btn-secondary" id="backToVehiclesBtn">Back</button>
+                                <button class="btn btn-primary" id="vehicleDetailBookBtn">Book Now</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
+        </div>
+    </div>
+</div>
 
-        </div><!-- /content -->
-    </div><!-- /main-content -->
-</div><!-- /admin-layout -->
-
-<!-- Vehicle Details Modal -->
-<div id="detailsModal" class="modal" style="display:none;">
+<!-- vehicle detail modal-->
+<div id="detailsModal" class="modal hidden">
     <div class="modal-content" id="detailsContent"></div>
 </div>
 
-<!-- Booking Modal -->
+<!-- booking modal-->
 <div id="bookingModal" class="modal">
     <div class="modal-content booking-modal-inner">
         <h2>Book Vehicle</h2>
@@ -270,29 +272,27 @@
             <option value="CARD">Card</option>
             <option value="UPI">UPI</option>
         </select>
-        <p id="bookingError" class="form-error" style="display:none;"></p>
-        <div style="display:flex; gap:10px; margin-top:12px;">
-            <button class="btn btn-primary" onclick="confirmBooking()">Confirm</button>
-            <button class="btn btn-secondary" onclick="closeModals()">Cancel</button>
+        <p id="bookingError" class="form-error hidden"></p>
+        <div class="modal-actions">
+            <button class="btn btn-primary" id="confirmBookingBtn">Confirm</button>
+            <button class="btn btn-secondary" id="cancelBookingBtn">Cancel</button>
         </div>
     </div>
 </div>
 
-<!-- Confirmation Modal -->
+<!-- confirmation for cancel -->
 <div id="confirmModal" class="modal">
     <div class="modal-content confirm-modal">
         <h3 id="confirmTitle">Confirm Action</h3>
         <p id="confirmMessage">Are you sure?</p>
-        <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
-            <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancel</button>
-            <button class="btn btn-primary" id="confirmBtn" onclick="confirmAction()">Confirm</button>
+        <div class="confirm-actions">
+            <button class="btn btn-secondary" id="cancelConfirmBtn">Cancel</button>
+            <button class="btn btn-primary" id="confirmBtn">Confirm</button>
         </div>
     </div>
 </div>
-
-<!-- Toast -->
+<!-- toast -->
 <div id="toast" class="toast"></div>
-
 <script type="module" src="./js/customer-dashboard.js"></script>
 </body>
 </html>
