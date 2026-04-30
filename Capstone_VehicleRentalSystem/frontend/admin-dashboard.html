@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/dashboard.css">
 </head>
@@ -13,10 +12,10 @@
 <div class="admin-layout">
     <aside class="sidebar">
         <div class="sidebar-header">
+            <a href="/index.html" class="logo-link"></a>
             <img src="./assets/icon.png" alt="logo" class="logo-img">
             <span class="logo-text">Rapid Rental</span>
         </div>
-
         <nav>
             <a href="#" class="active" data-section="dashboard">Dashboard</a>
             <a href="#" data-section="vehicles">Vehicles</a>
@@ -29,7 +28,7 @@
         <!-- topbar -->
         <div class="topbar">
             <div class="topbar-left">
-                <span class="menu-icon">&#9776;</span>
+                <span class="menu-icon">☰</span>
             </div>
             <!-- profile -->
             <div class="topbar-right">
@@ -50,10 +49,10 @@
             </div>
         </div>
         <!-- content -->
-        <div class="content">
+        <main class="content">
             <div class="header">
                 <div class="header-left">
-                    <h1 id="sectionTitle">Vehicles</h1>
+                    <h1 id="sectionTitle">Dashboard</h1>
                 </div>
                 <div class="header-actions">
                     <button class="secondary" id="manageBookingsBtn">Manage Bookings</button>
@@ -61,7 +60,27 @@
                 </div>
             </div>
 
-            <section id="vehiclesSection" class="dashboard-section active">
+            <section id="dashboardSection" class="dashboard-section active">
+                <div class="dashboard-overview">
+                    <section class="recent-panel">
+                        <div class="section-heading-row">
+                            <h2>Recent Vehicles</h2>
+                            <button type="button" class="link-btn" id="viewAllVehiclesBtn">View All Vehicles</button>
+                        </div>
+                        <div class="recent-list" id="recentVehiclesList"></div>
+                    </section>
+
+                    <section class="recent-panel">
+                        <div class="section-heading-row">
+                            <h2>Recent Bookings</h2>
+                            <button type="button" class="link-btn" id="viewAllBookingsBtn">View All Bookings</button>
+                        </div>
+                        <div class="recent-list" id="recentBookingsList"></div>
+                    </section>
+                </div>
+            </section>
+
+            <section id="vehiclesSection" class="dashboard-section">
                 <!-- filters -->
                 <div class="filters" id="vehicleFilters">
                     <input type="text" id="vehicleSearch" placeholder="Search cars, city or type...">
@@ -78,6 +97,11 @@
                     </select>
                     <select id="locationFilter">
                         <option value="">All Locations</option>
+                        <option value="1">Indore</option>
+                        <option value="2">Mumbai</option>
+                        <option value="3">Pune</option>
+                        <option value="4">Bhopal</option>
+                        <option value="5">Kolkata</option>
                     </select>
                     <button class="reset-btn" id="resetFiltersBtn">Reset</button>
                 </div>
@@ -87,10 +111,10 @@
             </section>
             <section id="bookingsSection" class="dashboard-section">
                 <div class="empty-state">
-                    Booking management UI is ready to connect when booking admin APIs are available.
+                    Loading bookings.....
                 </div>
             </section>
-        </div>
+        </main>
     </div>
 </div>
 
@@ -108,6 +132,8 @@
                 <option value="BIKE">Bike</option>
             </select>
 
+            <input type="text" id="registrationNumber" placeholder="Registration Number" required>
+            <input type="text" id="description" placeholder="Product Description" required>
             <select id="status" required>
                 <option value="AVAILABLE">Available</option>
                 <option value="BOOKED">Booked</option>
@@ -118,9 +144,9 @@
 
             <select id="profileUrl" required>
                 <option value="">Select Vehicle Image</option>
-                <option value="./assets/home_car.png">Car</option>
-                <option value="./assets/signup_bike.png">Bike</option>
-                <option value="./assets/bike.jpg">Sports Bike</option>
+                <option value="assets/home_car.png">Car</option>
+                <option value="assets/signup_bike.png">Bike</option>
+                <option value="assets/bike.jpg">Sports Bike</option>
             </select>
 
             <img id="vehicleImagePreview" class="vehicle-image-preview" alt="Vehicle preview">

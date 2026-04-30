@@ -1,351 +1,434 @@
-import {getAdminVehicles, getAdminVehicleById, createVehicle, updateVehicle, deleteVehicleById, getLocations } from "./api.js";
+import {getAdminVehicles, createVehicle, updateVehicle, deleteVehicleById, getAdminBookings} from './api.js';
+const state = { vehicles: [], visibleVehicles: [], bookings: [], editingVehicleId: null, deletingVehicleId: null};
 
-let vehicles = [];
-let editingVehicleId = null;
-let deletingVehicleId = null;
+const vehicleList = document.getElementById('vehicleList');
+const bookingsSection = document.getElementById('bookingsSection');
+const recentVehiclesList = document.getElementById('recentVehiclesList');
+const recentBookingsList = document.getElementById('recentBookingsList');
+const vehicleModal = document.getElementById('vehicleModal');
+const deleteModal = document.getElementById('deleteModal');
+const vehicleForm = document.getElementById('vehicleForm');
+const modalTitle = document.getElementById('modalTitle');
+const toast = document.getElementById('toast');
+const sectionTitle = document.getElementById('sectionTitle');
+const addVehicleBtn = document.getElementById('addVehicleBtn');
+const manageBookingsBtn = document.getElementById('manageBookingsBtn');
+const viewAllVehiclesBtn = document.getElementById('viewAllVehiclesBtn');
+const viewAllBookingsBtn = document.getElementById('viewAllBookingsBtn');
+const cancelVehicleBtn = document.getElementById('cancelVehicleBtn');
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+const searchInput = document.getElementById('vehicleSearch');
+const typeFilter = document.getElementById('typeFilter');
+const statusFilter = document.getElementById('statusFilter');
+const locationFilter = document.getElementById('locationFilter');
+const locationSelect = document.getElementById('locationId');
+const profileUrlSelect = document.getElementById('profileUrl');
+const imagePreview = document.getElementById('vehicleImagePreview');
 
-document.addEventListener("DOMContentLoaded", () => {
-    setupProfileDropdown();
-    setupEventListeners();
-    setupSidebarNavigation();
-    loadVehicles();
+document.addEventListener('DOMContentLoaded', async () => {
+    hydrateAdminProfile();
+    setupEvents();
+    await loadAdminData();
+    switchSection('dashboard');
 });
 
-function setupEventListeners() {
-    document.getElementById("addVehicleBtn").addEventListener("click", openAddModal);
-    document.getElementById("vehicleForm").addEventListener("submit", saveVehicle);
-    document.getElementById("cancelVehicleBtn").addEventListener("click", closeVehicleModal);
-    document.getElementById("confirmDeleteBtn").addEventListener("click", confirmDeleteVehicle);
-    document.getElementById("cancelDeleteBtn").addEventListener("click", closeDeleteModal);
-    document.getElementById("profileUrl").addEventListener("change", updateImagePreview);
-    document.getElementById("vehicleSearch").addEventListener("input", applyFilters);
-    document.getElementById("typeFilter").addEventListener("change", applyFilters);
-    document.getElementById("statusFilter").addEventListener("change", applyFilters);
-    document.getElementById("locationFilter").addEventListener("change", applyFilters);
-    document.getElementById("resetFiltersBtn").addEventListener("click", resetFilters);
-    document.getElementById("logoutBtn").addEventListener("click", logout);
-    document.getElementById("manageBookingsBtn").addEventListener("click", () => showSection("bookings"));
-    document.querySelector(".menu-icon").addEventListener("click", toggleSidebar);
-}
-
-function setupProfileDropdown() {
-    const toggle = document.getElementById("profileToggle");
-    const dropdown = document.getElementById("profileDropdown");
-    const email = localStorage.getItem("email");
-
-    if (email) {
-        document.getElementById("adminEmail").textContent = email;
-        document.getElementById("adminName").textContent = email.split("@")[0];
-        document.getElementById("adminInitial").textContent = email.charAt(0).toUpperCase();
-        document.getElementById("profileAvatar").textContent = email.charAt(0).toUpperCase();
-    }
-
-    toggle.addEventListener("click", () => {
-        dropdown.classList.toggle("active");
-    });
-
-    document.addEventListener("click", (event) => {
-        if (!toggle.contains(event.target) && !dropdown.contains(event.target)) {
-            dropdown.classList.remove("active");
-        }
-    });
-}
-
-function setupSidebarNavigation() {
-    document.querySelectorAll(".sidebar nav a[data-section]").forEach((link) => {
-        link.addEventListener("click", (event) => {
+function setupEvents() {
+    document.querySelectorAll('.sidebar nav a[data-section]').forEach(link => {
+        link.addEventListener('click', (event) => {
             event.preventDefault();
-            showSection(link.dataset.section);
+            switchSection(link.dataset.section);
+        });
+    });
+
+    document.querySelector('.menu-icon')?.addEventListener('click', () => {
+        document.querySelector('.sidebar')?.classList.toggle('active');
+    });
+
+    document.getElementById('profileToggle')?.addEventListener('click', () => {
+        document.getElementById('profileDropdown')?.classList.toggle('active');
+    });
+
+    document.getElementById('logoutBtn')?.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('email');
+        localStorage.removeItem('role');
+        window.location.href = 'index.html';
+    });
+
+    addVehicleBtn?.addEventListener('click', () => openVehicleModal());
+    manageBookingsBtn?.addEventListener('click', () => switchSection('bookings'));
+    viewAllVehiclesBtn?.addEventListener('click', () => switchSection('vehicles'));
+    viewAllBookingsBtn?.addEventListener('click', () => switchSection('bookings'));
+    cancelVehicleBtn?.addEventListener('click', () => closeModal(vehicleModal));
+    cancelDeleteBtn?.addEventListener('click', () => closeModal(deleteModal));
+    confirmDeleteBtn?.addEventListener('click', deleteSelectedVehicle);
+
+    vehicleForm?.addEventListener('submit', saveVehicle);
+    [searchInput, typeFilter, statusFilter, locationFilter].forEach(control => {
+        control?.addEventListener('input', applyVehicleFilters);
+        control?.addEventListener('change', applyVehicleFilters);
+    });
+
+    resetFiltersBtn?.addEventListener('click', () => {
+        searchInput.value = '';
+        typeFilter.value = '';
+        statusFilter.value = '';
+        locationFilter.value = '';
+        state.visibleVehicles = state.vehicles;
+        renderVehicles();
+    });
+
+    profileUrlSelect?.addEventListener('change', updateImagePreview);
+    [vehicleModal, deleteModal].forEach(modal => {
+        modal?.addEventListener('click', (event) => {
+            if (event.target === modal) closeModal(modal);
         });
     });
 }
 
-function showSection(sectionName) {
-    const isBookings = sectionName === "bookings";
-    const sectionTitle = sectionName === "dashboard" ? "Dashboard" : sectionName === "bookings" ? "Bookings" : "Vehicles";
+async function loadAdminData() {
+    try {
+        const [vehicles, bookings] = await Promise.all([
+            getAdminVehicles(),
+            getAdminBookings()
+        ]);
 
-    document.getElementById("vehiclesSection").classList.toggle("active", !isBookings);
-    document.getElementById("bookingsSection").classList.toggle("active", isBookings);
-    document.getElementById("sectionTitle").textContent = sectionTitle;
-    document.getElementById("addVehicleBtn").style.display = isBookings ? "none" : "";
-    document.getElementById("manageBookingsBtn").style.display = isBookings ? "none" : "";
+        state.vehicles = vehicles || [];
+        state.visibleVehicles = state.vehicles;
+        state.bookings = bookings || [];
 
-    document.querySelectorAll(".sidebar nav a[data-section]").forEach((link) => {
-        link.classList.toggle("active", link.dataset.section === sectionName);
+        populateLocationOptions();
+        renderDashboard();
+        renderVehicles();
+        renderBookings();
+    } catch (error) {
+        console.error('Admin data load failed:', error);
+        showToast(error.message || 'Failed to fetch admin dashboard data', 'error');
+    }
+}
+
+function switchSection(section) {
+    document.querySelectorAll('.dashboard-section').forEach(panel => panel.classList.remove('active'));
+    document.getElementById(`${section}Section`)?.classList.add('active');
+
+    document.querySelectorAll('.sidebar nav a[data-section]').forEach(link => {
+        link.classList.toggle('active', link.dataset.section === section);
     });
-
-    if (!isBookings) {
-        loadVehicles();
-    }
-
-    closeSidebarOnMobile();
+    sectionTitle.textContent = section === 'bookings' ? 'Bookings' : section === 'dashboard' ? 'Dashboard' : 'Vehicles';
+    addVehicleBtn.classList.toggle('hidden', section !== 'vehicles');
+    manageBookingsBtn.classList.toggle('hidden', section === 'bookings');
 }
 
-function toggleSidebar() {
-    document.querySelector(".sidebar").classList.toggle("active");
+function hydrateAdminProfile() {
+    const email = localStorage.getItem('email') || 'admin@email.com';
+    const name = email.split('@')[0] || 'Admin';
+    const initial = name.charAt(0).toUpperCase();
+    document.getElementById('adminInitial').textContent = initial;
+    document.getElementById('profileAvatar').textContent = initial;
+    document.getElementById('adminName').textContent = name;
+    document.getElementById('adminEmail').textContent = email;
 }
 
-function closeSidebarOnMobile() {
-    if (window.innerWidth <= 768) {
-        document.querySelector(".sidebar").classList.remove("active");
-    }
+function getVehicleName(vehicle) {
+    return [vehicle.brand, vehicle.model].filter(Boolean).join(' ') || 'Vehicle';
 }
 
-async function loadVehicles() {
-    renderLoadingState();
-    try {
-        vehicles = await getAdminVehicles();
-        renderVehicles(vehicles);
-        await loadLocations();
-    } catch (error) {
-        renderVehicles([]);
-        showToast(error.message || "Could not load vehicles", "error");
-    }
+function getLocationText(location) {
+    if (!location) return 'N/A';
+    return [location.city, location.state].filter(Boolean).join(', ') || 'N/A';
 }
 
-async function loadLocations() {
-    try {
-        const locations = await getLocations();
-        populateLocationDropdown("locationId", locations, "Select Location");
-        populateLocationDropdown("locationFilter", locations, "All Locations");
-    } catch (error) {
-        const locationsFromVehicles = getUniqueVehicleLocations();
-        populateLocationDropdown("locationId", locationsFromVehicles, "Select Location");
-        populateLocationDropdown("locationFilter", locationsFromVehicles, "All Locations");
+function clearElement(element) {
+    if (!element) return;
+    while (element.firstChild) {
+        element.removeChild(element.firstChild);
     }
 }
 
-function renderLoadingState() {
-    document.getElementById("vehicleList").innerHTML = `
-        <div class="empty-state">Loading vehicles...</div>
-    `;
+function createTextElement(tagName, text, className = '') {
+    const element = document.createElement(tagName);
+    element.textContent = text;
+    if (className) element.className = className;
+    return element;
 }
 
-function renderVehicles(vehicleList) {
-    const vehicleListContainer = document.getElementById("vehicleList");
-    if (!vehicleList.length) {
-        vehicleListContainer.innerHTML = `
-            <div class="empty-state">No vehicles found</div>
-        `;
+function createEmptyState(message) {
+    return createTextElement('div', message, 'empty-state');
+}
+
+function createStatusBadge(status) {
+    const badge = createTextElement('span', status || 'N/A', `status ${String(status).toLowerCase()}`);
+    return badge;
+}
+
+function createVehicleCard(vehicle) {
+    const card = document.createElement('article');
+    card.className = 'vehicle-card';
+
+    const image = document.createElement('img');
+    image.className = 'vehicle-image';
+    image.src = vehicle.profileUrl || 'assets/home_car.png';
+    image.alt = getVehicleName(vehicle);
+
+    const title = createTextElement('h3', getVehicleName(vehicle));
+    const description = createTextElement('p', vehicle.description || 'No description provided');
+    const type = createTextElement('div', `Type: ${vehicle.type}`, 'vehicle-meta');
+    const location = createTextElement('div', `Location: ${getLocationText(vehicle.location)}`, 'vehicle-meta');
+    const registration = createTextElement('div', `Registration: ${vehicle.registrationNumber || '-'}`, 'vehicle-meta');
+    const rate = createTextElement('div', `Rate: Rs ${vehicle.dailyRentalRate}/day`, 'vehicle-meta');
+    const status = createStatusBadge(vehicle.status);
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+    const editButton = createTextElement('button', 'Edit');
+    editButton.type = 'button';
+    editButton.addEventListener('click', () => openVehicleModal(vehicle.id));
+    const deleteButton = createTextElement('button', 'Delete', 'danger');
+    deleteButton.type = 'button';
+    deleteButton.addEventListener('click', () => openDeleteModal(vehicle.id));
+
+    actions.append(editButton, deleteButton);
+    card.append(image, title, description, type, location, registration, rate, status, actions);
+
+    return card;
+}
+
+function createBookingCard(booking) {
+    const card = document.createElement('article');
+    card.className = 'booking-admin-card';
+    const vehicleInfo = document.createElement('div');
+    vehicleInfo.append(
+        createTextElement('h3', [booking.vehicleBrand, booking.vehicleModel].filter(Boolean).join(' ') || 'Vehicle'),
+        createTextElement('p', `Booking ID: ${booking.id}`),
+        createTextElement('p', `Vehicle ID: ${booking.vehicleId}`)
+    );
+    const dateInfo = document.createElement('div');
+    dateInfo.append(
+        createTextElement('p', `Start: ${new Date(booking.startDate).toLocaleString()}`),
+        createTextElement('p', `End: ${new Date(booking.endDate).toLocaleString()}`),
+        createTextElement('p', `Total: Rs ${booking.totalPrice ?? 0}`)
+    );
+    card.append(vehicleInfo, dateInfo, createStatusBadge(booking.status));
+    return card;
+}
+
+function createRecentVehicleItem(vehicle) {
+    const item = document.createElement('article');
+    item.className = 'recent-item';
+    item.append(
+        createTextElement('h3', getVehicleName(vehicle)),
+        createTextElement('p', `Type: ${vehicle.type || 'N/A'}`),
+        createTextElement('p', `Location: ${getLocationText(vehicle.location)}`),
+        createStatusBadge(vehicle.status)
+    );
+    return item;
+}
+
+function createRecentBookingItem(booking) {
+    const item = document.createElement('article');
+    item.className = 'recent-item';
+    const vehicleName = [booking.vehicleBrand, booking.vehicleModel].filter(Boolean).join(' ') || 'Vehicle';
+    item.append(
+        createTextElement('h3', vehicleName),
+        createTextElement('p', `Start: ${new Date(booking.startDate).toLocaleDateString()}`),
+        createTextElement('p', `Total: Rs ${booking.totalPrice ?? 0}`),
+        createStatusBadge(booking.status)
+    );
+    return item;
+}
+
+function renderDashboard() {
+    clearElement(recentVehiclesList);
+    clearElement(recentBookingsList);
+    const recentVehicles = state.vehicles.slice(0, 4);
+    const recentBookings = state.bookings.slice(0, 4);
+    if (!recentVehicles.length) {
+        recentVehiclesList?.appendChild(createEmptyState('No vehicles found from database.'));
+    } else {
+        recentVehicles.forEach(vehicle => recentVehiclesList?.appendChild(createRecentVehicleItem(vehicle)));
+    }
+    if (!recentBookings.length) {
+        recentBookingsList?.appendChild(createEmptyState('No bookings found from database.'));
+    } else {
+        recentBookings.forEach(booking => recentBookingsList?.appendChild(createRecentBookingItem(booking)));
+    }
+}
+
+function renderVehicles() {
+    if (!vehicleList) return;
+    clearElement(vehicleList);
+    if (!state.visibleVehicles.length) {
+        vehicleList.appendChild(createEmptyState('No vehicles found from database.'));
         return;
     }
-    vehicleListContainer.innerHTML = vehicleList.map((vehicle) => {
-        const statusClass = vehicle.status ? vehicle.status.toLowerCase() : "";
-        return `
-            <div class="vehicle-card" data-id="${vehicle.id}">
-                ${vehicle.profileUrl ? `
-                    <img src="${vehicle.profileUrl}" class="vehicle-image" alt="${escapeHtml(vehicle.brand)} ${escapeHtml(vehicle.model)}">
-                ` : ""}
-                <h3>${escapeHtml(vehicle.brand)} ${escapeHtml(vehicle.model)}</h3>
-                <p class="vehicle-meta">Type: ${escapeHtml(vehicle.type)}</p>
-                <p class="vehicle-meta">Location: ${escapeHtml(formatLocation(vehicle.location))}</p>
-                <p class="vehicle-meta">&#8377;${vehicle.dailyRentalRate}/day</p>
-                <p class="status ${statusClass}">${escapeHtml(vehicle.status)}</p>
-                <div class="card-actions">
-                    <button type="button" data-action="edit" data-id="${vehicle.id}">Edit</button>
-                    <button type="button" class="danger" data-action="delete" data-id="${vehicle.id}">Delete</button>
-                </div>
-            </div>
-        `;
-    }).join("");
-
-    vehicleListContainer.querySelectorAll("[data-action='edit']").forEach((button) => {
-        button.addEventListener("click", () => openEditModal(button.dataset.id));
-    });
-
-    vehicleListContainer.querySelectorAll("[data-action='delete']").forEach((button) => {
-        button.addEventListener("click", () => openDeleteModal(button.dataset.id));
+    state.visibleVehicles.forEach(vehicle => {
+        vehicleList.appendChild(createVehicleCard(vehicle));
     });
 }
 
-function openAddModal() {
-    editingVehicleId = null;
-    document.getElementById("modalTitle").textContent = "Add Vehicle";
-    document.getElementById("vehicleForm").reset();
-    clearImagePreview();
-    document.getElementById("vehicleModal").style.display = "flex";
+function renderBookings() {
+    if (!bookingsSection) return;
+    clearElement(bookingsSection);
+    if (!state.bookings.length) {
+        bookingsSection.appendChild(createEmptyState('No bookings found from database.'));
+        return;
+    }
+
+    const bookingList = document.createElement('div');
+    bookingList.className = 'booking-admin-list';
+    state.bookings.forEach(booking => bookingList.appendChild(createBookingCard(booking)));
+    bookingsSection.appendChild(bookingList);
 }
 
-async function openEditModal(id) {
-    try {
-        const vehicle = await getAdminVehicleById(id);
-        editingVehicleId = id;
-
-        document.getElementById("modalTitle").textContent = "Edit Vehicle";
-        document.getElementById("model").value = vehicle.model || "";
-        document.getElementById("brand").value = vehicle.brand || "";
-        document.getElementById("type").value = vehicle.type || "";
-        document.getElementById("status").value = vehicle.status || "AVAILABLE";
-        document.getElementById("dailyRentalRate").value = vehicle.dailyRentalRate || "";
-        document.getElementById("profileUrl").value = vehicle.profileUrl || "";
-        document.getElementById("locationId").value = vehicle.location?.id || "";
-
-        updateImagePreview();
-        document.getElementById("vehicleModal").style.display = "flex";
-    } catch (error) {
-        showToast(error.message || "Could not load vehicle details", "error");
+function populateLocationOptions() {
+    const locations = new Map();
+    state.vehicles.forEach(vehicle => {
+        if (vehicle.location?.id) {
+            locations.set(vehicle.location.id, getLocationText(vehicle.location));
+        }
+    });
+    const sortedLocations = [...locations.entries()].sort((a, b) => a[1].localeCompare(b[1]));
+    if (locationFilter) {
+        replaceSelectOptions(locationFilter, 'All Locations', sortedLocations);
+    }
+    if (locationSelect) {
+        replaceSelectOptions(locationSelect, 'Select Location', sortedLocations);
     }
 }
 
-function closeVehicleModal() {
-    editingVehicleId = null;
-    document.getElementById("vehicleModal").style.display = "none";
+function replaceSelectOptions(select, placeholder, options) {
+    clearElement(select);
+    select.appendChild(new Option(placeholder, ''));
+    options.forEach(([id, label]) => {
+        select.appendChild(new Option(label, id));
+    });
+}
+
+function applyVehicleFilters() {
+    const query = searchInput.value.trim().toLowerCase();
+    const selectedType = typeFilter.value;
+    const selectedStatus = statusFilter.value;
+    const selectedLocation = locationFilter.value;
+    state.visibleVehicles = state.vehicles.filter(vehicle => {
+        const haystack = [
+            vehicle.brand,
+            vehicle.model,
+            vehicle.type,
+            vehicle.status,
+            vehicle.registrationNumber,
+            getLocationText(vehicle.location)
+        ].join(' ').toLowerCase();
+
+        return (!query || haystack.includes(query))
+            && (!selectedType || vehicle.type === selectedType)
+            && (!selectedStatus || vehicle.status === selectedStatus)
+            && (!selectedLocation || vehicle.location?.id === selectedLocation);
+    });
+    renderVehicles();
+}
+
+function openVehicleModal(vehicleId = null) {
+    state.editingVehicleId = vehicleId;
+    vehicleForm.reset();
+    imagePreview.classList.add('hidden');
+    imagePreview.removeAttribute('src');
+    if (vehicleId) {
+        const vehicle = state.vehicles.find(item => item.id === vehicleId);
+        if (!vehicle) return;
+        modalTitle.textContent = 'Edit Vehicle';
+        document.getElementById('model').value = vehicle.model || '';
+        document.getElementById('brand').value = vehicle.brand || '';
+        document.getElementById('type').value = vehicle.type || '';
+        document.getElementById('registrationNumber').value = vehicle.registrationNumber || '';
+        document.getElementById('description').value = vehicle.description || '';
+        document.getElementById('status').value = vehicle.status || 'AVAILABLE';
+        document.getElementById('dailyRentalRate').value = vehicle.dailyRentalRate || '';
+        document.getElementById('profileUrl').value = vehicle.profileUrl || '';
+        document.getElementById('locationId').value = vehicle.location?.id || '';
+        updateImagePreview();
+    } else {
+        modalTitle.textContent = 'Add Vehicle';
+        document.getElementById('status').value = 'AVAILABLE';
+    }
+
+    openModal(vehicleModal);
 }
 
 async function saveVehicle(event) {
     event.preventDefault();
-    const payload = getVehiclePayload();
+    const payload = {
+        model: document.getElementById('model').value.trim(),
+        brand: document.getElementById('brand').value.trim(),
+        type: document.getElementById('type').value,
+        registrationNumber: document.getElementById('registrationNumber').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        status: document.getElementById('status').value,
+        dailyRentalRate: Number(document.getElementById('dailyRentalRate').value),
+        profileUrl: document.getElementById('profileUrl').value,
+        locationId: document.getElementById('locationId').value
+    };
+
     try {
-        if (editingVehicleId) {
-            await updateVehicle(editingVehicleId, payload);
-            showToast("Vehicle updated successfully");
+        if (state.editingVehicleId) {
+            await updateVehicle(state.editingVehicleId, payload);
+            showToast('Vehicle updated from database', 'success');
         } else {
             await createVehicle(payload);
-            showToast("Vehicle added successfully");
+            showToast('Vehicle added to database', 'success');
         }
-        closeVehicleModal();
-        await loadVehicles();
+
+        closeModal(vehicleModal);
+        await loadAdminData();
     } catch (error) {
-        showToast(error.message || "Could not save vehicle", "error");
+        console.error('Save vehicle failed:', error);
+        showToast(error.message || 'Failed to save vehicle', 'error');
     }
 }
 
-function getVehiclePayload() {
-    return {
-        model: document.getElementById("model").value.trim(),
-        brand: document.getElementById("brand").value.trim(),
-        type: document.getElementById("type").value,
-        status: document.getElementById("status").value,
-        dailyRentalRate: Number(document.getElementById("dailyRentalRate").value),
-        profileUrl: document.getElementById("profileUrl").value,
-        locationId: document.getElementById("locationId").value
-    };
+function openDeleteModal(vehicleId) {
+    state.deletingVehicleId = vehicleId;
+    openModal(deleteModal);
 }
 
-function openDeleteModal(id) {
-    deletingVehicleId = id;
-    document.getElementById("deleteModal").style.display = "flex";
-}
-
-function closeDeleteModal() {
-    deletingVehicleId = null;
-    document.getElementById("deleteModal").style.display = "none";
-}
-
-async function confirmDeleteVehicle() {
-    if (!deletingVehicleId) return;
-
+async function deleteSelectedVehicle() {
+    if (!state.deletingVehicleId) return;
     try {
-        await deleteVehicleById(deletingVehicleId);
-        closeDeleteModal();
-        showToast("Vehicle deleted successfully");
-        await loadVehicles();
+        await deleteVehicleById(state.deletingVehicleId);
+        closeModal(deleteModal);
+        showToast('Vehicle deleted from database', 'success');
+        state.deletingVehicleId = null;
+        await loadAdminData();
     } catch (error) {
-        showToast(error.message || "Could not delete vehicle", "error");
+        console.error('Delete failed:', error);
+        showToast(error.message || 'Failed to delete vehicle', 'error');
     }
-}
-
-function applyFilters() {
-    const search = document.getElementById("vehicleSearch").value.toLowerCase();
-    const type = document.getElementById("typeFilter").value;
-    const status = document.getElementById("statusFilter").value;
-    const locationId = document.getElementById("locationFilter").value;
-
-    const filteredVehicles = vehicles.filter((vehicle) => {
-        const matchesSearch =
-            (vehicle.model || "").toLowerCase().includes(search) ||
-            (vehicle.brand || "").toLowerCase().includes(search) ||
-            (vehicle.type || "").toLowerCase().includes(search) ||
-            (vehicle.location?.city || "").toLowerCase().includes(search);
-
-        const matchesType = !type || vehicle.type === type;
-        const matchesStatus = !status || vehicle.status === status;
-        const matchesLocation = !locationId || vehicle.location?.id === locationId;
-
-        return matchesSearch && matchesType && matchesStatus && matchesLocation;
-    });
-
-    renderVehicles(filteredVehicles);
-}
-
-function resetFilters() {
-    document.getElementById("vehicleSearch").value = "";
-    document.getElementById("typeFilter").value = "";
-    document.getElementById("statusFilter").value = "";
-    document.getElementById("locationFilter").value = "";
-    renderVehicles(vehicles);
-}
-
-function populateLocationDropdown(selectId, locations, defaultText) {
-    const select = document.getElementById(selectId);
-    select.innerHTML = `<option value="">${defaultText}</option>`;
-
-    locations.forEach((location) => {
-        const option = document.createElement("option");
-        option.value = location.id;
-        option.textContent = formatLocation(location, true);
-        select.appendChild(option);
-    });
-}
-
-function getUniqueVehicleLocations() {
-    const locationMap = new Map();
-    vehicles.forEach((vehicle) => {
-        if (vehicle.location?.id) {
-            locationMap.set(vehicle.location.id, vehicle.location);
-        }
-    });
-    return Array.from(locationMap.values());
-}
-
-function formatLocation(location, includePincode = false) {
-    if (!location) return "Not assigned";
-    const cityState = [location.city, location.state].filter(Boolean).join(", ");
-    if (includePincode && location.pincode) {
-        return `${cityState} - ${location.pincode}`;
-    }
-    return cityState || location.address || "Not assigned";
 }
 
 function updateImagePreview() {
-    const imageUrl = document.getElementById("profileUrl").value;
-    const preview = document.getElementById("vehicleImagePreview");
+    const imageUrl = profileUrlSelect.value;
     if (!imageUrl) {
-        clearImagePreview();
+        imagePreview.classList.add('hidden');
+        imagePreview.removeAttribute('src');
         return;
     }
-    preview.src = imageUrl;
-    preview.style.display = "block";
+
+    imagePreview.src = imageUrl;
+    imagePreview.classList.remove('hidden');
 }
 
-function clearImagePreview() {
-    const preview = document.getElementById("vehicleImagePreview");
-    preview.removeAttribute("src");
-    preview.style.display = "none";
+function openModal(modal) {
+    modal.classList.add('active');
 }
 
-function showToast(message, type = "success") {
-    const toast = document.getElementById("toast");
+function closeModal(modal) {
+    modal.classList.remove('active');
+}
+
+function showToast(message, type = 'success') {
     toast.textContent = message;
-    toast.className = type === "error" ? "toast error" : "toast";
-    toast.style.display = "block";
+    toast.className = `toast show ${type}`;
     setTimeout(() => {
-        toast.style.display = "none";
-    }, 2500);
-}
-
-function escapeHtml(value) {
-    return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
-
-function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("email");
-    window.location.href = "./login.html";
+        toast.className = 'toast';
+    }, 3000);
 }
