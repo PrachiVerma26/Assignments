@@ -1,14 +1,6 @@
 const API_ROOT = "http://localhost:8080/api";
 const AUTH_BASE_URL = `${API_ROOT}/auth`;
 
-export class ApiError extends Error {
-    constructor(message, status, data) {
-        super(message);
-        this.status = status;
-        this.data = data;
-        this.name = 'ApiError';
-    }
-}
 
 async function request(endpoint, options = {}) {
     const token = localStorage.getItem("token");
@@ -16,16 +8,22 @@ async function request(endpoint, options = {}) {
     
     console.log(`[API] ${options.method || 'GET'} ${url}`);
 
+    const headers = {
+        "Content-Type": "application/json",
+        ...options.headers
+    };
+    
+    // Add token for protected endpoints (customer and admin routes)
+    if (token && (endpoint.startsWith('/customer') || endpoint.startsWith('/admin'))) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+
     const response = await fetch(url, {
         ...options,
-        headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            ...options.headers
-        }
+        headers
     });
 
-    const data = response.status === 204 ? null : await response.json();
+    const data = response.status === 204 ? null : await parseResponseBody(response);
 
     if (!response.ok) {
         console.error(`[API] Error: ${response.status}`, data);
@@ -39,6 +37,18 @@ async function request(endpoint, options = {}) {
     return data;
 }
 
+async function parseResponseBody(response) {
+    const text = await response.text();
+    if (!text) return null;
+
+    try {
+        return JSON.parse(text);
+    } catch (error) {
+        return { message: text };
+    }
+}
+
+// Auth APIs
 export async function loginUser(credentials) {
     try {
         console.log("[API] Sending login request");      
@@ -91,57 +101,6 @@ export async function signupUser(data) {
     return result;
 }
 
-export function getAdminVehicles() {
-    return request("/admin/vehicles", {
-        method: "GET"
-    });
-}
-
-export function getAdminVehicleById(id) {
-    return request(`/admin/vehicles/${id}`, {
-        method: "GET"
-    });
-}
-
-export function createVehicle(vehicleData) {
-    return request("/admin/vehicles", {
-        method: "POST",
-        body: JSON.stringify(vehicleData)
-    });
-}
-
-export function updateVehicle(id, vehicleData) {
-    return request(`/admin/vehicles/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(vehicleData)
-    });
-}
-
-export function deleteVehicleById(id) {
-    return request(`/admin/vehicles/${id}`, {
-        method: "DELETE"
-    });
-}
-
-export function getAdminBookings(status) {
-    const query = status ? `?status=${encodeURIComponent(status)}` : "";
-    return request(`/admin/bookings${query}`, {
-        method: "GET"
-    });
-}
-
-export function getAdminBookingById(id) {
-    return request(`/admin/bookings/${id}`, {
-        method: "GET"
-    });
-}
-
-export function getLocations() {
-    return request("/locations", {
-        method: "GET"
-    });
-}
-
 // User Profile APIs
 export function getUserProfile() {
     return request("/customer/profile", {
@@ -170,7 +129,9 @@ export function getVehicleById(id) {
 }
 
 export function getAvailableVehiclesByDateRange(startDate, endDate, type, locationId) {
-    let url = `/vehicles/available-by-dates?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+    const startDateTime = toStartOfDayDateTime(startDate);
+    const endDateTime = toEndOfDayDateTime(endDate);
+    let url = `/vehicles/available-by-dates?startDate=${encodeURIComponent(startDateTime)}&endDate=${encodeURIComponent(endDateTime)}`;
     if (type) url += `&type=${type}`;
     if (locationId) url += `&locationId=${locationId}`;
     
@@ -179,25 +140,24 @@ export function getAvailableVehiclesByDateRange(startDate, endDate, type, locati
     });
 }
 
-export function getAvailableVehicles(type, locationId) {
-    let url = `/vehicles/available?type=${type}`;
-    if (locationId) url += `&locationId=${locationId}`;
-    
-    return request(url, {
+export function getFilteredVehicles(type, status, locationId) {
+    const params = new URLSearchParams();
+    if (type) params.append('type', type);
+    if (status) params.append('status', status);
+    if (locationId) params.append('locationId', locationId);
+
+    const query = params.toString();
+    return request(`/vehicles/filter${query ? `?${query}` : ''}`, {
         method: "GET"
     });
 }
 
-export function getVehiclesByType(type) {
-    return request(`/vehicles/type/${type}`, {
-        method: "GET"
-    });
+function toStartOfDayDateTime(date) {
+    return date.includes('T') ? date : `${date}T00:00:00`;
 }
 
-export function getVehiclesByLocation(locationId) {
-    return request(`/vehicles/location/${locationId}`, {
-        method: "GET"
-    });
+function toEndOfDayDateTime(date) {
+    return date.includes('T') ? date : `${date}T23:59:59`;
 }
 
 // Booking APIs
@@ -223,5 +183,38 @@ export function getBookingById(id) {
 export function cancelBooking(id) {
     return request(`/customer/bookings/${id}/cancel`, {
         method: "PATCH"
+    });
+}
+
+// Admin APIs
+export function getAdminVehicles() {
+    return request("/admin/vehicles", {
+        method: "GET"
+    });
+}
+
+export function createVehicle(vehicleData) {
+    return request("/admin/vehicles", {
+        method: "POST",
+        body: JSON.stringify(vehicleData)
+    });
+}
+
+export function updateVehicle(id, vehicleData) {
+    return request(`/admin/vehicles/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(vehicleData)
+    });
+}
+
+export function deleteVehicleById(id) {
+    return request(`/admin/vehicles/${id}`, {
+        method: "DELETE"
+    });
+}
+
+export function getAdminBookings() {
+    return request("/admin/bookings", {
+        method: "GET"
     });
 }

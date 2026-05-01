@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="./css/main.css">
-    <link rel="stylesheet" href="./css/dashboard.css">
+    <link rel="stylesheet" href="./css/admin-dashboard.css">
 </head>
 <body>
 
@@ -53,6 +53,7 @@
             <div class="header">
                 <div class="header-left">
                     <h1 id="sectionTitle">Dashboard</h1>
+                    <div id="connectionStatus" class="connection-status"></div>
                 </div>
                 <div class="header-actions">
                     <button class="secondary" id="manageBookingsBtn">Manage Bookings</button>
@@ -61,6 +62,16 @@
             </div>
 
             <section id="dashboardSection" class="dashboard-section active">
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <span>Total Vehicles</span>
+                        <strong id="totalVehicles">0</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Total Bookings</span>
+                        <strong id="totalBookings">0</strong>
+                    </div>
+                </div>
                 <div class="dashboard-overview">
                     <section class="recent-panel">
                         <div class="section-heading-row">
@@ -97,11 +108,6 @@
                     </select>
                     <select id="locationFilter">
                         <option value="">All Locations</option>
-                        <option value="1">Indore</option>
-                        <option value="2">Mumbai</option>
-                        <option value="3">Pune</option>
-                        <option value="4">Bhopal</option>
-                        <option value="5">Kolkata</option>
                     </select>
                     <button class="reset-btn" id="resetFiltersBtn">Reset</button>
                 </div>
@@ -116,67 +122,82 @@
             </section>
         </main>
     </div>
-</div>
 
-<!-- Add/Edit vehicle -->
-<div id="vehicleModal" class="modal">
-    <div class="modal-content">
-        <h2 id="modalTitle">Add Vehicle</h2>
-        <form id="vehicleForm">
-            <input type="text" id="model" placeholder="Model" required>
-            <input type="text" id="brand" placeholder="Brand" required>
+    <!-- Add/Edit vehicle -->
+    <div id="vehicleModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Add Vehicle</h2>
+            <form id="vehicleForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="brand">Brand</label>
+                        <input type="text" id="brand" placeholder="Brand" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="model">Model</label>
+                        <input type="text" id="model" placeholder="Model" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Vehicle Type</label>
+                        <select id="type" required>
+                            <option value="">Select Type</option>
+                            <option value="CAR">Car</option>
+                            <option value="BIKE">Bike</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="registrationNumber">Registration Number</label>
+                        <input type="text" id="registrationNumber" placeholder="Registration Number" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="description">Description</label>
+                        <input type="text" id="description" placeholder="Product Description" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" required>
+                            <option value="AVAILABLE">Available</option>
+                            <option value="BOOKED">Booked</option>
+                            <option value="MAINTENANCE">Maintenance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dailyRentalRate">Daily Rate (₹)</label>
+                        <input type="number" id="dailyRentalRate" placeholder="Daily Rental Rate" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileUrl">Vehicle Image</label>
+                        <select id="profileUrl" required>
+                            <option value="">Select Vehicle Image</option>
+                            <option value="assets/home_car.png">Car</option>
+                            <option value="assets/signup_bike.png">Bike</option>
+                            <option value="assets/bike.jpg">Sports Bike</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="locationId">Location</label>
+                        <select id="locationId" required>
+                            <option value="">Select Location</option>
+                            <option value="Mumbai">Mumbai</option>
+                            <option value="Bhopal">Bhopal</option>
+                            <option value="Indore">Indore</option>
+                            <option value="Kolkata">Kolkata</option>
+                            <option value="Pune">Pune</option>
+                        </select>
+                    </div>
+                </div>
 
-            <select id="type" required>
-                <option value="">Select Type</option>
-                <option value="CAR">Car</option>
-                <option value="BIKE">Bike</option>
-            </select>
-
-            <input type="text" id="registrationNumber" placeholder="Registration Number" required>
-            <input type="text" id="description" placeholder="Product Description" required>
-            <select id="status" required>
-                <option value="AVAILABLE">Available</option>
-                <option value="BOOKED">Booked</option>
-                <option value="MAINTENANCE">Maintenance</option>
-            </select>
-
-            <input type="number" id="dailyRentalRate" placeholder="Daily Rental Rate" min="1" required>
-
-            <select id="profileUrl" required>
-                <option value="">Select Vehicle Image</option>
-                <option value="assets/home_car.png">Car</option>
-                <option value="assets/signup_bike.png">Bike</option>
-                <option value="assets/bike.jpg">Sports Bike</option>
-            </select>
-
-            <img id="vehicleImagePreview" class="vehicle-image-preview" alt="Vehicle preview">
-
-            <select id="locationId" required>
-                <option value="">Select Location</option>
-            </select>
-
-            <div class="modal-actions">
-                <button type="submit" class="primary">Save</button>
-                <button type="button" id="cancelVehicleBtn">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Delete Confirmation  -->
-<div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <h2>Delete Vehicle</h2>
-        <p>Are you sure you want to delete this vehicle?</p>
-
-        <div class="modal-actions">
-            <button type="button" class="danger" id="confirmDeleteBtn">Delete</button>
-            <button type="button" id="cancelDeleteBtn">Cancel</button>
+                <div class="modal-actions">
+                    <button type="submit" class="primary">Save Vehicle</button>
+                    <button type="button" id="cancelVehicleBtn">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
-</div>
-<div id="toast" class="toast"></div>
 
-<script type="module" src="./js/dashboard.js"></script>
+    <div id="toast" class="toast"></div>
+</div>
+
+<script type="module" src="./js/admin-dashboard.js"></script>
 </body>
 </html>

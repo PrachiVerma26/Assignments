@@ -9,34 +9,33 @@
 </head>
 <body>
 
-<div class="admin-layout">
+<div class="dashboard-container">
     <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="sidebar-header">
+        <div class="logo">
             <img src="./assets/icon.png" alt="logo" class="logo-img">
             <span class="logo-text">Rapid Rental</span>
         </div>
         <nav>
             <a href="#" class="active" data-section="dashboard">Dashboard</a>
-            <a href="#" data-section="browse">Browse Vehicles</a>
+            <a href="vehicles.html">Browse Vehicles</a>
             <a href="#" data-section="bookings">My Bookings</a>
             <a href="#" data-section="profile">Profile</a>
             <a href="#" id="logoutLink">Logout</a>
         </nav>
     </aside>
 
-    <!-- Main -->
+    <!-- Main Content -->
     <div class="main-content">
-        <!-- Topbar -->
-        <div class="topbar">
-            <div class="topbar-left">
-                <span class="menu-icon">☰</span>
-                <span class="topbar-title" id="sectionTitle">Dashboard</span>
+        <!-- Dashboard Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1 id="sectionTitle">Dashboard</h1>
             </div>
-            <div class="topbar-right">
+            <div class="header-right">
                 <span id="welcomeMsg" class="welcome-msg"></span>
                 <div class="profile" id="profileToggle">
-                    <span class="admin-badge" id="userInitial">U</span>
+                    <span class="user-badge" id="userInitial">U</span>
                 </div>
                 <div class="profile-dropdown" id="profileDropdown">
                     <div class="profile-info">
@@ -49,248 +48,15 @@
                     <div class="dropdown-item" id="logoutBtn">Log out</div>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <div class="content">
-            <!-- dashboard section -->
-            <section id="dashboardSection" class="dashboard-section active">
-                <!-- filter-->
-                <div class="search-card">
-                    <h2>Find Your Vehicle</h2>
-                    <div class="search-form">
-                        <div class="form-group-inline">
-                            <label>Pickup Date & Time</label>
-                            <input type="datetime-local" id="searchStart">
-                        </div>
-                        <div class="form-group-inline">
-                            <label>Drop-off Date & Time</label>
-                            <input type="datetime-local" id="searchEnd">
-                        </div>
-                        <div class="form-group-inline">
-                            <label>Vehicle Type</label>
-                            <select id="searchType">
-                                <option value="">All Types</option>
-                                <option value="CAR">Car</option>
-                                <option value="BIKE">Bike</option>
-                            </select>
-                        </div>
-                        <div class="form-group-inline">
-                            <label>Location</label>
-                            <select id="searchLocation">
-                                <option value="">All Locations</option>
-                                <option value="Indore">Indore</option>
-                                <option value="Bhopal">Bhopal</option>
-                                <option value="Pune">Pune</option>
-                                <option value="Mumbai">Mumbai</option>
-                                <option value="Kolkata">Kolkata</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary" id="searchVehiclesBtn">Search</button>
-                    </div>
-                </div>
-
-                <!-- recent bookings-->
-                <div id="recentBookingsWrap" class="hidden">
-                    <h3 class="section-heading">Recent Bookings</h3>
-                    <div class="table-wrap">
-                        <table class="booking-table">
-                            <thead>
-                                <tr>
-                                    <th>Vehicle</th>
-                                    <th>Start</th>
-                                    <th>End</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentBookingsBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Empty state (no bookings) -->
-                <div id="emptyBookingState" class="empty-state hidden">
-                    <p>&#128663; No Bookings Yet</p>
-                    <div class="empty-actions">
-                        <button class="btn btn-secondary js-browse-link">Browse Vehicles</button>
-                        <button class="btn btn-primary js-browse-link">Book Now</button>
-                    </div>
-                </div>
-
-                <!-- recommended vehicles -->
-                <div id="recommendedWrap">
-                    <div class="section-heading-row">
-                        <h3 class="section-heading">Recommended Vehicles</h3>
-                        <a href="#" class="view-all-link" id="viewAllVehiclesLink">View All Vehicles</a>
-                    </div>
-                    <div id="recommendedGrid" class="vehicle-grid"></div>
-                </div>
-            </section>
-
-            <!--browse section-->
-            <section id="browseSection" class="dashboard-section">
-                <div class="filters">
-                    <select id="browseType">
-                        <option value="">All Types</option>
-                        <option value="CAR">Car</option>
-                        <option value="BIKE">Bike</option>
-                    </select>
-                    <select id="browseLocation">
-                        <option value="">All Locations</option>
-                    </select>
-                    <select id="browseStatus">
-                        <option value="">All Status</option>
-                        <option value="AVAILABLE">Available</option>
-                        <option value="BOOKED">Booked</option>
-                        <option value="MAINTENANCE">Maintenance</option>
-                    </select>
-                    <button class="btn btn-primary" id="applyBrowseFiltersBtn">Search</button>
-                    <button class="btn btn-secondary" id="resetBrowseFiltersBtn">Reset</button>
-                </div>
-                <div id="browseGrid" class="vehicle-grid"></div>
-                <div id="browsePagination" class="pagination"></div>
-            </section>
-
-            <!-- booking section-->
-            <section id="bookingsSection" class="dashboard-section">
-                <div class="table-wrap">
-                    <table class="booking-table">
-                        <thead>
-                            <tr>
-                                <th>Vehicle</th>
-                                <th>Start</th>
-                                <th>End</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="allBookingsBody"></tbody>
-                    </table>
-                </div>
-                <div id="bookingsEmpty" class="empty-state hidden">No bookings found.</div>
-            </section>
-
-            <!--profile section-->
-            <section id="profileSection" class="dashboard-section">
-                <div class="profile-card">
-                    <div id="profileView">
-                        <div class="profile-row"><span class="profile-label">Name</span><span id="pName" class="profile-value"></span></div>
-                        <div class="profile-row"><span class="profile-label">Email</span><span id="pEmail" class="profile-value"></span></div>
-                        <div class="profile-row"><span class="profile-label">Phone</span><span id="pPhone" class="profile-value"></span></div>
-                        <div class="profile-row"><span class="profile-label">Driving License</span><span id="pLicense" class="profile-value"></span></div>
-                        <button class="btn btn-primary profile-edit-btn" id="editProfileBtn">Edit Profile</button>
-                    </div>
-                    <div id="profileEdit" class="hidden">
-                        <div class="form-group-inline">
-                            <label>Name</label>
-                            <input type="text" id="editName" placeholder="Full Name" class="form-input">
-                            <small class="field-error" id="nameError"></small>
-                        </div>
-                        <div class="form-group-inline">
-                            <label>Phone</label>
-                            <input type="text" id="editPhone" placeholder="10-digit phone" class="form-input">
-                            <small class="field-error" id="phoneError"></small>
-                        </div>
-                        <div class="form-group-inline">
-                            <label>Address</label>
-                            <input type="text" id="editAddress" placeholder="Address" class="form-input">
-                            <small class="field-error" id="addressError"></small>
-                        </div>
-                        <div class="form-group-inline">
-                            <label>Driving License <small>(DL + 14 chars = 16 total)</small></label>
-                            <input type="text" id="editLicense" placeholder="DL00000000000000" maxlength="16" class="form-input">
-                            <small class="field-error" id="licenseError"></small>
-                        </div>
-                        <div class="profile-actions">
-                            <button class="btn btn-primary" id="saveProfileBtn">Save</button>
-                            <button class="btn btn-secondary" id="cancelEditProfileBtn">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- vehicle detail section-->
-            <section id="vehicleDetailsSection" class="dashboard-section">
-                <div class="vehicle-details-container">
-                    <div class="vehicle-details-left">
-                        <img id="vehicleDetailImage" class="vehicle-detail-image" src="" alt="Vehicle">
-                    </div>
-                    <div class="vehicle-details-right">
-                        <div class="vehicle-info">
-                            <h2 id="vehicleDetailName">Vehicle Name</h2>
-                            <div class="vehicle-price" id="vehicleDetailPrice">₹0/day</div>
-                            <span class="status" id="vehicleDetailStatus">AVAILABLE</span>
-                            
-                            <div class="vehicle-specs">
-                                <div class="spec-item">
-                                    <strong>Type:</strong> <span id="vehicleDetailType">N/A</span>
-                                </div>
-                                <div class="spec-item">
-                                    <strong>Location:</strong> <span id="vehicleDetailLocation">N/A</span>
-                                </div>
-                                <div class="spec-item hidden" id="vehicleRegRow">
-                                    <strong>Registration:</strong> <span id="vehicleDetailReg">N/A</span>
-                                </div>
-                            </div>
-                            
-                            <div class="vehicle-description hidden" id="vehicleDetailDesc">
-                                <strong>Description:</strong>
-                                <p id="vehicleDescText"></p>
-                            </div>
-                            
-                            <div class="vehicle-actions">
-                                <button class="btn btn-secondary" id="backToVehiclesBtn">Back</button>
-                                <button class="btn btn-primary" id="vehicleDetailBookBtn">Book Now</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
+        <!-- Page Content -->
+        <section id="content-area">
+            <!-- Dashboard content will be rendered here -->
+        </section>
     </div>
 </div>
 
-<!-- vehicle detail modal-->
-<div id="detailsModal" class="modal hidden">
-    <div class="modal-content" id="detailsContent"></div>
-</div>
-
-<!-- booking modal-->
-<div id="bookingModal" class="modal">
-    <div class="modal-content booking-modal-inner">
-        <h2>Book Vehicle</h2>
-        <label>Start Date & Time</label>
-        <input type="datetime-local" id="bookStart">
-        <label>End Date & Time</label>
-        <input type="datetime-local" id="bookEnd">
-        <label>Payment Method</label>
-        <select id="bookPayment">
-            <option value="">Select Payment</option>
-            <option value="CASH">Cash</option>
-            <option value="CARD">Card</option>
-            <option value="UPI">UPI</option>
-        </select>
-        <p id="bookingError" class="form-error hidden"></p>
-        <div class="modal-actions">
-            <button class="btn btn-primary" id="confirmBookingBtn">Confirm</button>
-            <button class="btn btn-secondary" id="cancelBookingBtn">Cancel</button>
-        </div>
-    </div>
-</div>
-
-<!-- confirmation for cancel -->
-<div id="confirmModal" class="modal">
-    <div class="modal-content confirm-modal">
-        <h3 id="confirmTitle">Confirm Action</h3>
-        <p id="confirmMessage">Are you sure?</p>
-        <div class="confirm-actions">
-            <button class="btn btn-secondary" id="cancelConfirmBtn">Cancel</button>
-            <button class="btn btn-primary" id="confirmBtn">Confirm</button>
-        </div>
-    </div>
-</div>
 <!-- toast -->
 <div id="toast" class="toast"></div>
 <script type="module" src="./js/customer-dashboard.js"></script>
