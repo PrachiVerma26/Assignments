@@ -262,7 +262,6 @@
   padding: 25px;
   border: 1px solid var(--border);
   min-height: 400px;
-  justify-items: center;
 }
 
 .vehicle-list:empty {

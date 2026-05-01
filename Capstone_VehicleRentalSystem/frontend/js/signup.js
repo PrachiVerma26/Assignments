@@ -1,6 +1,9 @@
 import { signupUser } from "./api.js";
 
+// initialize signup form logic after DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
+
+    // get all input references
     const form = document.getElementById("signupForm");
     const firstNameInput = document.getElementById("firstName");
     const lastNameInput = document.getElementById("lastName");
@@ -14,7 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        const oldMessage = document.querySelector(".error-message, .success-message");
+         // remove any existing success or error message
+        const oldMessage = document.querySelector(".form-error, .success-message");
         if (oldMessage) {
             oldMessage.remove();
         }
@@ -39,12 +43,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (message) {
             const errorDiv = document.createElement("div");
-            errorDiv.className = "error-message";
+            errorDiv.className = "form-error";
             errorDiv.textContent = message;
             form.insertBefore(errorDiv, form.firstChild);
             return;
         }
 
+         // disable button and show loading state
         const oldButtonText = submitButton.textContent;
         submitButton.disabled = true;
         submitButton.textContent = "Creating account...";
@@ -71,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 2000);
         } catch (error) {
             const errorDiv = document.createElement("div");
-            errorDiv.className = "error-message";
+            errorDiv.className = "form-error";
             errorDiv.textContent = error.message || "Signup failed. Please try again.";
             form.insertBefore(errorDiv, form.firstChild);
         } finally {

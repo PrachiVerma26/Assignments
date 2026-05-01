@@ -335,7 +335,8 @@ header .container {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
   gap: 24px; 
   margin-bottom: 20px; 
-  max-width: 1200px; 
+  width: 100%;
+  justify-content: start;
 }
 .vehicle-card {
   background: var(--card-bg); 
@@ -345,8 +346,9 @@ header .container {
   transition: transform 0.2s ease, box-shadow 0.2s ease; 
   overflow: hidden; 
   position: relative; 
-  max-width: 350px; 
   width: 100%;
+  min-width: 300px;
+  max-width: 400px;
 }
 .vehicle-card:hover { 
   transform: translateY(-4px); 
@@ -604,6 +606,7 @@ header .container {
     flex-direction: column; 
     gap: 20px; }
   .vehicle-grid { 
-    grid-template-columns: 1fr; 
-    justify-items: center; }
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+    gap: 16px;
+  }
 }
