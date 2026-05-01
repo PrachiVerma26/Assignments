@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gelasio&family=Kantumruy+Pro&family=Noto+Serif&family=PT+Serif&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/customer-dashboard.css">
     <link rel="stylesheet" href="css/vehicles.css">
 </head>
 <body>
@@ -19,9 +18,8 @@
                 <span class="brand-name">Rapid Rental</span>
             </a>
             <div class="header-right">
-                <div class="auth">
-                    <button class="login-btn" id="loginBtn">Login</button>
-                    <button class="signup-btn" id="signupBtn">Sign Up</button>
+                <div id="authSection">
+                    <!-- Dynamic auth content -->
                 </div>
             </div>
         </div>
@@ -52,12 +50,7 @@
                 </select>
                 <select id="filterLocation">
                     <option value="">All Locations</option>
-                </select>
-                <select id="filterStatus">
-                    <option value="">All Status</option>
-                    <option value="AVAILABLE">Available</option>
-                    <option value="BOOKED">Booked</option>
-                    <option value="MAINTENANCE">Maintenance</option>
+                    <!-- Locations will be populated dynamically -->
                 </select>
                 <button class="btn btn-primary" id="searchVehiclesBtn">Search</button>
                 <button class="btn btn-secondary" id="resetFiltersBtn">Reset</button>
@@ -99,7 +92,7 @@
                         </div>
                         
                         <div class="vehicle-actions">
-                            <button class="btn btn-secondary" id="backToVehiclesBtn">Back to Vehicles</button>
+                            <button class="btn btn-secondary" id="backToVehiclesBtn">Back</button>
                             <button class="btn btn-primary" id="detailBookBtn">Book Now</button>
                         </div>
                     </div>
@@ -127,25 +120,85 @@
         </div>
     </footer>
 
-    <!-- booking form: for logged in users -->
+    <!-- booking modal -->
     <div id="bookingModal" class="modal">
         <div class="modal-content booking-modal-inner">
             <h2>Book Vehicle</h2>
-            <label>Start Date & Time</label>
-            <input type="datetime-local" id="bookStart">
-            <label>End Date & Time</label>
-            <input type="datetime-local" id="bookEnd">
-            <label>Payment Method</label>
-            <select id="bookPayment">
-                <option value="">Select Payment</option>
-                <option value="CASH">Cash</option>
-                <option value="CARD">Card</option>
-                <option value="UPI">UPI</option>
-            </select>
+            
+            <!-- Booking Fields -->
+            <div class="booking-fields">
+                <div class="booking-row">
+                    <div>
+                        <label>Pickup Date & Time</label>
+                        <input type="datetime-local" id="bookStart">
+                    </div>
+                    <div>
+                        <label>Drop-off Date & Time</label>
+                        <input type="datetime-local" id="bookEnd">
+                    </div>
+                </div>
+                
+                <div class="booking-row">
+                    <div>
+                        <label>Location</label>
+                        <select id="bookPickupLocation">
+                            <option value="">Select Location</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Payment Method</label>
+                        <select id="bookPayment">
+                            <option value="">Select Payment</option>
+                            <option value="CASH">Cash</option>
+                            <option value="CARD">Card</option>
+                            <option value="UPI">UPI</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Price Summary -->
+            <div class="price-summary" id="priceSummary">
+                <div class="price-row">
+                    <span>Price per day</span>
+                    <span id="pricePerDay">Rs 0</span>
+                </div>
+                <div class="price-row">
+                    <span>Total days</span>
+                    <span id="totalDays">0</span>
+                </div>
+                <div class="price-row total">
+                    <span>Total Amount</span>
+                    <span id="totalAmount">Rs 0</span>
+                </div>
+            </div>
+            
             <p id="bookingError" class="form-error hidden"></p>
+            
             <div class="modal-actions">
-                <button class="btn btn-primary" id="confirmBookingBtn">Confirm</button>
                 <button class="btn btn-secondary" id="cancelBookingBtn">Cancel</button>
+                <button class="btn btn-primary" id="confirmBookingBtn">Confirm Booking</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vehicle Booked Modal -->
+    <div id="vehicleBookedModal" class="vehicle-booked-modal">
+        <div class="booked-modal-content">
+            <div class="booked-modal-header">
+                <h2>Vehicle Already Booked</h2>
+                <p>Sorry, <strong id="bookedVehicleName">this vehicle</strong> is currently not available.</p>
+            </div>
+            
+            <div class="recommendations-section">
+                <h3>Similar Vehicles Available</h3>
+                <div id="recommendedVehicles" class="recommended-vehicles">
+                    <!-- Recommendations will be populated dynamically -->
+                </div>
+            </div>
+            
+            <div class="booked-modal-actions">
+                <button class="btn btn-secondary" id="closeBookedModalBtn">Close</button>
             </div>
         </div>
     </div>
