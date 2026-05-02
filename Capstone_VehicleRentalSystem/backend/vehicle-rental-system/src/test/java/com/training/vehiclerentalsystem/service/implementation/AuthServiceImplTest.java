@@ -28,9 +28,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/* This class tests AuthServiceImpl for signup and login functionality.
+ Signup (customer + admin + validation failures)
+ Login (success + failure cases + role handling)
+ Role assignment logic
+ JWT token generation
+*/
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
 
+    // mocking external dependencies
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -40,37 +47,39 @@ class AuthServiceImplTest {
     @Mock
     private JwtUtil jwtUtil;
 
+    // injecting mock into service
     @InjectMocks
     private AuthServiceImpl authService;
-
     private SignupRequest signupRequest;
     private LoginRequest loginRequest;
     private User user;
     private UUID userId;
 
+    // runs before each test to keep data consistent and avoid duplication
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
 
         signupRequest = new SignupRequest();
-        signupRequest.setEmail("test@example.com");
-        signupRequest.setPassword("password123");
-        signupRequest.setName("John Doe");
+        signupRequest.setEmail("ram@gmail.com");
+        signupRequest.setPassword("Ram123");
+        signupRequest.setName("Ram Verma");
         signupRequest.setDrivingLicenseNumber("DL123456789");
         signupRequest.setPhoneNumber("1234567890");
 
         loginRequest = new LoginRequest();
-        loginRequest.setEmail("test@example.com");
-        loginRequest.setPassword("password123");
+        loginRequest.setEmail("ram@gmail.com");
+        loginRequest.setPassword("Ram123");
 
         user = new User();
         user.setId(userId);
-        user.setEmail("test@example.com");
+        user.setEmail("ram@gmail.com");
         user.setPassword("encodedPassword");
-        user.setName("John Doe");
+        user.setName("Ram Verma");
         user.setRole(new HashSet<>());
     }
 
+    // 1. valid signup should create CUSTOMER user
     @Test
     void signup_Success_Customer() {
         when(userRepository.existsByEmail(signupRequest.getEmail())).thenReturn(false);
@@ -83,13 +92,14 @@ class AuthServiceImplTest {
 
         assertNotNull(response);
         assertEquals(userId, response.getUserId());
-        assertEquals("test@example.com", response.getEmail());
-        assertEquals("John Doe", response.getName());
+        assertEquals("ram@gmail.com", response.getEmail());
+        assertEquals("Ram Verma", response.getName());
         assertTrue(response.getRoles().contains(RoleType.CUSTOMER));
         verify(userRepository).save(user);
         assertEquals("encodedPassword", user.getPassword());
     }
 
+    //Admin email should assign ADMIN role
     @Test
     void signup_Success_Admin() {
         signupRequest.setEmail("admin@rapidrental.com");
@@ -109,6 +119,7 @@ class AuthServiceImplTest {
         assertTrue(user.getRole().contains(RoleType.ADMIN));
     }
 
+    // signup should fail if email already exists
     @Test
     void signup_EmailAlreadyExists() {
         when(userRepository.existsByEmail(signupRequest.getEmail())).thenReturn(true);
@@ -120,6 +131,7 @@ class AuthServiceImplTest {
         verify(userRepository, never()).save(any());
     }
 
+    //signup should fail if driving license is already exists
     @Test
     void signup_DrivingLicenseAlreadyExists() {
         when(userRepository.existsByEmail(signupRequest.getEmail())).thenReturn(false);
@@ -132,20 +144,7 @@ class AuthServiceImplTest {
         verify(userRepository, never()).save(any());
     }
 
-    @Test
-    void signup_PasswordEncoded() {
-        when(userRepository.existsByEmail(signupRequest.getEmail())).thenReturn(false);
-        when(userRepository.existsByDrivingLicenseNumber(signupRequest.getDrivingLicenseNumber())).thenReturn(false);
-        when(userMapper.toEntity(signupRequest)).thenReturn(user);
-        when(passwordEncoder.encode(any())).thenReturn("encodedPassword123");
-        when(userRepository.save(user)).thenReturn(user);
-
-        authService.signup(signupRequest);
-
-        verify(passwordEncoder).encode(any());
-        assertEquals("encodedPassword123", user.getPassword());
-    }
-
+    // valid credentials should return JWT token
     @Test
     void login_Success() {
         Set<RoleType> roles = new HashSet<>();
@@ -161,13 +160,14 @@ class AuthServiceImplTest {
         assertNotNull(response);
         assertEquals("jwt-token", response.getToken());
         assertEquals("Logged in successfully!", response.getMessage());
-        assertEquals("test@example.com", response.getEmail());
+        assertEquals("ram@gmail.com", response.getEmail());
         assertEquals("CUSTOMER", response.getRole());
     }
 
+    // if user has no roles, system assigns CUSTOMER by default
     @Test
     void login_Success_DefaultRole() {
-        // User with no roles should default to CUSTOMER
+        // User with no roles should be set to default as CUSTOMER
         when(userRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())).thenReturn(true);
         when(jwtUtil.generateToken(user)).thenReturn("jwt-token");
@@ -177,6 +177,7 @@ class AuthServiceImplTest {
         assertEquals("CUSTOMER", response.getRole());
     }
 
+    // If user has ADMIN role, response should reflect ADMIN
     @Test
     void login_Success_AdminRole() {
         Set<RoleType> roles = new HashSet<>();
@@ -192,6 +193,7 @@ class AuthServiceImplTest {
         assertEquals("ADMIN", response.getRole());
     }
 
+    // login should fail if user does not exist
     @Test
     void login_UserNotFound() {
         when(userRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.empty());
@@ -204,6 +206,7 @@ class AuthServiceImplTest {
         verify(jwtUtil, never()).generateToken(any());
     }
 
+    // login should fail if password is incorrect
     @Test
     void login_InvalidPassword() {
         when(userRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(user));
@@ -216,6 +219,7 @@ class AuthServiceImplTest {
         verify(jwtUtil, never()).generateToken(any());
     }
 
+    // verifying that JWT token is generated and returned correctly
     @Test
     void login_TokenGenerated() {
         Set<RoleType> roles = new HashSet<>();
@@ -232,6 +236,7 @@ class AuthServiceImplTest {
         verify(jwtUtil).generateToken(user);
     }
 
+    // default signup assigns CUSTOMER role only
     @Test
     void signup_RoleAssignmentLogic() {
         // Test customer role assignment
@@ -247,6 +252,7 @@ class AuthServiceImplTest {
         assertFalse(user.getRole().contains(RoleType.ADMIN));
     }
 
+    // admin email assigns ADMIN role only (not CUSTOMER)
     @Test
     void signup_AdminEmailRoleAssignment() {
         signupRequest.setEmail("admin@rapidrental.com");
