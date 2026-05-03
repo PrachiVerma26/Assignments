@@ -17,6 +17,7 @@ import com.training.vehiclerentalsystem.repository.VehicleRepository;
 import com.training.vehiclerentalsystem.service.VehicleService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -110,23 +111,11 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<VehicleResponse> findAvailableVehicles(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate, VehicleType type, UUID locationId) {
-        // Get all vehicles available for the date range (not booked during that period)
-        List<Vehicle> availableVehicles = vehicleRepository.findAvailableVehicles(VehicleStatus.AVAILABLE, startDate, endDate);
-        
-        // Further filter by type if provided
-        if (type != null) {
-            availableVehicles = availableVehicles.stream()
-                    .filter(v -> v.getType() == type)
-                    .toList();
+    public List<VehicleResponse> findAvailableVehicles(LocalDateTime startDate, LocalDateTime endDate, VehicleType type, UUID locationId) {
+        if (startDate == null || endDate == null || !startDate.isBefore(endDate)) {
+            throw new IllegalArgumentException("Invalid date range");
         }
-        
-        // Further filter by location if provided
-        if (locationId != null) {
-            availableVehicles = availableVehicles.stream()
-                    .filter(v -> v.getLocation().getId().equals(locationId))
-                    .toList();
-        }
-        return vehicleMapper.toResponseList(availableVehicles);
+        List<Vehicle> vehicles = vehicleRepository.findAvailableVehicles(startDate, endDate, type, locationId);
+        return vehicleMapper.toResponseList(vehicles);
     }
 }
