@@ -1,6 +1,15 @@
 const API_ROOT = "http://localhost:8080/api";
 const AUTH_BASE_URL = `${API_ROOT}/auth`;
 
+class ApiError extends Error {
+    constructor(message, status, data) {
+        super(message);
+        this.name = 'ApiError';
+        this.status = status;
+        this.data = data;
+    }
+}
+
 
 async function request(endpoint, options = {}) {
     const token = localStorage.getItem("token");

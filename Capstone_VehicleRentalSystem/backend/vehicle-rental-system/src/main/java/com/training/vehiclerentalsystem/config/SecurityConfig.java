@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(ApiConstants.AUTH + "/**").permitAll()
-                        .requestMatchers(ApiConstants.API + "/vehicles/**").permitAll()
+                        .requestMatchers(ApiConstants.VEHICLES + "/**").permitAll()
                         .requestMatchers(ApiConstants.ADMIN+"/**").hasRole("ADMIN")
                         .requestMatchers(ApiConstants.CUSTOMER+"/**").hasRole("CUSTOMER")
                         .anyRequest().authenticated()
