@@ -5,7 +5,6 @@ import com.training.vehiclerentalsystem.dto.signup.SignupResponse;
 import com.training.vehiclerentalsystem.dto.login.LoginRequest;
 import com.training.vehiclerentalsystem.dto.signup.SignupRequest;
 import com.training.vehiclerentalsystem.dto.login.LoginResponse;
-import com.training.vehiclerentalsystem.repository.UserRepository;
 import com.training.vehiclerentalsystem.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -26,12 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    private final UserRepository userRepository;
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
-    public AuthController(AuthService authService, UserRepository userRepository) {
+    public AuthController(AuthService authService) {
         this.authService = authService;
-        this.userRepository=userRepository;
     }
 
     @PostMapping(AuthConstants.SIGNUP_PATH)
@@ -43,9 +40,9 @@ public class AuthController {
 
     }
     @PostMapping(AuthConstants.LOGIN_PATH)
-    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest LoginRequestDTO) {
-        LoginResponse response = authService.login(LoginRequestDTO);
-        log.info("Login successfully with email: {}",LoginRequestDTO.getEmail());
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequestDTO) {
+        LoginResponse response = authService.login(loginRequestDTO);
+        log.info("Login successfully with email: {}",loginRequestDTO.getEmail());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

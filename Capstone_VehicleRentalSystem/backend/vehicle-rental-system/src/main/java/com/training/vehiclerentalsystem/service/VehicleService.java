@@ -4,7 +4,6 @@ import com.training.vehiclerentalsystem.dto.vehicle.VehicleRequest;
 import com.training.vehiclerentalsystem.dto.vehicle.VehicleResponse;
 import com.training.vehiclerentalsystem.enums.VehicleStatus;
 import com.training.vehiclerentalsystem.enums.VehicleType;
-import com.training.vehiclerentalsystem.model.Vehicle;
 
 import java.util.List;
 import java.util.UUID;

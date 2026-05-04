@@ -1,9 +1,7 @@
 package com.training.vehiclerentalsystem.dto.login;
 
-import com.training.vehiclerentalsystem.enums.RoleType;
 import lombok.*;
 
-import java.util.Set;
 
 
 @Data

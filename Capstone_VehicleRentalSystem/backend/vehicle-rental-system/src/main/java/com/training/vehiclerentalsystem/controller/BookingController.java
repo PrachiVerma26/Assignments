@@ -4,6 +4,7 @@ import com.training.vehiclerentalsystem.dto.booking.BookingRequest;
 import com.training.vehiclerentalsystem.dto.booking.BookingResponse;
 import com.training.vehiclerentalsystem.enums.BookingStatus;
 import com.training.vehiclerentalsystem.service.BookingService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,7 @@ public class BookingController {
     }
 
     /*customer endpoints */
+    @Transactional
     @PostMapping(BookingConstants.CUSTOMER_BOOKINGS_API)
     public ResponseEntity<BookingResponse> createBooking(@Valid @RequestBody BookingRequest bookingRequestDTO,
             Authentication authentication) {

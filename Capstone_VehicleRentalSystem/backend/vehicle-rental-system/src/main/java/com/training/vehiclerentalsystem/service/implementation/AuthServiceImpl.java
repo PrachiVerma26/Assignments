@@ -18,7 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /*
- * Service responsible for handling authentication and user registration logic.
+ Service responsible for handling authentication and user registration logic.
  Register new users with validation and default role assignment
  Authenticate users by verifying credentials
  Passwords are stored in encrypted format using BCrypt
