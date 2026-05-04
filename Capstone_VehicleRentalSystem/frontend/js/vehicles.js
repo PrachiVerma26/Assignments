@@ -101,7 +101,12 @@ async function showVehicleDetails(vehicleId) {
   try {
     selectedVehicle = await getVehicleById(vehicleId);
     const v = selectedVehicle;
-    
+
+     // Check if vehicle is not available - show recommendations instead
+    if (v.status !== 'AVAILABLE') {
+      showVehicleBookedModal(v);
+      return;
+    }
     document.getElementById('detailVehicleName').textContent = `${v.brand} ${v.model}`;
     document.getElementById('detailVehiclePrice').textContent = `₹${v.dailyRentalRate || 0}/day`;
     document.getElementById('detailVehicleImage').src = v.profileUrl || 'assets/home_car.png';
@@ -249,13 +254,55 @@ async function confirmBooking() {
 function showVehicleBookedModal(vehicle) {
   document.getElementById('bookedVehicleName').textContent = `${vehicle.brand} ${vehicle.model}`;
   
-  const available = vehicles.filter(v => v.id !== vehicle.id && v.status === 'AVAILABLE');
-  const recommendations = [
-    ...available.filter(v => v.type === vehicle.type),
-    ...available.filter(v => Math.abs((v.dailyRentalRate || 0) - (vehicle.dailyRentalRate || 0)) <= 500)
-  ].slice(0, 3);
+  // Set title and reason based on vehicle status
+  const titleEl = document.getElementById('unavailableTitle');
+  const reasonEl = document.getElementById('unavailableReason');
+
+  if (!titleEl || !reasonEl) {
+    showToast('Error loading modal', 'error');
+    return;
+  }
   
-  document.getElementById('recommendedVehicles').innerHTML = recommendations.length ? 
+  if (vehicle.status === 'MAINTENANCE') {
+    titleEl.textContent = 'Vehicle Under Maintenance';
+    reasonEl.textContent = 'is currently under maintenance';
+  } else if (vehicle.status === 'BOOKED') {
+    titleEl.textContent = 'Vehicle Already Booked';
+    reasonEl.textContent = 'is already booked';
+  } else {
+    titleEl.textContent = 'Vehicle Not Available';
+    reasonEl.textContent = 'is currently not available';
+  }
+  const available = vehicles.filter(v => v.id !== vehicle.id && v.status === 'AVAILABLE');
+  const recommendations = [];
+  const recommendedIds = new Set();
+
+  // based on the same type
+  available.filter(v => v.type === vehicle.type).forEach(v => {
+    if (recommendations.length < 3) {
+      recommendations.push(v);
+      recommendedIds.add(v.id);
+    }
+  });  
+
+  // based on the similar price
+  available.filter(v => 
+    !recommendedIds.has(v.id) && 
+    Math.abs((v.dailyRentalRate || 0) - (vehicle.dailyRentalRate || 0)) <= 500
+  ).forEach(v => {
+    if (recommendations.length < 3) {
+      recommendations.push(v);
+      recommendedIds.add(v.id);
+    }
+  });
+
+  const recommendedVehiclesEl = document.getElementById('recommendedVehicles');
+  if (!recommendedVehiclesEl) {
+    showToast('Error loading recommendations', 'error');
+    return;
+  }
+
+ recommendedVehiclesEl.innerHTML = recommendations.length ? 
     recommendations.map(v => `
       <div class="recommendation-card">
         <img src="${v.profileUrl || 'assets/home_car.png'}" alt="${v.brand} ${v.model}" class="rec-image">
