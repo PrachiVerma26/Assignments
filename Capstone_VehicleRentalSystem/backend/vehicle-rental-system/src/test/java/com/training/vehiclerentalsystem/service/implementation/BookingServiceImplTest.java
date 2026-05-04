@@ -5,7 +5,9 @@ import com.training.vehiclerentalsystem.dto.booking.BookingResponse;
 import com.training.vehiclerentalsystem.enums.BookingStatus;
 import com.training.vehiclerentalsystem.enums.VehicleStatus;
 import com.training.vehiclerentalsystem.exceptions.BookingConflictException;
+import com.training.vehiclerentalsystem.exceptions.BookingNotFoundException;
 import com.training.vehiclerentalsystem.exceptions.InvalidBookingException;
+import com.training.vehiclerentalsystem.exceptions.VehicleNotFoundException;
 import com.training.vehiclerentalsystem.mapper.BookingMapper;
 import com.training.vehiclerentalsystem.model.Booking;
 import com.training.vehiclerentalsystem.model.User;
@@ -23,10 +25,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -156,6 +155,118 @@ class BookingServiceImplTest {
                 () -> bookingService.createBooking(bookingRequest, userEmail));
     }
 
+    // create booking with no driving license
+    @Test
+    void createBooking_NoDrivingLicense() {
+        user.setDrivingLicenseNumber(null);  // User has no license
+
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+
+        InvalidBookingException exception = assertThrows(InvalidBookingException.class,
+                () -> bookingService.createBooking(bookingRequest, userEmail));
+
+        assertEquals("Please add your driving license number before booking",
+                exception.getMessage());
+        verify(bookingRepository, never()).save(any());
+    }
+
+    // create booking with blank driving license
+    @Test
+    void createBooking_BlankDrivingLicense() {
+        // Arrange
+        user.setDrivingLicenseNumber("   ");  // Blank license
+
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+
+        // Act & Assert
+        InvalidBookingException exception = assertThrows(InvalidBookingException.class,
+                () -> bookingService.createBooking(bookingRequest, userEmail));
+
+        assertEquals("Please add your driving license number before booking",
+                exception.getMessage());
+    }
+
+    // create booking when booking limit exceeds
+    @Test
+    void createBooking_BookingDurationExceeds30Days() {
+        // Arrange
+        bookingRequest.setStartDate(LocalDateTime.now().plusDays(1));
+        bookingRequest.setEndDate(LocalDateTime.now().plusDays(32));  // 31 days
+
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+        when(bookingRepository.findVehicleForUpdate(vehicleId)).thenReturn(Optional.of(vehicle));
+        when(bookingRepository.existsOverlappingBooking(any(), any(), any())).thenReturn(false);
+
+        // Act & Assert
+        InvalidBookingException exception = assertThrows(InvalidBookingException.class,
+                () -> bookingService.createBooking(bookingRequest, userEmail));
+
+        assertEquals("Max booking duration is 30 days", exception.getMessage());
+        verify(bookingRepository, never()).save(any());
+    }
+
+    // Exception thrown when customer tries to book a vehicle in less than two hours
+    @Test
+    void createBooking_LessThan2HoursAdvance() {
+        // Arrange
+        bookingRequest.setStartDate(LocalDateTime.now().plusMinutes(30));  // Only 30 mins
+        bookingRequest.setEndDate(LocalDateTime.now().plusDays(2));
+
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+        when(bookingRepository.findVehicleForUpdate(vehicleId)).thenReturn(Optional.of(vehicle));
+        when(bookingRepository.existsOverlappingBooking(any(), any(), any())).thenReturn(false);
+
+        // Act & Assert
+        InvalidBookingException exception = assertThrows(InvalidBookingException.class,
+                () -> bookingService.createBooking(bookingRequest, userEmail));
+
+        assertEquals("Booking must be at least 2 hours in advance", exception.getMessage());
+    }
+
+    // exception thrown when vehicle not found
+    @Test
+    void createBooking_VehicleNotFound() {
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+        when(bookingRepository.findVehicleForUpdate(vehicleId)).thenReturn(Optional.empty());
+
+        VehicleNotFoundException exception = assertThrows(VehicleNotFoundException.class,
+                () -> bookingService.createBooking(bookingRequest, userEmail));
+
+        assertNotNull(exception.getMessage());
+        verify(vehicleRepository, never()).save(any());
+    }
+
+    // test case for verifying that the vehicle status is updated or not
+    @Test
+    void createBooking_VerifyVehicleStatusUpdate() {
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+        when(bookingRepository.findVehicleForUpdate(vehicleId)).thenReturn(Optional.of(vehicle));
+        when(bookingRepository.existsOverlappingBooking(any(), any(), any())).thenReturn(false);
+        when(bookingMapper.toEntity(bookingRequest)).thenReturn(booking);
+        when(bookingRepository.save(booking)).thenReturn(booking);
+        when(bookingMapper.toResponse(booking)).thenReturn(bookingResponse);
+
+        bookingService.createBooking(bookingRequest, userEmail);
+
+        assertEquals(VehicleStatus.BOOKED, vehicle.getStatus());
+        verify(vehicleRepository).save(vehicle);
+    }
+
+    // test case for verifying that the booking status is updated or not
+    @Test
+    void createBooking_VerifyBookingStatus() {
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+        when(bookingRepository.findVehicleForUpdate(vehicleId)).thenReturn(Optional.of(vehicle));
+        when(bookingRepository.existsOverlappingBooking(any(), any(), any())).thenReturn(false);
+        when(bookingMapper.toEntity(bookingRequest)).thenReturn(booking);
+        when(bookingRepository.save(booking)).thenReturn(booking);
+        when(bookingMapper.toResponse(booking)).thenReturn(bookingResponse);
+
+        bookingService.createBooking(bookingRequest, userEmail);
+
+        assertEquals(BookingStatus.CONFIRMED, booking.getStatus());
+    }
+
     //  it returns all bookings for a user
     @Test
     void getBookingsByUser_Success() {
@@ -169,6 +280,48 @@ class BookingServiceImplTest {
 
         assertEquals(1, result.size());
         assertEquals(bookingId, result.get(0).getId());
+    }
+
+    // Exception thrown when booking is not found for the given user
+    @Test
+    void getBookingById_NotFound() {
+        // Arrange
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+        when(bookingRepository.findByIdAndUser_Id(bookingId, user.getId()))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        BookingNotFoundException exception = assertThrows(BookingNotFoundException.class,
+                () -> bookingService.getBookingById(bookingId, userEmail));
+
+        assertNotNull(exception.getMessage());
+    }
+
+    // Returns empty list when user has no bookings
+    @Test
+    void getBookingsByUser_EmptyList() {
+        // Arrange
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+        when(bookingRepository.findByUser_Id(user.getId())).thenReturn(new ArrayList<>());
+
+        // Act
+        List<BookingResponse> result = bookingService.getBookingsByUser(userEmail);
+
+        // Assert
+        assertTrue(result.isEmpty());
+    }
+
+    // returns all bookings successfully
+    @Test
+    void getAllBookings_Success() {
+        List<Booking> bookings = Arrays.asList(booking);
+
+        when(bookingRepository.findAll()).thenReturn(bookings);
+        when(bookingMapper.toResponse(booking)).thenReturn(bookingResponse);
+
+        List<BookingResponse> result = bookingService.getAllBookings();
+
+        assertEquals(1, result.size());
     }
 
     // cancel booking successfully test case
@@ -198,16 +351,39 @@ class BookingServiceImplTest {
                 () -> bookingService.cancelBooking(bookingId, userEmail));
     }
 
-    // returns all bookings successfully
+    // Cancelling a booking should update vehicle status to AVAILABLE and booking status to CANCELLED
     @Test
-    void getAllBookings_Success() {
-        List<Booking> bookings = Arrays.asList(booking);
-
-        when(bookingRepository.findAll()).thenReturn(bookings);
+    void cancelBooking_VerifyVehicleStatusUpdate() {
+        // Arrange
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+        when(bookingRepository.findByIdAndUser_Id(bookingId, user.getId()))
+                .thenReturn(Optional.of(booking));
+        when(bookingRepository.save(booking)).thenReturn(booking);
         when(bookingMapper.toResponse(booking)).thenReturn(bookingResponse);
 
-        List<BookingResponse> result = bookingService.getAllBookings();
+        // Act
+        bookingService.cancelBooking(bookingId, userEmail);
 
-        assertEquals(1, result.size());
+        // Assert
+        assertEquals(VehicleStatus.AVAILABLE, vehicle.getStatus());
+        assertEquals(BookingStatus.CANCELLED, booking.getStatus());
+        verify(vehicleRepository).save(vehicle);
     }
+
+    // Exception thrown when trying to cancel a booking that has already started
+    @Test
+    void cancelBooking_AlreadyStarted() {
+        booking.setStartDate(LocalDateTime.now().minusHours(1));  // Already started
+
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+        when(bookingRepository.findByIdAndUser_Id(bookingId, user.getId()))
+                .thenReturn(Optional.of(booking));
+        
+        BookingConflictException exception = assertThrows(BookingConflictException.class,
+                () -> bookingService.cancelBooking(bookingId, userEmail));
+
+        assertEquals("Cannot cancel a booking that has already started", exception.getMessage());
+        verify(bookingRepository, never()).save(any());
+    }
+
 }

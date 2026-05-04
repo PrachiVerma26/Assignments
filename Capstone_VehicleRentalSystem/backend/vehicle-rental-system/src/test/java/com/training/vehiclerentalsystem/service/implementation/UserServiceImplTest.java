@@ -121,4 +121,32 @@ class UserServiceImplTest {
         assertThrows(RuntimeException.class,
                 () -> userService.updateUserProfile(userEmail, profileRequest));
     }
+
+    // Fetches user profile and verifies mapping from User to ProfileResponse
+    @Test
+    void getUserProfile_VerifyMapping() {
+
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+        when(profileMapper.toProfileResponse(user)).thenReturn(profileResponse);
+
+        ProfileResponse result = userService.getUserProfile(userEmail);
+
+        assertNotNull(result);
+        verify(profileMapper).toProfileResponse(user);
+    }
+
+    // Updates user profile even when optional fields are empty
+    @Test
+    void updateUserProfile_EmptyFields() {
+        profileRequest.setName("");
+        profileRequest.setPhoneNumber("");
+
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(profileMapper.toProfileResponse(user)).thenReturn(profileResponse);
+
+        userService.updateUserProfile(userEmail, profileRequest);
+
+        verify(userRepository).save(user);
+    }
 }

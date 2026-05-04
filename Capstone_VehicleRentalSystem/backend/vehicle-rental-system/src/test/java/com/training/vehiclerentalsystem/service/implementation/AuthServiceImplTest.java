@@ -236,6 +236,24 @@ class AuthServiceImplTest {
         verify(jwtUtil).generateToken(user);
     }
 
+    // test case for checking that the password entered is matched with the password entered during signup
+    @Test
+    void login_PasswordMatched() {
+        Set<RoleType> roles = new HashSet<>();
+        roles.add(RoleType.CUSTOMER);
+        user.setRole(roles);
+
+        when(userRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())).thenReturn(true);
+        when(jwtUtil.generateToken(user)).thenReturn("jwt-token");
+
+        LoginResponse response = authService.login(loginRequest);
+
+        assertNotNull(response.getToken());
+        verify(passwordEncoder).matches(loginRequest.getPassword(), user.getPassword());
+    }
+
+
     // default signup assigns CUSTOMER role only
     @Test
     void signup_RoleAssignmentLogic() {

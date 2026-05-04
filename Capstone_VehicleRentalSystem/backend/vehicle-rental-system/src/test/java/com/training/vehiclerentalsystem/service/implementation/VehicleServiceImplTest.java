@@ -5,6 +5,7 @@ import com.training.vehiclerentalsystem.dto.vehicle.VehicleResponse;
 import com.training.vehiclerentalsystem.enums.VehicleStatus;
 import com.training.vehiclerentalsystem.enums.VehicleType;
 import com.training.vehiclerentalsystem.exceptions.LocationNotFoundException;
+import com.training.vehiclerentalsystem.exceptions.ResourceNotFoundException;
 import com.training.vehiclerentalsystem.exceptions.VehicleDeletionNotAllowedException;
 import com.training.vehiclerentalsystem.exceptions.VehicleNotFoundException;
 import com.training.vehiclerentalsystem.mapper.VehicleMapper;
@@ -21,10 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -121,6 +119,38 @@ class VehicleServiceImplTest {
                 () -> vehicleService.updateVehicle(vehicleId, vehicleRequest));
     }
 
+    // Exception thrown when the provided location ID does not exist, and vehicle should not be updated
+    @Test
+    void updateVehicle_LocationNotFound() {
+        UUID newLocationId = UUID.randomUUID();
+        vehicleRequest.setLocationId(newLocationId);
+
+        when(vehicleRepository.findById(vehicleId)).thenReturn(Optional.of(vehicle));
+        when(locationRepository.findById(newLocationId)).thenReturn(Optional.empty());
+
+        LocationNotFoundException exception = assertThrows(LocationNotFoundException.class,
+                () -> vehicleService.updateVehicle(vehicleId, vehicleRequest));
+
+        assertNotNull(exception.getMessage());
+        verify(vehicleRepository, never()).save(any());
+    }
+
+    // Updates vehicle without fetching location when the provided location is same as existing
+    @Test
+    void updateVehicle_SameLocation() {
+        vehicleRequest.setLocationId(locationId);  // Same location
+
+        when(vehicleRepository.findById(vehicleId)).thenReturn(Optional.of(vehicle));
+        doNothing().when(vehicleMapper).updateEntityFromRequest(vehicleRequest, vehicle);
+        when(vehicleRepository.save(vehicle)).thenReturn(vehicle);
+        when(vehicleMapper.toResponse(vehicle)).thenReturn(vehicleResponse);
+
+        VehicleResponse result = vehicleService.updateVehicle(vehicleId, vehicleRequest);
+
+        assertNotNull(result);
+        verify(locationRepository, never()).findById(any());  // Should not fetch location
+    }
+
     //vehicle deleted successfully test case
     @Test
     void deleteVehicle_Success() {
@@ -139,6 +169,17 @@ class VehicleServiceImplTest {
 
         assertThrows(VehicleDeletionNotAllowedException.class,
                 () -> vehicleService.deleteVehicle(vehicleId));
+    }
+
+    // Exception thrown when trying to delete a vehicle which is not even exists
+    @Test
+    void deleteVehicle_NotFound() {
+        when(vehicleRepository.findById(vehicleId)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> vehicleService.deleteVehicle(vehicleId));
+
+        assertNotNull(exception.getMessage());
     }
 
     // vehicle should be fetched successfully with the vehicle id
@@ -167,6 +208,18 @@ class VehicleServiceImplTest {
         assertEquals(1, result.size());
         assertEquals(vehicleResponse.getId(), result.get(0).getId());
     }
+
+    // Exception thrown when vehicle is not found for the given ID
+    @Test
+    void findById_NotFound() {
+        when(vehicleRepository.findById(vehicleId)).thenReturn(Optional.empty());
+
+        VehicleNotFoundException exception = assertThrows(VehicleNotFoundException.class,
+                () -> vehicleService.findById(vehicleId));
+
+        assertNotNull(exception.getMessage());
+    }
+
 
     // vehicles should be filter by type, status and location
     @Test
@@ -202,6 +255,67 @@ class VehicleServiceImplTest {
         assertEquals(1, result.size());
     }
 
+    // Returns vehicles filtered only by type when other filters are null
+    @Test
+    void filterVehicles_OnlyTypeFilter() {
+        List<Vehicle> vehicles = Arrays.asList(vehicle);
+        List<VehicleResponse> responses = Arrays.asList(vehicleResponse);
+
+        when(vehicleRepository.findByType(VehicleType.CAR)).thenReturn(vehicles);
+        when(vehicleMapper.toResponseList(vehicles)).thenReturn(responses);
+
+        List<VehicleResponse> result = vehicleService.filterVehicles(
+                VehicleType.CAR, null, null);
+
+        assertEquals(1, result.size());
+        verify(vehicleRepository).findByType(VehicleType.CAR);
+    }
+
+    // Returns vehicles filtered only by location when other filters are null
+    @Test
+    void filterVehicles_OnlyLocationFilter() {
+
+        List<Vehicle> vehicles = Arrays.asList(vehicle);
+        List<VehicleResponse> responses = Arrays.asList(vehicleResponse);
+
+        when(vehicleRepository.findByLocationId(locationId)).thenReturn(vehicles);
+        when(vehicleMapper.toResponseList(vehicles)).thenReturn(responses);
+
+        List<VehicleResponse> result = vehicleService.filterVehicles(
+                null, null, locationId);
+
+        assertEquals(1, result.size());
+        verify(vehicleRepository).findByLocationId(locationId);
+    }
+
+    // Returns all vehicles when no filters are applied
+    @Test
+    void filterVehicles_NoFilters() {
+        List<Vehicle> vehicles = Arrays.asList(vehicle);
+        List<VehicleResponse> responses = Arrays.asList(vehicleResponse);
+
+        when(vehicleRepository.findAll()).thenReturn(vehicles);
+        when(vehicleMapper.toResponseList(vehicles)).thenReturn(responses);
+
+        List<VehicleResponse> result = vehicleService.filterVehicles(
+                null, null, null);
+
+        assertEquals(1, result.size());
+        verify(vehicleRepository).findAll();
+    }
+
+    // Returns empty list when no vehicles match the given filter
+    @Test
+    void filterVehicles_EmptyResult() {
+        when(vehicleRepository.findByType(VehicleType.BIKE)).thenReturn(new ArrayList<>());
+        when(vehicleMapper.toResponseList(new ArrayList<>())).thenReturn(new ArrayList<>());
+
+        List<VehicleResponse> result = vehicleService.filterVehicles(
+                VehicleType.BIKE, null, null);
+
+        assertTrue(result.isEmpty());
+    }
+
     // exception should be thrown if the start data is after the end date
     @Test
     void findAvailableVehicles_InvalidDateRange() {
@@ -210,5 +324,29 @@ class VehicleServiceImplTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> vehicleService.findAvailableVehicles(startDate, endDate, VehicleType.CAR, locationId));
+    }
+
+    // Throws IllegalArgumentException when start date is null
+    @Test
+    void findAvailableVehicles_NullStartDate() {
+        LocalDateTime startDate = null;
+        LocalDateTime endDate = LocalDateTime.now().plusDays(3);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> vehicleService.findAvailableVehicles(startDate, endDate, VehicleType.CAR, locationId));
+
+        assertEquals("Invalid date range", exception.getMessage());
+    }
+
+    // Throws IllegalArgumentException when end date is null
+    @Test
+    void findAvailableVehicles_NullEndDate() {
+        LocalDateTime startDate = LocalDateTime.now().plusDays(1);
+        LocalDateTime endDate = null;
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> vehicleService.findAvailableVehicles(startDate, endDate, VehicleType.CAR, locationId));
+
+        assertEquals("Invalid date range", exception.getMessage());
     }
 }
