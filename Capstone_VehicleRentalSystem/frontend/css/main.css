@@ -255,7 +255,6 @@ header .container {
   max-width: 350px; 
   box-shadow: var(--shadow-hover);
   background: var(--background); 
-  border: 2px solid var(--primary);
 }
 .toast.show { transform: translateX(0); }
 .toast.success { background: var(--success); }

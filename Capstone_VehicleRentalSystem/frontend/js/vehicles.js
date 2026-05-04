@@ -13,6 +13,14 @@ async function init() {
   renderVehicleGrid();
   handlePendingBooking();
   if (location.hash.startsWith('#vehicle-')) showVehicleDetails(location.hash.replace('#vehicle-', ''));
+
+  // Track previous page
+  if (!sessionStorage.getItem('previousPage')) {
+    const referrer = document.referrer;
+    if (referrer.includes('customer-dashboard') || referrer.includes('index')) {
+      sessionStorage.setItem('previousPage', referrer.split('/').pop() || 'index.html');
+    }
+  }
 }
 
 function renderAuthHeader() {
@@ -33,12 +41,24 @@ function bindEvents() {
   document.getElementById('bookStart').onchange = updateBookingPrice;
   document.getElementById('bookEnd').onchange = updateBookingPrice;
   document.getElementById('closeBookedModalBtn').onclick = closeBookedModal;
+  document.getElementById('backFromListBtn').onclick = goBack;
   
   window.onclick = e => {
     if (e.target.id === 'bookingModal') closeBookingModal();
     if (e.target.id === 'vehicleBookedModal') closeBookedModal();
   };
   document.onkeydown = e => { if (e.key === 'Escape') { closeBookingModal(); closeBookedModal(); } };
+}
+
+function goBack() {
+  const referrer = document.referrer;
+  if (referrer.includes('customer-dashboard')) {
+    location.href = 'customer-dashboard.html';
+  } else if (referrer.includes('index') || referrer.includes('home')) {
+    location.href = 'index.html';
+  } else {
+    location.href = 'index.html';
+  }
 }
 
 function populateLocationDropdown() {
