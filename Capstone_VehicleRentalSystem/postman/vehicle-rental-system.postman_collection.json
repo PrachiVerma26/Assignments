@@ -1,0 +1,432 @@
+{
+  "info": {
+    "_postman_id": "2bb87446-ae0b-427c-96bb-b06bee81db2e",
+    "name": "vehicle-rental-system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49171566",
+    "_collection_link": "https://go.postman.co/collection/49171566-2bb87446-ae0b-427c-96bb-b06bee81db2e?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Signup",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Prachi\",\r\n  \"email\": \"prachi@gmail.com\",\r\n  \"password\": \"123456\",\r\n  \"phoneNumber\": \"9876543210\",\r\n  \"address\": \"Delhi\",\r\n  \"drivingLicenseNumber\": \"DL23423123412\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/auth/signup",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "auth",
+            "signup"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"prachi@gmail.com\",\r\n  \"password\": \"123456\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get all vehicles",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "get vehicle by it's id",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwcmFjaGlAZ21haWwuY29tIiwidXNlcklkIjoiZjZjMWM3YWYtOWZjOC00YzFkLWI1OGUtZjAzNDY3OGJiOTE1Iiwicm9sZXMiOlsiQ1VTVE9NRVIiXSwiaWF0IjoxNzc4MDA1Njc2LCJleHAiOjE3NzgwMDkyNzZ9.owFUc4yKFDClVE-kJ17IKIy0mafwvVY6D1US73mEWj8",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/vehicles/770e8400-e29b-41d4-a716-446655440002",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "vehicles",
+            "770e8400-e29b-41d4-a716-446655440002"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "create new vehicle",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "update vehicle",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "delete vehicle",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkByYXBpZHJlbnRhbC5jb20iLCJ1c2VySWQiOiI4ODBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMDEiLCJyb2xlcyI6WyJBRE1JTiJdLCJpYXQiOjE3NzgwMDY2NDMsImV4cCI6MTc3ODAxMDI0M30.LYsatK4BDu9_F-bf2hHeJPNro5THHLdaiUV27SIdznc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/admin/vehicles/770e8400-e29b-41d4-a716-446655440002",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "admin",
+            "vehicles",
+            "770e8400-e29b-41d4-a716-446655440002"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get all vehicles by admin",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkByYXBpZHJlbnRhbC5jb20iLCJ1c2VySWQiOiI4ODBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMDEiLCJyb2xlcyI6WyJBRE1JTiJdLCJpYXQiOjE3NzgwMDY2NDMsImV4cCI6MTc3ODAxMDI0M30.LYsatK4BDu9_F-bf2hHeJPNro5THHLdaiUV27SIdznc",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/vehicles",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "admin",
+            "vehicles"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "filter vehicles by status, type and availability",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/vehicles/filter?type=CAR&status=AVAILABLE",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "vehicles",
+            "filter"
+          ],
+          "query": [
+            {
+              "key": "type",
+              "value": "CAR"
+            },
+            {
+              "key": "status",
+              "value": "AVAILABLE"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "filter vehicles by start and end date",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/vehicles/available-by-dates?startDate=2026-01-15T10:00:00&endDate=2026-01-20T18:00:00&type=CAR&locationId=550e8400-e29b-41d4-a716-446655440001\n",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "vehicles",
+            "available-by-dates"
+          ],
+          "query": [
+            {
+              "key": "startDate",
+              "value": "2026-01-15T10:00:00"
+            },
+            {
+              "key": "endDate",
+              "value": "2026-01-20T18:00:00"
+            },
+            {
+              "key": "type",
+              "value": "CAR"
+            },
+            {
+              "key": "locationId",
+              "value": "550e8400-e29b-41d4-a716-446655440001\n"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "create new booking",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "cancel booking",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "get all customer bookings",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "get booking by it's id ?",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "cancel booking",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwcmFjaGlAZ21haWwuY29tIiwidXNlcklkIjoiZjZjMWM3YWYtOWZjOC00YzFkLWI1OGUtZjAzNDY3OGJiOTE1Iiwicm9sZXMiOlsiQ1VTVE9NRVIiXSwiaWF0IjoxNzc4MDA3NDAyLCJleHAiOjE3NzgwMTEwMDJ9.uC-aIkvevd6HZ-8NxAmyyoEhNS_p98M9c4reiJ40yj0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"id\": \"550e8400-e29b-41d4-a716-446655440002\",\r\n  \"vehicleId\": \"550e8400-e29b-41d4-a716-446655440000\",\r\n  \"vehicleBrand\": \"Toyota\",\r\n  \"vehicleModel\": \"Camry\",\r\n  \"startDate\": \"2024-01-15T10:00:00\",\r\n  \"endDate\": \"2024-01-20T10:00:00\",\r\n  \"totalPrice\": 250.00,\r\n  \"paymentMethod\": \"CREDIT_CARD\",\r\n  \"status\": \"CANCELLED\",\r\n  \"createdAt\": \"2024-01-10T15:30:00\",\r\n  \"location\": {\r\n    \"address\": \"Downtown Station\",\r\n    \"city\": \"Mumbai\",\r\n    \"state\": \"Maharashtra\",\r\n    \"pincode\": \"100023\"\r\n  }\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/customer/bookings/33935ac9-ad6b-4795-a040-ff497a3cbab9/cancel",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "customer",
+            "bookings",
+            "33935ac9-ad6b-4795-a040-ff497a3cbab9",
+            "cancel"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get customer booking",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "get all admin bookings",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkByYXBpZHJlbnRhbC5jb20iLCJ1c2VySWQiOiI4ODBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMDEiLCJyb2xlcyI6WyJBRE1JTiJdLCJpYXQiOjE3NzgwMDg2MTcsImV4cCI6MTc3ODAxMjIxN30.ecbWLOBsy6CYZUSefsBCOnoixBNKRAjjkeWslHUCVAU",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"prachi@gmail.com\",\r\n  \"password\": \"123456\"\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/admin/bookings",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "admin",
+            "bookings"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get customer profile",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJwcmFjaGlAZ21haWwuY29tIiwidXNlcklkIjoiZjZjMWM3YWYtOWZjOC00YzFkLWI1OGUtZjAzNDY3OGJiOTE1Iiwicm9sZXMiOlsiQ1VTVE9NRVIiXSwiaWF0IjoxNzc4MDA4NzIzLCJleHAiOjE3NzgwMTIzMjN9.2oAWk5fY2FMY0XI-SaPs_-jz8OFCNSKaFDf6kZY-qp0",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"prachi@gmail.com\",\r\n  \"password\": \"123456\"\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/customer/profile",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "customer",
+            "profile"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "updating customer profile",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    }
+  ]
+}

@@ -192,11 +192,12 @@ function renderProfileContent() {
             `<div class="profile-item"><label>${label}</label><span>${profile[label === 'Phone' ? 'phoneNumber' : label === 'Driving License' ? 'drivingLicenseNumber' : label.toLowerCase()] || '-'}</span></div>`
           ).join('')}
         </div>
+        <button class="btn btn-primary" id="editProfileBtn">Edit Profile</button>
       </div>
       <div id="profileEdit" class="hidden">
         <div class="form-grid">
           ${[['Name', 'editName', profile.name], ['Phone', 'editPhone', profile.phoneNumber], ['Address', 'editAddress', profile.address], ['Driving License', 'editLicense', profile.drivingLicenseNumber]].map(([label, id, value]) => 
-            `<div class="form-group"><label>${label}</label><input type="text" id="${id}" class="form-input" value="${value || ''}"></div>`
+            `<div class="form-group"><label>${label}</label><input type="text" id="${id}" class="form-input" value="${value || ''}\"></div>`
           ).join('')}
         </div>
         <div class="profile-actions">
@@ -206,6 +207,10 @@ function renderProfileContent() {
       </div>
     </div>
   `;
+  document.getElementById('editProfileBtn')?.addEventListener('click', () => {
+    document.getElementById('profileView')?.classList.add('hidden');
+    document.getElementById('profileEdit')?.classList.remove('hidden');
+  });
 
   document.getElementById('saveProfileBtn')?.addEventListener('click', saveProfile);
   document.getElementById('cancelEditProfileBtn')?.addEventListener('click', () => {
