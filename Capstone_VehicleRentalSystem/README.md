@@ -259,7 +259,7 @@ Test coverage is measured using **JaCoCo**.
 2. **Log in** with your credentials
 3. **Browse** available vehicles
 4. **Book** a vehicle for your desired dates
-5. **Admins** can manage vehicles, bookings, and users via the Admin Dashboard
+5. **Admins** can manage vehicles and bookings,via the Admin Dashboard
 
 ---
 
