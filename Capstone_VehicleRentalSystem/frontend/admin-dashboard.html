@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/admin-dashboard.css">
+</head>
+<body>
+
+<div class="admin-layout">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="/index.html" class="logo-link"></a>
+            <img src="./assets/icon.png" alt="logo" class="logo-img">
+            <span class="logo-text">Rapid Rental</span>
+        </div>
+        <nav>
+            <a href="#" class="active" data-section="dashboard">Dashboard</a>
+            <a href="#" data-section="vehicles">Vehicles</a>
+            <a href="#" data-section="bookings">Bookings</a>
+        </nav>
+    </aside>
+
+    <!-- main -->
+    <div class="main-content">
+        <!-- topbar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <span class="menu-icon">☰</span>
+            </div>
+            <!-- profile -->
+            <div class="topbar-right">
+                <div class="profile" id="profileToggle">
+                    <span class="admin-badge" id="adminInitial">A</span>
+                </div>
+                <!-- profile dropdown -->
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-info">
+                        <div class="profile-avatar" id="profileAvatar">A</div>
+                        <div>
+                            <p id="adminName">Admin</p>
+                            <small id="adminEmail">admin@email.com</small>
+                        </div>
+                    </div>
+                    <div class="dropdown-item" id="logoutBtn">Log out</div>
+                </div>
+            </div>
+        </div>
+        <!-- content -->
+        <main class="content">
+            <div class="header">
+                <div class="header-left">
+                    <h1 id="sectionTitle">Dashboard</h1>
+                    <div id="connectionStatus" class="connection-status"></div>
+                </div>
+                <div class="header-actions">
+                    <button class="secondary" id="manageBookingsBtn">Manage Bookings</button>
+                    <button class="primary" id="addVehicleBtn">+ Add Vehicle</button>
+                </div>
+            </div>
+
+            <section id="dashboardSection" class="dashboard-section active">
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <span>Total Vehicles</span>
+                        <strong id="totalVehicles">0</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Total Bookings</span>
+                        <strong id="totalBookings">0</strong>
+                    </div>
+                </div>
+                <div class="dashboard-overview">
+                    <section class="recent-panel">
+                        <div class="section-heading-row">
+                            <h2>Recent Vehicles</h2>
+                            <button type="button" class="link-btn" id="viewAllVehiclesBtn">View All Vehicles</button>
+                        </div>
+                        <div class="recent-list" id="recentVehiclesList"></div>
+                    </section>
+
+                    <section class="recent-panel">
+                        <div class="section-heading-row">
+                            <h2>Recent Bookings</h2>
+                            <button type="button" class="link-btn" id="viewAllBookingsBtn">View All Bookings</button>
+                        </div>
+                        <div class="recent-list" id="recentBookingsList"></div>
+                    </section>
+                </div>
+            </section>
+
+            <section id="vehiclesSection" class="dashboard-section">
+                <!-- filters -->
+                <div class="filters" id="vehicleFilters">
+                    <input type="text" id="vehicleSearch" placeholder="Search cars, city or type...">
+                    <select id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="CAR">Car</option>
+                        <option value="BIKE">Bike</option>
+                    </select>
+                    <select id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="AVAILABLE">Available</option>
+                        <option value="BOOKED">Booked</option>
+                        <option value="MAINTENANCE">Maintenance</option>
+                    </select>
+                    <select id="locationFilter">
+                        <option value="">All Locations</option>
+                    </select>
+                    <button class="reset-btn" id="resetFiltersBtn">Reset</button>
+                </div>
+
+                <!-- vehicle List -->
+                <div class="vehicle-list" id="vehicleList"></div>
+            </section>
+            <section id="bookingsSection" class="dashboard-section">
+                <div class="empty-state">
+                    Loading bookings.....
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add/Edit vehicle -->
+    <div id="vehicleModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Add Vehicle</h2>
+            <form id="vehicleForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="brand">Brand</label>
+                        <input type="text" id="brand" placeholder="Brand" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="model">Model</label>
+                        <input type="text" id="model" placeholder="Model" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Vehicle Type</label>
+                        <select id="type" required>
+                            <option value="">Select Type</option>
+                            <option value="CAR">Car</option>
+                            <option value="BIKE">Bike</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="registrationNumber">Registration Number</label>
+                        <input type="text" id="registrationNumber" placeholder="Registration Number" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="description">Description</label>
+                        <input type="text" id="description" placeholder="Product Description" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" required>
+                            <option value="AVAILABLE">Available</option>
+                            <option value="BOOKED">Booked</option>
+                            <option value="MAINTENANCE">Maintenance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dailyRentalRate">Daily Rate (₹)</label>
+                        <input type="number" id="dailyRentalRate" placeholder="Daily Rental Rate" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileUrl">Vehicle Image</label>
+                        <select id="profileUrl" required>
+                            <option value="">Select Vehicle Image</option>
+                            <option value="assets/home_car.png">Car</option>
+                            <option value="assets/signup_bike.png">Bike</option>
+                            <option value="assets/bike.jpg">Sports Bike</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="locationId">Location</label>
+                        <select id="locationId" required>
+                            <option value="">Select Location</option>
+                            <option value="Mumbai">Mumbai</option>
+                            <option value="Bhopal">Bhopal</option>
+                            <option value="Indore">Indore</option>
+                            <option value="Kolkata">Kolkata</option>
+                            <option value="Pune">Pune</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="primary">Save Vehicle</button>
+                    <button type="button" id="cancelVehicleBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+</div>
+
+<script type="module" src="./js/admin-dashboard.js"></script>
+</body>
+</html>

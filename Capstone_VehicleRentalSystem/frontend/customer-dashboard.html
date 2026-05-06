@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard</title>
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/customer-dashboard.css">
+</head>
+<body>
+
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <img src="./assets/icon.png" alt="logo" class="logo-img">
+            <span class="logo-text">Rapid Rental</span>
+        </div>
+        <nav>
+            <a href="#" class="active" data-section="dashboard">Dashboard</a>
+            <a href="vehicles.html">Browse Vehicles</a>
+            <a href="#" data-section="bookings">My Bookings</a>
+            <a href="#" data-section="profile">Profile</a>
+            <a href="#" id="logoutLink">Logout</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1 id="sectionTitle">Dashboard</h1>
+            </div>
+            <div class="header-right">
+                <span id="welcomeMsg" class="welcome-msg"></span>
+                <div class="profile" id="profileToggle">
+                    <span class="user-badge" id="userInitial">U</span>
+                </div>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-info">
+                        <div class="profile-avatar" id="dropdownAvatar">U</div>
+                        <div>
+                            <p id="dropdownName">User</p>
+                            <small id="dropdownEmail">user@email.com</small>
+                        </div>
+                    </div>
+                    <div class="dropdown-item" id="logoutBtn">Log out</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <section id="content-area">
+            <!-- Dashboard content will be rendered here -->
+        </section>
+    </div>
+</div>
+
+<!-- toast -->
+<div id="toast" class="toast"></div>
+<script type="module" src="./js/customer-dashboard.js"></script>
+</body>
+</html>
