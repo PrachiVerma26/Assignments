@@ -18,7 +18,6 @@ vehicle allocation, rental duration, pricing, and status tracking.
         @Index(name = "idx_booking_user", columnList = "user_id"), // Index to optimize queries fetching bookings by vehicle
         @Index(name = "idx_booking_vehicle", columnList = "vehicle_id")
 })
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

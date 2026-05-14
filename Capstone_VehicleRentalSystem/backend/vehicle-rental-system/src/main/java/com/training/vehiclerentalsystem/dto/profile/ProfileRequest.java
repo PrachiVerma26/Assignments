@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class ProfileRequest {
 
     @NotBlank(message = "Name is required")
-    @Size(min = 2, max = 50)
+    @Pattern(regexp = "^[A-Za-z]+(?:\\s[A-Za-z]+)*$", message="name cannot be less than 3 characters")
     private String name;
 
     @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be 10 digits")
@@ -23,6 +23,7 @@ public class ProfileRequest {
 
     private String address;
 
-    @Size(min = 5, max = 30)
+    @Pattern(regexp = "^DL\\d{14}$",
+            message = "Driving license must start with 'DL' followed by exactly 15 digits" )
     private String drivingLicenseNumber;
 }

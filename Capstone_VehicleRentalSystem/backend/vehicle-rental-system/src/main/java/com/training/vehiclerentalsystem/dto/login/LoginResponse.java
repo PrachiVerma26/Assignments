@@ -2,8 +2,6 @@ package com.training.vehiclerentalsystem.dto.login;
 
 import lombok.*;
 
-
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

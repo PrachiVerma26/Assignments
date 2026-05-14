@@ -50,11 +50,11 @@ public class BookingServiceImpl implements BookingService {
     private User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                    log.error("User not found with {}",email);
+                    log.error("User not found with {}", email);
                     return new UsernameNotFoundException("User not found");
                 });
     }
-        
+
     @Override
     public BookingResponse createBooking(BookingRequest bookingRequestDTO, String userEmail) {
         User user = getUserByEmail(userEmail);
@@ -103,82 +103,138 @@ public class BookingServiceImpl implements BookingService {
         vehicle.setStatus(VehicleStatus.BOOKED);
         vehicleRepository.save(vehicle);
         return bookingMapper.toResponse(saved);
-        }
-        
-        @Override
-        @Transactional(readOnly = true)
-        public List<BookingResponse> getBookingsByUser(String userEmail) {
-            User user = getUserByEmail(userEmail);
-                return bookingRepository.findByUser_Id(user.getId())
-                    .stream()
-                    .map(bookingMapper::toResponse)
-                    .toList();
-        }
-        @Override
-        public BookingResponse getBookingById(UUID id, String email) {
-            User user = getUserByEmail(email);
-            Booking booking = bookingRepository
-                    .findByIdAndUser_Id(id, user.getId())
-                    .orElseThrow(() -> {
-                        log.error("Booking not found with user having {}. ", user.getId());
-                        return new BookingNotFoundException(BookingConstants.BOOKING_NOT_FOUND);
-                    });
-            return bookingMapper.toResponse(booking);
-        }
-        @Override
-        public BookingResponse cancelBooking(UUID bookingId, String userEmail) {
-            User user = getUserByEmail(userEmail);
-            Booking booking = bookingRepository.findByIdAndUser_Id(bookingId, user.getId())
-                    .orElseThrow(() -> {
-                        log.error("Booking not found with user having {}. ", user.getId());
-                        return new BookingNotFoundException(BookingConstants.BOOKING_NOT_FOUND);
-                    });
+    }
 
-            if (booking.getStatus() == BookingStatus.CANCELLED) {
-                throw new BookingConflictException(BookingConstants.BOOKING_ALREADY_CANCELLED);
-            }
-            LocalDateTime now = LocalDateTime.now();
-            if (booking.getStartDate().isBefore(now)) {
-                throw new BookingConflictException("Cannot cancel a booking that has already started");
-            }
-            booking.setStatus(BookingStatus.CANCELLED);
-            Booking updated = bookingRepository.save(booking);
-            /* updating status in vehicle */
-            Vehicle vehicle = booking.getVehicle();
-            vehicle.setStatus(VehicleStatus.AVAILABLE);
-            vehicleRepository.save(vehicle);
-            return bookingMapper.toResponse(updated);
-        }
-
-        @Override
-        @Transactional(readOnly = true)
-        public List<BookingResponse> getAllBookings() {
-            log.info("Fetching all bookings for admin");
-            List<Booking> bookings = bookingRepository.findAll();
+    @Override
+    @Transactional
+    public List<BookingResponse> getBookingsByUser(String userEmail) {
+        User user = getUserByEmail(userEmail);
+        List<Booking> bookings = bookingRepository.findByUser_Id(user.getId());
             return bookings.stream()
-                    .map(bookingMapper::toResponse)
+                    .map(booking -> {
+                        evaluateBookingStatus(booking); // Auto-update if needed
+                        return bookingMapper.toResponse(booking);
+                    })
                     .toList();
+    }
+    @Override
+    public BookingResponse getBookingById(UUID id, String email) {
+        User user = getUserByEmail(email);
+        Booking booking = bookingRepository
+                .findByIdAndUser_Id(id, user.getId())
+                .orElseThrow(() -> {
+                    log.error("Booking not found with user having {}. ", user.getId());
+                    return new BookingNotFoundException(BookingConstants.BOOKING_NOT_FOUND);
+                });
+        evaluateBookingStatus(booking);
+        return bookingMapper.toResponse(booking);
+    }
+
+    @Override
+    public BookingResponse cancelBooking(UUID bookingId, String userEmail) {
+        User user = getUserByEmail(userEmail);
+        Booking booking = bookingRepository.findByIdAndUser_Id(bookingId, user.getId())
+                .orElseThrow(() -> {
+                    log.error("Booking not found with user having {}. ", user.getId());
+                    return new BookingNotFoundException(BookingConstants.BOOKING_NOT_FOUND);
+                });
+
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            throw new BookingConflictException(BookingConstants.BOOKING_ALREADY_CANCELLED);
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (booking.getStartDate().isBefore(now)) {
+            throw new BookingConflictException("Cannot cancel a booking that has already started");
+        }
+        booking.setStatus(BookingStatus.CANCELLED);
+        Booking updated = bookingRepository.save(booking);
+        /* updating status in vehicle */
+        Vehicle vehicle = booking.getVehicle();
+        vehicle.setStatus(VehicleStatus.AVAILABLE);
+        vehicleRepository.save(vehicle);
+        return bookingMapper.toResponse(updated);
+    }
+
+    private BookingResponse completeBooking(UUID bookingId, String userEmail) {
+        User user = getUserByEmail(userEmail);
+        Booking booking = bookingRepository.findByIdAndUser_Id(bookingId, user.getId())
+                .orElseThrow(() -> new BookingNotFoundException(BookingConstants.BOOKING_NOT_FOUND));
+
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            throw new BookingConflictException("Only confirmed bookings can be completed");
         }
 
-        @Override
-        @Transactional(readOnly = true)
-        public List<BookingResponse> getBookingsByStatus(BookingStatus status) {
-            log.info("Fetching all bookings with status: {}", status);
-            List<Booking> bookings = bookingRepository.findByStatus(status);
-            return bookings.stream()
-                    .map(bookingMapper::toResponse)
-                    .toList();
+        if (booking.getEndDate().isAfter(LocalDateTime.now())) {
+            throw new BookingConflictException("Cannot complete booking before end date");
         }
 
-        @Override
-        @Transactional(readOnly = true)
-        public BookingResponse getBookingByIdAdmin(UUID id) {
-            log.info("Fetching booking by ID (admin): {}", id);
-            Booking booking = bookingRepository.findById(id)
-                    .orElseThrow(() -> {
-                        log.error("Booking not found with ID: {}", id);
-                        return new BookingNotFoundException("Booking not found with ID: " + id);
-                    });
-            return bookingMapper.toResponse(booking);
+        booking.setStatus(BookingStatus.COMPLETED);
+        Vehicle vehicle = booking.getVehicle();
+        vehicle.setStatus(VehicleStatus.AVAILABLE);
+        vehicleRepository.save(vehicle);
+
+        return bookingMapper.toResponse(bookingRepository.save(booking));
+    }
+
+    private BookingStatus evaluateBookingStatus(Booking booking) {
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            return BookingStatus.CANCELLED;
         }
+        LocalDateTime now = LocalDateTime.now();
+
+        // If current time is past end date, booking is completed
+        if (now.isAfter(booking.getEndDate())) {
+            // Auto-update status and vehicle if not already done
+            if (booking.getStatus() == BookingStatus.CONFIRMED) {
+                booking.setStatus(BookingStatus.COMPLETED);
+                booking.getVehicle().setStatus(VehicleStatus.AVAILABLE);
+                bookingRepository.save(booking);
+                vehicleRepository.save(booking.getVehicle());
+            }
+            return BookingStatus.COMPLETED;
+        }
+
+        // If current time is before start date
+        if (now.isBefore(booking.getStartDate())) {
+            return BookingStatus.CONFIRMED; // Upcoming booking
+        }
+        // If current time is between start and end date
+        return BookingStatus.CONFIRMED; // Active booking
+    }
+
+    @Override
+    @Transactional
+    public List<BookingResponse> getAllBookings() {
+        log.info("Fetching all bookings for admin");
+        List<Booking> bookings = bookingRepository.findAll();
+        return bookings.stream()
+                .map(booking -> {
+                    evaluateBookingStatus(booking);
+                    return bookingMapper.toResponse(booking);
+                })
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public List<BookingResponse> getBookingsByStatus(BookingStatus status) {
+        log.info("Fetching all bookings with status: {}", status);
+        List<Booking> bookings = bookingRepository.findByStatus(status);
+        return bookings.stream()
+                .map(bookingMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public BookingResponse getBookingByIdAdmin(UUID id) {
+        log.info("Fetching booking by ID (admin): {}", id);
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Booking not found with ID: {}", id);
+                    return new BookingNotFoundException("Booking not found with ID: " + id);
+                });
+        evaluateBookingStatus(booking);
+        return bookingMapper.toResponse(booking);
+    }
 }

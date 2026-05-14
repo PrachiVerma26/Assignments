@@ -5,10 +5,7 @@ import com.training.vehiclerentalsystem.dto.vehicle.VehicleRequest;
 import com.training.vehiclerentalsystem.dto.vehicle.VehicleResponse;
 import com.training.vehiclerentalsystem.enums.VehicleStatus;
 import com.training.vehiclerentalsystem.enums.VehicleType;
-import com.training.vehiclerentalsystem.exceptions.LocationNotFoundException;
-import com.training.vehiclerentalsystem.exceptions.ResourceNotFoundException;
-import com.training.vehiclerentalsystem.exceptions.VehicleDeletionNotAllowedException;
-import com.training.vehiclerentalsystem.exceptions.VehicleNotFoundException;
+import com.training.vehiclerentalsystem.exceptions.*;
 import com.training.vehiclerentalsystem.mapper.VehicleMapper;
 import com.training.vehiclerentalsystem.model.Location;
 import com.training.vehiclerentalsystem.model.Vehicle;
@@ -37,7 +34,11 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public VehicleResponse createVehicle(VehicleRequest vehicleRequestDTO) {
-        
+
+        //checks if the vehicle is already exists with the registration number
+        if (vehicleRepository.existsByRegistrationNumber(vehicleRequestDTO.getRegistrationNumber())) {
+            throw new VehicleAlreadyExistsException("Vehicle with registration number already exists");
+        }
         Location location = locationRepository.findById(vehicleRequestDTO.getLocationId())
                 .orElseThrow(() -> new LocationNotFoundException(VehicleConstants.LOCATION_NOT_FOUND + vehicleRequestDTO.getLocationId()));
         Vehicle vehicle = vehicleMapper.toEntity(vehicleRequestDTO);
@@ -50,6 +51,13 @@ public class VehicleServiceImpl implements VehicleService {
     public VehicleResponse updateVehicle(UUID id, VehicleRequest vehicleRequestDTO) {
         Vehicle existingVehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new VehicleNotFoundException(VehicleConstants.VEHICLE_NOT_FOUND+ id));
+
+        // Check duplicate registration number while allowing current vehicle's existing registration
+        String newRegistration = vehicleRequestDTO.getRegistrationNumber();
+        if (vehicleRepository.existsByRegistrationNumberAndIdNot(newRegistration, id)) {
+            throw new VehicleAlreadyExistsException("Vehicle with registration number already exists");
+        }
+
         if (!existingVehicle.getLocation().getId().equals(vehicleRequestDTO.getLocationId())) {
             Location newLocation = locationRepository.findById(vehicleRequestDTO.getLocationId())
                     .orElseThrow(() -> new LocationNotFoundException(VehicleConstants.LOCATION_NOT_FOUND + vehicleRequestDTO.getLocationId()));
@@ -64,6 +72,12 @@ public class VehicleServiceImpl implements VehicleService {
     public void deleteVehicle(UUID id) {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(VehicleConstants.VEHICLE_NOT_FOUND + id));
+        // Check if vehicle has any booking history
+        if (vehicleRepository.hasBookingHistory(id)) {
+            throw new VehicleDeletionNotAllowedException(
+                    "Vehicle cannot be deleted because booking history exists. Mark the vehicle as unavailable instead.");
+        }
+
         if (vehicle.getStatus() == VehicleStatus.BOOKED) {
             throw new VehicleDeletionNotAllowedException(VehicleConstants.VEHICLE_DELETE_NOT_ALLOWED);
         }

@@ -1,3 +1,4 @@
+
 package com.training.vehiclerentalsystem.model;
 
 import com.training.vehiclerentalsystem.enums.RoleType;
@@ -18,7 +19,6 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name="user_id")

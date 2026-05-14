@@ -24,7 +24,8 @@ public class SignupRequest {
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password must be at least 6 characters")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{6,}$",
+            message = "Password must contain at least 6 characters, including uppercase, lowercase, number, and special character")
     private String password;
 
     @NotBlank(message = "Phone number is required and cannot be null ")
@@ -33,6 +34,7 @@ public class SignupRequest {
     private String address;
 
     @NotBlank(message = "Driving license number is required")
-    @Size(min = 5, max = 30, message = "Driving license number must be between 5 and 30 characters")
+    @Pattern(regexp = "^DL\\d{15}$",
+            message = "Driving license must start with 'DL' followed by exactly 15 digits" )
     private String drivingLicenseNumber;
 }

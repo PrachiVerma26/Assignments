@@ -2,6 +2,7 @@ package com.training.vehiclerentalsystem.service.implementation;
 
 import com.training.vehiclerentalsystem.dto.profile.ProfileRequest;
 import com.training.vehiclerentalsystem.dto.profile.ProfileResponse;
+import com.training.vehiclerentalsystem.exceptions.UserAlreadyExistsException;
 import com.training.vehiclerentalsystem.mapper.ProfileMapper;
 import com.training.vehiclerentalsystem.model.User;
 import com.training.vehiclerentalsystem.repository.UserRepository;
@@ -45,11 +46,16 @@ public class UserServiceImpl implements UserService {
                     log.error("User not found with email: {}", email);
                     return new RuntimeException("User not found with email: " + email);
                 });
+        String newLicense = profileRequestDTO.getDrivingLicenseNumber();
+        if (userRepository.existsByDrivingLicenseNumberAndIdNot(newLicense, user.getId())) {
+            log.error("Driving licence number already exists for another user");
+            throw new UserAlreadyExistsException("Driving license number already exists for another user");
+        }
         // Update allowed fields only
         user.setName(profileRequestDTO.getName());
         user.setPhoneNumber(profileRequestDTO.getPhoneNumber());
         user.setAddress(profileRequestDTO.getAddress());
-        user.setDrivingLicenseNumber(profileRequestDTO.getDrivingLicenseNumber());
+        user.setDrivingLicenseNumber(newLicense);
         User updatedUser = userRepository.save(user);
         return profileMapper.toProfileResponse(updatedUser);
     }

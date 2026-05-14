@@ -14,23 +14,20 @@ import java.util.UUID;
 public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
 
     List<Vehicle> findByType(VehicleType type);
-
     List<Vehicle> findByStatus(VehicleStatus status);
-
     List<Vehicle> findByLocationId(UUID locationId);
 
     boolean existsByRegistrationNumber(String registrationNumber);
-
     boolean existsByRegistrationNumberAndIdNot(String registrationNumber, UUID id);
 
     // Combined filter methods
     List<Vehicle> findByTypeAndStatus(VehicleType type, VehicleStatus status);
-
     List<Vehicle> findByTypeAndLocationId(VehicleType type, UUID locationId);
-
     List<Vehicle> findByStatusAndLocationId(VehicleStatus status, UUID locationId);
-
     List<Vehicle> findByTypeAndStatusAndLocationId(VehicleType type, VehicleStatus status, UUID locationId);
+
+    @Query("SELECT COUNT(b) > 0 FROM Booking b WHERE b.vehicle.id = :vehicleId")
+    boolean hasBookingHistory(@Param("vehicleId") UUID vehicleId);
 
     @Query("""
     SELECT v FROM Vehicle v

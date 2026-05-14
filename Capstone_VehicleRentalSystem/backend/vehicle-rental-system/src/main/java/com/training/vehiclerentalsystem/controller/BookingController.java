@@ -20,6 +20,7 @@ import java.util.UUID;
  Handles CRUD operations for bookings
  */
 @RestController
+@RequestMapping
 public class BookingController {
     private final BookingService bookingService;
     private static final Logger log = LoggerFactory.getLogger(BookingController.class);

@@ -58,6 +58,11 @@ function switchSection(section) {
   document.getElementById(`${section}Section`)?.classList.add('active');
   setText('sectionTitle', { dashboard: 'Dashboard', vehicles: 'Vehicles', bookings: 'Bookings' }[section]);
 
+  const addVehicleBtn = document.getElementById('addVehicleBtn');
+  
+  if (addVehicleBtn) {
+    addVehicleBtn.style.display = section === 'vehicles' ? 'block' : 'none';
+  }
   if (section === 'vehicles') loadVehicles();
   else if (section === 'bookings') loadBookings();
 }
@@ -76,8 +81,8 @@ async function loadRecentContent() {
     bookings = (await getAdminBookings() || []).sort((a, b) => new Date(b.createdAt || b.startDate || 0) - new Date(a.createdAt || a.startDate || 0));
     
     populateLocationFilter();
-    renderRecentVehicles(vehicles.slice(0, 3));
-    renderRecentBookings(bookings.slice(0, 3));
+    renderRecentVehicles(vehicles.slice(0, 5));
+    renderRecentBookings(bookings.slice(0, 5));
     setText('totalVehicles', vehicles.length);
     setText('totalBookings', bookings.length);
   } catch (error) {
@@ -137,23 +142,42 @@ function populateLocationFilter() {
 //load vehicles 
 function renderVehicles(list) {
   const container = document.getElementById('vehicleList');
-  container.innerHTML = list.length ? list.map(v => `
-    <div class="vehicle-card">
-      <div class="vehicle-card-header">
-        <span class="status-badge ${v.status.toLowerCase()}">${v.status}</span>
-      </div>
-      <img src="${v.profileUrl}" alt="${v.brand} ${v.model}" onerror="this.src='assets/home_car.png'">
-      <div class="vehicle-card-content">
-        <h3>${v.brand} ${v.model}</h3>
-        <div class="vehicle-location">${v.type} - ${getLocationText(v.location)}</div>
-        <div class="vehicle-price">Rs ${v.dailyRentalRate}/day</div>
-        <div class="vehicle-card-actions">
-          <button class="btn btn-secondary" onclick="editVehicle('${v.id}')">Edit</button>
-          <button class="btn btn-danger" onclick="deleteVehicle('${v.id}')">Delete</button>
+  
+  if (!list.length) {
+    container.innerHTML = '<div class="empty-state">No vehicles found</div>';
+    return;
+  }
+
+  container.innerHTML = list.map(v => {
+    // Determine if delete should be enabled based on status and logic
+    const canDelete = v.status === 'AVAILABLE'; // Only allow delete if AVAILABLE
+    const deleteButtonClass = canDelete ? 'btn btn-danger' : 'btn btn-danger disabled';
+    const deleteButtonProps = canDelete ? `onclick="deleteVehicle('${v.id}')"` : 'disabled';
+    const deleteButtonTitle = canDelete ? 'Delete Vehicle' : 
+      v.status === 'BOOKED' ? 'Cannot delete: Vehicle is currently booked' :
+      v.status === 'MAINTENANCE' ? 'Cannot delete: Vehicle is under maintenance' :
+      'Cannot delete: Vehicle is not available';
+
+    return `
+      <div class="vehicle-card">
+        <div class="vehicle-card-header">
+          <span class="status-badge ${v.status.toLowerCase()}">${v.status}</span>
+        </div>
+        <img src="${v.profileUrl}" alt="${v.brand} ${v.model}" onerror="this.src='assets/home_car.png'">
+        <div class="vehicle-card-content">
+          <h3>${v.brand} ${v.model}</h3>
+          <div class="vehicle-location">${v.type} - ${getLocationText(v.location)}</div>
+          <div class="vehicle-price">Rs ${v.dailyRentalRate}/day</div>
+          <div class="vehicle-card-actions">
+            <button class="btn btn-secondary" onclick="editVehicle('${v.id}')">Edit</button>
+            <button class="${deleteButtonClass}" ${deleteButtonProps} title="${deleteButtonTitle}">
+              Delete
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  `).join('') : '<div class="empty-state">No vehicles found</div>';
+    `;
+  }).join('');
 }
 
 function filterVehicles() {
@@ -182,22 +206,51 @@ function resetFilters() {
 }
 
 //add new vehicle form function
+//add new vehicle form function
 function openVehicleModal(vehicle = null) {
   currentVehicleId = vehicle?.id;
   const modal = document.getElementById('vehicleModal');
   const form = document.getElementById('vehicleForm');
   setText('modalTitle', vehicle ? 'Edit Vehicle' : 'Add Vehicle');
+  
   if (vehicle) {
-    ['brand', 'model', 'type', 'registrationNumber', 'description', 'status', 'dailyRentalRate', 'profileUrl'].forEach(field => {
+    // Set all basic fields except profileUrl (handle it separately)
+    ['brand', 'model', 'type', 'registrationNumber', 'description', 'status', 'dailyRentalRate'].forEach(field => {
       const el = document.getElementById(field);
       if (el) el.value = vehicle[field] || '';
     });
-    document.getElementById('locationId').value = vehicle.location?.id || '';
+
+    // Handle profileUrl separately to ensure it's set correctly
+    const profileUrlSelect = document.getElementById('profileUrl');
+    if (profileUrlSelect && vehicle.profileUrl) {
+      // Make sure the option exists before setting it
+      const optionExists = Array.from(profileUrlSelect.options).some(option => option.value === vehicle.profileUrl);
+      if (optionExists) {
+        profileUrlSelect.value = vehicle.profileUrl;
+      } else {
+        // If the exact URL doesn't exist, try to match by filename
+        const filename = vehicle.profileUrl.split('/').pop();
+        const matchingOption = Array.from(profileUrlSelect.options).find(option => 
+          option.value.includes(filename)
+        );
+        if (matchingOption) {
+          profileUrlSelect.value = matchingOption.value;
+        }
+      }
+    }
+
+    // Set location
+    const locationSelect = document.getElementById('locationId');
+    if (locationSelect && vehicle.location?.id) {
+      locationSelect.value = vehicle.location.id;
+    }
   } else {
     form.reset();
   }
+  
   modal.classList.add('show');
 }
+
 
 function closeVehicleModal() {
   document.getElementById('vehicleModal').classList.remove('show');
@@ -233,13 +286,33 @@ window.editVehicle = id => {
 };
 
 window.deleteVehicle = id => {
+  const vehicle = vehicles.find(v => v.id === id);
+  // Frontend validation
+  if (vehicle && vehicle.status !== 'AVAILABLE') {
+    showToast(`Cannot delete: Vehicle is ${vehicle.status.toLowerCase()}`, 'error');
+    return;
+  }
+  
   if (confirm('Are you sure you want to delete this vehicle?')) {
-    deleteVehicleById(id).then(() => {
-      showToast('Vehicle deleted successfully', 'success');
-      loadVehicles();
-    }).catch(error => showToast(error.message || 'Error deleting vehicle', 'error'));
+    deleteVehicleById(id)
+      .then(() => {
+        showToast('Vehicle deleted successfully', 'success');
+        loadVehicles();
+      })
+      .catch(error => {
+        // Handle specific backend error messages
+        const message = error.message || 'Error deleting vehicle';
+        if (message.includes('booking history')) {
+          showToast('Cannot delete: Vehicle has booking history', 'error');
+        } else if (message.includes('AVAILABLE')) {
+          showToast('Cannot delete: Vehicle must be available', 'error');
+        } else {
+          showToast(message, 'error');
+        }
+      });
   }
 };
+
 
 //load all the existing vehicle bookings
 async function loadBookings() {
