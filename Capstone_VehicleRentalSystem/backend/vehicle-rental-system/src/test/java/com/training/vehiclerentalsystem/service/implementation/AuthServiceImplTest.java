@@ -99,26 +99,6 @@ class AuthServiceImplTest {
         assertEquals("encodedPassword", user.getPassword());
     }
 
-    //Admin email should assign ADMIN role
-    @Test
-    void signup_Success_Admin() {
-        signupRequest.setEmail("admin@rapidrental.com");
-        user.setEmail("admin@rapidrental.com");
-
-        when(userRepository.existsByEmail(signupRequest.getEmail())).thenReturn(false);
-        when(userRepository.existsByDrivingLicenseNumber(signupRequest.getDrivingLicenseNumber())).thenReturn(false);
-        when(userMapper.toEntity(signupRequest)).thenReturn(user);
-        when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
-        when(userRepository.save(user)).thenReturn(user);
-
-        SignupResponse response = authService.signup(signupRequest);
-
-        assertNotNull(response);
-        assertEquals("admin@rapidrental.com", response.getEmail());
-        assertTrue(response.getRoles().contains(RoleType.ADMIN));
-        assertTrue(user.getRole().contains(RoleType.ADMIN));
-    }
-
     // signup should fail if email already exists
     @Test
     void signup_EmailAlreadyExists() {
@@ -234,23 +214,5 @@ class AuthServiceImplTest {
 
         assertEquals("generated-jwt-token", response.getToken());
         verify(jwtUtil).generateToken(user);
-    }
-
-    // admin email assigns ADMIN role only (not CUSTOMER)
-    @Test
-    void signup_AdminEmailRoleAssignment() {
-        signupRequest.setEmail("admin@rapidrental.com");
-        user.setEmail("admin@rapidrental.com");
-
-        when(userRepository.existsByEmail(signupRequest.getEmail())).thenReturn(false);
-        when(userRepository.existsByDrivingLicenseNumber(signupRequest.getDrivingLicenseNumber())).thenReturn(false);
-        when(userMapper.toEntity(signupRequest)).thenReturn(user);
-        when(passwordEncoder.encode(any())).thenReturn("encoded");
-        when(userRepository.save(user)).thenReturn(user);
-
-        authService.signup(signupRequest);
-
-        assertTrue(user.getRole().contains(RoleType.ADMIN));
-        assertFalse(user.getRole().contains(RoleType.CUSTOMER));
     }
 }

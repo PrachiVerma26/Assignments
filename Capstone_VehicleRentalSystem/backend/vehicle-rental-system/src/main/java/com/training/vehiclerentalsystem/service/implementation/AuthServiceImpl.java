@@ -54,17 +54,11 @@ public class AuthServiceImpl implements AuthService {
         }
         User user = userMapper.toEntity(SignupRequestDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        // Assign role based on email
-        String userRole;
-        if (SignupRequestDTO.getEmail().equals("admin@rapidrental.com")) {
-            user.getRole().add(RoleType.ADMIN);
-            userRole = "ADMIN";
-        } else {
-            user.getRole().add(RoleType.CUSTOMER);
-            userRole = "CUSTOMER";
-        }
+
+        // All signups are CUSTOMER by default
+        user.getRole().add(RoleType.CUSTOMER);
         userRepository.save(user);
-        log.info("User created successfully with role: {}", userRole);
+        log.info("Customer created successfully with role");
         return new SignupResponse(
                 user.getId(),
                 user.getEmail(),
