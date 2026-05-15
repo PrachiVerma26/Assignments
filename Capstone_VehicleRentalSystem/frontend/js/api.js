@@ -9,7 +9,7 @@ class ApiError extends Error {
         this.data = data;
     }
 }
-
+export { ApiError };
 
 async function request(endpoint, options = {}) {
     const token = localStorage.getItem("token");

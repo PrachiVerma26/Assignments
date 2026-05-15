@@ -62,9 +62,16 @@ public class BookingServiceImpl implements BookingService {
             log.error("Cannot create booking, selected invalid date range");
             throw new InvalidBookingException(BookingConstants.INVALID_DATE_RANGE);
         }
-        if (bookingRequestDTO.getStartDate().isBefore(LocalDateTime.now())) {
+
+        LocalDateTime now = LocalDateTime.now();
+        if (bookingRequestDTO.getEndDate().isBefore(now)){
             log.warn("Cannot book past dates!");
             throw new InvalidBookingException(BookingConstants.PAST_BOOKING_NOT_ALLOWED);
+        }
+        LocalDateTime minTime=now.plusHours(2);
+        if (bookingRequestDTO.getStartDate().isBefore(minTime)) {
+            log.warn("Booking must be at least 2 hours in advance");
+            throw new InvalidBookingException("Booking must be at least 2 hours in advance");
         }
         if (user.getDrivingLicenseNumber() == null || user.getDrivingLicenseNumber().isBlank()) {
             log.error("Customer didn't added driving license, so please add then you can book again.");
@@ -86,10 +93,7 @@ public class BookingServiceImpl implements BookingService {
         if (days > 30) {
             throw new InvalidBookingException("Max booking duration is 30 days");
         }
-        LocalDateTime minTime = LocalDateTime.now().plusHours(2);
-        if (bookingRequestDTO.getStartDate().isBefore(minTime)) {
-            throw new InvalidBookingException("Booking must be at least 2 hours in advance");
-        }
+
         BigDecimal totalPrice = vehicle.getDailyRentalRate().multiply(BigDecimal.valueOf(days));
         Booking booking = bookingMapper.toEntity(bookingRequestDTO);
         booking.setUser(user);

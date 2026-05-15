@@ -1,4 +1,4 @@
-import { createBooking, getAllPublicVehicles, getAvailableVehiclesByDateRange, getFilteredVehicles, getVehicleById } from './api.js';
+import { createBooking, getAllPublicVehicles, getAvailableVehiclesByDateRange, getFilteredVehicles, getVehicleById, ApiError } from './api.js';
 
 let vehicles = [], filteredVehicles = [], currentPage = 1, selectedVehicle = null;
 
@@ -250,12 +250,7 @@ async function confirmBooking() {
     showBookingError('End date must be after start date');
     return;
   }
-  
-  if (new Date(data[0]) < new Date()) {
-    showBookingError('Start date cannot be in the past');
-    return;
-  }
-  
+    
   try {
     await createBooking({ 
       vehicleId: selectedVehicle.id, 
@@ -267,7 +262,22 @@ async function confirmBooking() {
     showToast('Booking successful! Redirecting to dashboard...', 'success');
     setTimeout(() => location.href = 'customer-dashboard.html', 2000);
   } catch (error) {
-    showBookingError(error.message || 'Booking failed. Please try again.');
+      let errorMessage = 'Booking failed. Please try again.';
+        
+      if (error instanceof ApiError) {
+        if (error.data?.message) {
+            errorMessage = error.data.message;
+        } 
+        // Fallback to error.message (ApiError message)
+        else if (error.message) {
+            errorMessage = error.message;
+        }
+    } 
+    // Handle other error types
+    else if (error.message) {
+        errorMessage = error.message;
+    } 
+      showBookingError(errorMessage);
   }
 }
 
