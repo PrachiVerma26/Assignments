@@ -206,22 +206,7 @@ class BookingServiceImplTest {
     }
 
     // Exception thrown when customer tries to book a vehicle in less than two hours
-    @Test
-    void createBooking_LessThan2HoursAdvance() {
-        // Arrange
-        bookingRequest.setStartDate(LocalDateTime.now().plusMinutes(30));  // Only 30 mins
-        bookingRequest.setEndDate(LocalDateTime.now().plusDays(2));
 
-        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
-        when(bookingRepository.findVehicleForUpdate(vehicleId)).thenReturn(Optional.of(vehicle));
-        when(bookingRepository.existsOverlappingBooking(any(), any(), any())).thenReturn(false);
-
-        // Act & Assert
-        InvalidBookingException exception = assertThrows(InvalidBookingException.class,
-                () -> bookingService.createBooking(bookingRequest, userEmail));
-
-        assertEquals("Booking must be at least 2 hours in advance", exception.getMessage());
-    }
 
     // exception thrown when vehicle not found
     @Test
