@@ -1,3 +1,10 @@
 out/
 .idea/
 *.iml
+
+# VS Code settings
+.vscode/
+
+# Python cache files
+__pycache__/
+*.pyc
