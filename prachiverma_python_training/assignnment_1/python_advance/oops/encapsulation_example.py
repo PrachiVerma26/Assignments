@@ -1,20 +1,30 @@
-""" program to demonstrate encapsulation using a Product class """
+""" program to demonstrate encapsulation using a bankclass """
 
-class Product:
+"""
+Program to demonstrate encapsulation using a Bank class.
+"""
 
-    def __init__(self, name: str, stock_quantity: int):
-        self.name = name
-        self.__stock_quantity = stock_quantity
+class Bank:
 
-    def add_stock(self, quantity: int):
-        self.__stock_quantity += quantity
+    def __init__(self, balance: float):
+        self.__balance = balance
 
-    def get_stock(self):
-        return self.__stock_quantity
+    def deposit(self, amount: float):
+        self.__balance += amount
+
+    def get_balance(self):
+        return self.__balance
+    
+    def withdrawal(self, amount: float):
+        self.__balance-=amount
 
 
 if __name__ == "__main__":
-    tshirt = Product("Dresses", 50)
-    tshirt.add_stock(20)
+    account = Bank(54000)
 
-    print(f"Available Stock: {tshirt.get_stock()}")
+    account.deposit(1200)
+    print(f"Current Balance: {account.get_balance()}")
+
+    account.withdrawal(20000)
+
+    print(f"Current Balance: {account.get_balance()}")
