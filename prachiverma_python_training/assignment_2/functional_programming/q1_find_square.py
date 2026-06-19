@@ -15,7 +15,9 @@ def get_square_function() -> Callable[[int], int]:
 
 
 if __name__ == "__main__":
-    square = get_square_function()
-
-    number = int(input("Enter a number: "))
-    print(f"Square of {number} is {square(number)}")
+    try: 
+        square = get_square_function()
+        number = int(input("Enter a number: "))
+        print(f"Square of {number} is {square(number)}")
+    except ValueError:
+        print("Please enter a vaild integer.")
