@@ -1,0 +1,23 @@
+"""
+Program 8: Convert a normal function into parallel execution using ProcessPoolExecutor.
+"""
+
+from concurrent.futures import ProcessPoolExecutor
+
+def calculate_square(number: int) -> int:
+    """Returns the square of a number."""
+
+    return number ** 2
+
+
+if __name__ == "__main__":
+    numbers = [1, 2, 3, 4, 5]
+
+    # Execute square calculations concurrently using a process pool
+    with ProcessPoolExecutor() as executor:
+        results = executor.map(
+            calculate_square,
+            numbers
+        )
+
+    print(f"Square Values: {list(results)}")

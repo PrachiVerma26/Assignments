@@ -1,0 +1,24 @@
+"""
+Program 3: Demonstrate the use of join() in threading.
+"""
+
+import threading
+import time
+
+def generate_report() -> None:
+    """Simulates report generation."""
+
+    print("Generating report...")
+
+    # Simulate a time-consuming task
+    time.sleep(3)
+    print("Report generated successfully.")
+
+
+if __name__ == "__main__":
+    report_thread = threading.Thread(target=generate_report)
+    report_thread.start()
+
+    # Wait for report generation to complete
+    report_thread.join()
+    print("Main program completed.")
