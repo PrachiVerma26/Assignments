@@ -1,6 +1,7 @@
 out/
 .idea/
 *.iml
+.venv
 
 # VS Code settings
 .vscode/
