@@ -1,11 +1,7 @@
 from datetime import datetime
-
 from pydantic import (BaseModel, EmailStr, Field)
-
-from src.enums.role_types import (RoleType)
-
+from src.enums.role_types import (UserRole)
 from src.enums.user_status import (UserStatus)
-
 
 class User(BaseModel):
     """
@@ -19,13 +15,9 @@ class User(BaseModel):
     """
 
     name: str
-
     email: EmailStr
-
     password: str
-
-    role: RoleType
-
+    role: UserRole
     status: UserStatus
 
     created_at: datetime = Field(
