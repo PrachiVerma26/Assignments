@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="fc1e261c-0d71-44d8-b462-672873bc7712" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/backend/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/backend/src/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/src/App.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/src/main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/src/main.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/src/routes/AppRoutes.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/src/routes/AppRoutes.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/src/services/authService.js" beforeDir="false" afterPath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/src/services/authService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/src/styles/global.css" beforeDir="false" afterPath="$PROJECT_DIR$/Capstone_InterviewManagementPortal/frontend/src/styles/global.css" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;PrachiVerma26&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/PrachiVerma26/Assignment_1_Git.git&quot;,
+    &quot;accountId&quot;: &quot;165668bc-6fb3-4be1-9e93-7511038516f5&quot;
+  }
+}</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3,
+  &quot;fromUser&quot;: false
+}</component>
+  <component name="ProjectId" id="3C45YCVpnWaagyMAqnCQ71zhLa3" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.AbstractAndInterface.executor": "Run",
+    "Application.Anagram.executor": "Run",
+    "Application.AreaCalculator.executor": "Run",
+    "Application.AverageArray.executor": "Run",
+    "Application.CountVowels.executor": "Run",
+    "Application.Encapsulation.executor": "Run",
+    "Application.EvenNumberSum.executor": "Run",
+    "Application.EvenOrOdd.executor": "Run",
+    "Application.ExceptionEx.executor": "Run",
+    "Application.Factorial.executor": "Run",
+    "Application.FibonacciSeries.executor": "Run",
+    "Application.FileOperation.executor": "Run",
+    "Application.Inheritance.executor": "Run",
+    "Application.LargestNum.executor": "Run",
+    "Application.LinearSearch.executor": "Run",
+    "Application.MultiThreading.executor": "Run",
+    "Application.MultiplicationTable.executor": "Run",
+    "Application.Operations.executor": "Run",
+    "Application.Patterns.executor": "Run",
+    "Application.Polymorphism.executor": "Run",
+    "Application.PrimeChecker.executor": "Run",
+    "Application.ReverseString.executor": "Run",
+    "Application.SortArray.executor": "Run",
+    "Application.TemperatureConversion.executor": "Run",
+    "Application.UserManagementSystemV2Application.executor": "Run",
+    "Application.VehicleRentalSystemApplication.executor": "Run",
+    "Application.session1.basic.AreaCalculator.executor": "Run",
+    "JUnit.AdminControllerTest.executor": "Run",
+    "JUnit.AdminControllerTest.testAddVehicle_DuplicateVehicle_ShouldReturnConflict.executor": "Run",
+    "JUnit.AuthControllerTest.executor": "Run",
+    "JUnit.AuthControllerTest.signup_InvalidEmailFormat.executor": "Run",
+    "JUnit.AuthServiceImplTest.executor": "Run",
+    "JUnit.AuthServiceImplTest.signup_success_customer.executor": "Run",
+    "JUnit.BookingControllerTest.executor": "Run",
+    "JUnit.BookingMapperTest.executor": "Run",
+    "JUnit.BookingServiceImplTest.cancelBooking_AlreadyStarted.executor": "Run",
+    "JUnit.BookingServiceImplTest.createBooking_BlankDrivingLicense.executor": "Run",
+    "JUnit.BookingServiceImplTest.createBooking_NoDrivingLicense.executor": "Run",
+    "JUnit.BookingServiceImplTest.createBooking_VerifyTotalPriceCalculation.executor": "Run",
+    "JUnit.BookingServiceImplTest.executor": "Run",
+    "JUnit.GlobalExceptionHandlerTest.executor": "Run",
+    "JUnit.GlobalExceptionalHandlerTest.executor": "Run",
+    "JUnit.JwtFilterTest.executor": "Run",
+    "JUnit.ProfileMapperTest.executor": "Run",
+    "JUnit.ProfileMapperTest.toProfileResponse_VerifyEmail.executor": "Run",
+    "JUnit.TodoControllerTest.executor": "Run",
+    "JUnit.TodoServiceTest.executor": "Run",
+    "JUnit.TodoServiceTest.shouldCreateTodoAndSendNotification.executor": "Run",
+    "JUnit.TodoServiceTest.shouldDeleteTodo.executor": "Run",
+    "JUnit.TodoServiceTest.shouldReturnAllTodos.executor": "Run",
+    "JUnit.TodoServiceTest.shouldReturnTodoById.executor": "Run",
+    "JUnit.TodoServiceTest.shouldThrowExceptionForInvalidStatusTransition.executor": "Run",
+    "JUnit.TodoServiceTest.shouldThrowExceptionWhenDeletingNonExistingTodo.executor": "Run",
+    "JUnit.TodoServiceTest.shouldThrowExceptionWhenTodoNotFound.executor": "Run",
+    "JUnit.TodoServiceTest.shouldUpdateTodoSuccessfully.executor": "Run",
+    "JUnit.UserControllerTest.executor": "Run",
+    "JUnit.UserMapperTest.executor": "Run",
+    "JUnit.UserServiceImplTest.executor": "Run",
+    "JUnit.VehicleControllerTest.executor": "Run",
+    "JUnit.VehicleMapperTest.executor": "Run",
+    "JUnit.VehicleServiceImplTest.executor": "Run",
+    "JUnit.VehicleServiceImplTest.updateVehicle_LocationNotFound.executor": "Run",
+    "JUnit.VehicleServiceTest.executor": "Run",
+    "Maven.todo-application [clean].executor": "Run",
+    "Maven.todo-application [compile].executor": "Run",
+    "Maven.user-management-system [clean].executor": "Run",
+    "Maven.user-management-system [compile].executor": "Run",
+    "Maven.vehicle-rental-system [clean].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "Spring Boot.TodoApplication (1).executor": "Run",
+    "Spring Boot.TodoApplication.executor": "Run",
+    "Spring Boot.UserMSv2Application.executor": "Run",
+    "Spring Boot.UserManagementSystemApplication.executor": "Run",
+    "Spring Boot.UserManagementV2Application.executor": "Run",
+    "Spring Boot.VehicleRentalSystemApplication.executor": "Run",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "python-capstone-develop",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "C:/Users/Prachi Verma/Desktop/Prachi/Assignments/src/Main.java",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "run.configurations.included.in.services": "true",
+    "settings.editor.selected.configurable": "MavenSettings",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Prachi Verma\Desktop\Prachi\Assignments\Java_training\session2" />
+      <recent name="C:\Users\Prachi Verma\Desktop\Prachi\Assignments" />
+      <recent name="C:\Users\Prachi Verma\Desktop\Prachi\Assignments\Java_training\out\production\Assignments" />
+      <recent name="C:\Users\Prachi Verma\Desktop\Prachi\Assignments\Java_training" />
+      <recent name="C:\Users\Prachi Verma\Desktop\Prachi\Assignments\Java_training\session1\basic" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.training.vehiclerentalsystem.service.implementation" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="KtorApplicationConfigurationType" />
+        <option value="MicronautRunConfigurationType" />
+        <option value="QuarkusRunConfigurationType" />
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+    <option name="configurationStatuses">
+      <map>
+        <entry key="SpringBootApplicationConfigurationType">
+          <value>
+            <map>
+              <entry key="VehicleRentalSystemApplication" value="STOPPED" />
+            </map>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.VehicleRentalSystemApplication">
+    <configuration name="UserManagementSystemV2Application" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../../../../Program Files/Java/jdk-21.0.10" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="com.example.user_management_system_v2.UserManagementSystemV2Application" />
+      <module name="Assignments" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.user_management_system_v2.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookingServiceImplTest.cancelBooking_AlreadyStarted" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="vehicle-rental-system" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.training.vehiclerentalsystem.service.implementation.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.training.vehiclerentalsystem.service.implementation" />
+      <option name="MAIN_CLASS_NAME" value="com.training.vehiclerentalsystem.service.implementation.BookingServiceImplTest" />
+      <option name="METHOD_NAME" value="cancelBooking_AlreadyStarted" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookingServiceImplTest.createBooking_BlankDrivingLicense" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="vehicle-rental-system" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.training.vehiclerentalsystem.service.implementation.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.training.vehiclerentalsystem.service.implementation" />
+      <option name="MAIN_CLASS_NAME" value="com.training.vehiclerentalsystem.service.implementation.BookingServiceImplTest" />
+      <option name="METHOD_NAME" value="createBooking_BlankDrivingLicense" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookingServiceImplTest.createBooking_VerifyTotalPriceCalculation" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="vehicle-rental-system" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.training.vehiclerentalsystem.service.implementation.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.training.vehiclerentalsystem.service.implementation" />
+      <option name="MAIN_CLASS_NAME" value="com.training.vehiclerentalsystem.service.implementation.BookingServiceImplTest" />
+      <option name="METHOD_NAME" value="createBooking_VerifyTotalPriceCalculation" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ProfileMapperTest.toProfileResponse_VerifyEmail" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="vehicle-rental-system" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.training.vehiclerentalsystem.mapper.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.training.vehiclerentalsystem.mapper" />
+      <option name="MAIN_CLASS_NAME" value="com.training.vehiclerentalsystem.mapper.ProfileMapperTest" />
+      <option name="METHOD_NAME" value="toProfileResponse_VerifyEmail" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="VehicleServiceImplTest.updateVehicle_LocationNotFound" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="vehicle-rental-system" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.training.vehiclerentalsystem.service.implementation.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.training.vehiclerentalsystem.service.implementation" />
+      <option name="MAIN_CLASS_NAME" value="com.training.vehiclerentalsystem.service.implementation.VehicleServiceImplTest" />
+      <option name="METHOD_NAME" value="updateVehicle_LocationNotFound" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TodoApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="todo-application" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.todo_application.TodoApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserManagementSystemApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="user-management-system" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.user_management_system.UserManagementSystemApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserManagementV2Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="user-management-v2" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.usermanagement.v2.UserManagementV2Application" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="VehicleRentalSystemApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="vehicle-rental-system" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.training.vehiclerentalsystem.VehicleRentalSystemApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.UserManagementSystemV2Application" />
+      <item itemvalue="JUnit.BookingServiceImplTest.cancelBooking_AlreadyStarted" />
+      <item itemvalue="JUnit.BookingServiceImplTest.createBooking_BlankDrivingLicense" />
+      <item itemvalue="JUnit.BookingServiceImplTest.createBooking_VerifyTotalPriceCalculation" />
+      <item itemvalue="JUnit.ProfileMapperTest.toProfileResponse_VerifyEmail" />
+      <item itemvalue="JUnit.VehicleServiceImplTest.updateVehicle_LocationNotFound" />
+      <item itemvalue="Spring Boot.TodoApplication" />
+      <item itemvalue="Spring Boot.UserManagementSystemApplication" />
+      <item itemvalue="Spring Boot.UserManagementV2Application" />
+      <item itemvalue="Spring Boot.VehicleRentalSystemApplication" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.ProfileMapperTest.toProfileResponse_VerifyEmail" />
+        <item itemvalue="JUnit.VehicleServiceImplTest.updateVehicle_LocationNotFound" />
+        <item itemvalue="JUnit.BookingServiceImplTest.cancelBooking_AlreadyStarted" />
+        <item itemvalue="JUnit.BookingServiceImplTest.createBooking_VerifyTotalPriceCalculation" />
+        <item itemvalue="JUnit.BookingServiceImplTest.createBooking_BlankDrivingLicense" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="fc1e261c-0d71-44d8-b462-672873bc7712" name="Changes" comment="" />
+      <created>1775632048499</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1775632048499</updated>
+      <workItem from="1775632050540" duration="27656000" />
+      <workItem from="1775665928818" duration="4338000" />
+      <workItem from="1775808292893" duration="3655000" />
+      <workItem from="1775822561480" duration="52226000" />
+      <workItem from="1776065875870" duration="7364000" />
+      <workItem from="1776191369918" duration="4039000" />
+      <workItem from="1776246532920" duration="10720000" />
+      <workItem from="1776265489239" duration="19040000" />
+      <workItem from="1776326989550" duration="2653000" />
+      <workItem from="1776338924274" duration="16744000" />
+      <workItem from="1776411160913" duration="34803000" />
+      <workItem from="1776495870487" duration="30113000" />
+      <workItem from="1776713467880" duration="329000" />
+      <workItem from="1776748549721" duration="4345000" />
+      <workItem from="1776753644556" duration="758000" />
+      <workItem from="1776756789267" duration="24906000" />
+      <workItem from="1776830505570" duration="63296000" />
+      <workItem from="1776995360760" duration="16591000" />
+      <workItem from="1777035402856" duration="3106000" />
+      <workItem from="1777045047973" duration="9774000" />
+      <workItem from="1777091749779" duration="187000" />
+      <workItem from="1777092499302" duration="11181000" />
+      <workItem from="1777198051334" duration="28022000" />
+      <workItem from="1777309463544" duration="3210000" />
+      <workItem from="1777340827439" duration="9374000" />
+      <workItem from="1777368667110" duration="37610000" />
+      <workItem from="1777463975017" duration="22057000" />
+      <workItem from="1777544721304" duration="14779000" />
+      <workItem from="1777626975806" duration="6355000" />
+      <workItem from="1777651911705" duration="41095000" />
+      <workItem from="1777887532781" duration="19646000" />
+      <workItem from="1777961527524" duration="7857000" />
+      <workItem from="1778055304428" duration="2852000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="dependencySupport" implementationName="java:org.springframework:spring-core" />
+    <option featureType="dependencySupport" implementationName="java:jakarta.validation:jakarta.validation-api" />
+    <option featureType="dependencySupport" implementationName="java:org.springframework.boot:spring-boot" />
+    <option featureType="dependencySupport" implementationName="java:org.springframework:spring-webmvc" />
+    <option featureType="dependencySupport" implementationName="java:org.projectlombok:lombok" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/Main.java</url>
+          <line>11</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Assignments$VehicleRentalSystemApplication.ic" NAME="VehicleRentalSystemApplication Coverage Results" MODIFIED="1777878862798" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.training.vehiclerentalsystem.*</FILTER>
+    </SUITE>
+    <SUITE FILE_PATH="coverage/Assignments$AdminControllerTest.ic" NAME="AdminControllerTest Coverage Results" MODIFIED="1777878983719" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true">
+      <FILTER>com.training.vehiclerentalsystem.controller.*</FILTER>
+    </SUITE>
+  </component>
+</project>
