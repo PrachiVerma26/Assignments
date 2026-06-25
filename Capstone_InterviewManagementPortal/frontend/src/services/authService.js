@@ -5,8 +5,7 @@
 
 import { API_BASE_URL, AUTH_ENDPOINTS } from "../config/api";
 
-/**
- * Authenticates a user.
+/** Authenticates a user.
  * @param {Object} credentials
  * @param {string} credentials.email
  * @param {string} credentials.password
@@ -34,9 +33,7 @@ export const login = async (credentials) => {
         return data;
 
     } catch (error) {
-        if (
-            error instanceof TypeError &&
-            error.message === "Failed to fetch"
+        if (error instanceof TypeError && error.message === "Failed to fetch"
         ) {
             throw new Error("Unable to connect to the server. Please ensure the backend is running.");
         }
@@ -45,43 +42,42 @@ export const login = async (credentials) => {
     }
 };
 
-/**
- * Sends a password reset request.
+/** Sends a password reset request.
  * @param {Object} payload
  * @param {string} payload.email
  * @param {string} payload.newPassword
  * @returns {Promise<Object>} Password reset response.
  */
-export const resetPassword = async ({
-    email,
-    newPassword,
-}) => {
+export const resetPassword = async ({email, currentPassword, newPassword}) => {
     try {
+        // Generate HTTP Basic Authentication token
+        const basicToken = btoa(`${email}:${currentPassword}`);
+
         const response = await fetch(
             `${API_BASE_URL}${AUTH_ENDPOINTS.RESET_PASSWORD}`,
             {
                 method: "POST",
+
                 headers: {
+                    Authorization: `Basic ${basicToken}`,
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({email, new_password: newPassword}),
+
+                body: JSON.stringify({new_password: newPassword}),
             }
         );
 
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.detail ||data.message ||"Password reset failed.");
+            throw new Error(data.message ||data.detail ||"Password reset failed.");
         }
 
         return data;
 
     } catch (error) {
-        if (
-            error instanceof TypeError &&
-            error.message === "Failed to fetch"
-        ) {
-            throw new Error("Unable to connect to the server. Please ensure the backend is running.");
+        if (error.name === "TypeError" && error.message === "Failed to fetch") {
+            throw new Error("Unable to connect to server.");
         }
 
         throw error;

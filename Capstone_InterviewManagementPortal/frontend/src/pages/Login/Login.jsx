@@ -121,7 +121,7 @@ function Login() {
                 <div className="form-group">
                     <div className="form-label-row">
                         <label htmlFor="password">Password</label>
-                        <Link to="/reset-password" className="forgot-password">Forgot Password?</Link>
+                        <Link to="/reset-password" className="forgot-password">Reset Password</Link>
                     </div>
 
                     <div className="password-input-wrapper">
