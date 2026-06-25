@@ -1,7 +1,7 @@
 """Authentication Router """
 
-from fastapi import APIRouter
-from fastapi.security import HTTPBasic
+from fastapi import APIRouter, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from src.schemas.request.login_request import LoginRequest
 from src.schemas.request.reset_password_request import ResetPasswordRequest
 from src.schemas.response.login_response import LoginResponse
@@ -34,14 +34,15 @@ def login(payload: LoginRequest):
     )
 
 @router.post("/reset-password", response_model=SuccessResponse)
-def reset_password(request: ResetPasswordRequest):
+def reset_password_user(request: ResetPasswordRequest, credentials: HTTPBasicCredentials = Depends(security)):
     """
     Reset user's password.
-    Args:- request (ResetPasswordRequest): Password reset request.
-    Returns:- SuccessResponse: Password reset confirmation.
     """
-    app_logger.info(f"Password reset requested for email: {request.email}")
-    reset_password(request)
 
-    app_logger.info(f"Password reset completed for email: {request.email}")
-    return SuccessResponse(message="Password reset successfully.")
+    app_logger.info(f"Password reset requested for email: {credentials.username}")
+
+    reset_password(credentials.username, credentials.password, request.new_password)
+
+    app_logger.info(f"Password reset completed for email: {credentials.username}")
+
+    return SuccessResponse(message="Password reset successfully.")    

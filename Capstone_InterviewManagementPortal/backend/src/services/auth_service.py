@@ -64,22 +64,60 @@ def authenticate_user(email: str, password: str) -> dict:
     return user
 
 
-def reset_password(email: str, new_password: str) -> None:
+def reset_password(
+    email: str,
+    current_password: str,
+    new_password: str,
+) -> None:
     """
     Reset user password.
-    Args: email (str), new_password (str)
-    Raises: UserNotFoundException
+
+    Args:
+        email (str): User email.
+        current_password (str): Current password from HTTP Basic Authentication.
+        new_password (str): New password.
+
+    Raises:
+        UserNotFoundException
+        InvalidCredentialsException
+        PasswordValidationException
     """
 
     email = email.strip().lower()
+
     user = find_user_by_email(email)
 
     if not user:
-        raise UserNotFoundException("User does not exist.")
+        app_logger.warning(
+            f"Password reset failed. User not found: {email}"
+        )
 
-    # Password policy validation
+        raise UserNotFoundException(
+            "User does not exist."
+        )
+
+    # Verify current password
+    if not verify_password(current_password, user["password"]):
+        app_logger.warning(
+            f"Invalid current password for: {email}"
+        )
+
+        raise InvalidCredentialsException(
+            "Current password is incorrect."
+        )
+
+    # Validate new password
     validate_password(new_password)
+
+    # Encode password
     encoded_password = encode_password(new_password)
 
-    update_password_by_email(email, encoded_password)
-    app_logger.info(f"Password reset successful for: {email}")
+    # Update password
+    update_password_by_email(
+        email,
+        encoded_password,
+    )
+
+    app_logger.info(
+        f"Password reset successful for: {email}"
+    )
