@@ -9,6 +9,8 @@ from fastapi import FastAPI
 from src.core.database import Database
 from src.exceptions.exception_handler import register_exception_handlers
 from src.routers.auth_router import router as auth_router
+from src.exceptions.exception_handler import (register_exception_handlers)
+from fastapi.middleware.cors import CORSMiddleware
 from src.seeders.seed_admin import seed_admin
 from src.utils.logger import app_logger
 from src.schemas.response.success_response import SuccessResponse
@@ -42,6 +44,19 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Interview Management Portal API",
     lifespan=lifespan,
+)
+
+# Allowed frontend origins
+origins = [
+    "http://localhost:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Register global exception handlers
