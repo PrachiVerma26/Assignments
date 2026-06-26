@@ -67,7 +67,7 @@ function ResetPassword() {
         }
         else if (newPassword === currentPassword) {
             validationErrors.newPassword ="New password must be different from the current password.";
-        }}
+        }
 
         if (!confirmPassword.trim()) {
             validationErrors.confirmPassword ="Please confirm your password.";
@@ -238,5 +238,5 @@ function ResetPassword() {
             </form>
         </div>
     );
-
+}
 export default ResetPassword;
