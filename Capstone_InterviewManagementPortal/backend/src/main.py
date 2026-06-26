@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from src.core.database import Database
 from src.exceptions.exception_handler import register_exception_handlers
 from src.routers.auth_router import router as auth_router
+from src.routers.user_router import router as user_router
 from src.exceptions.exception_handler import (register_exception_handlers)
 from fastapi.middleware.cors import CORSMiddleware
 from src.seeders.seed_admin import seed_admin
@@ -64,6 +65,8 @@ register_exception_handlers(app)
 
 # Register application routers
 app.include_router(auth_router)
+
+app.include_router(user_router)
 
 @app.get("/", tags=["Health Check"], response_model=SuccessResponse)
 def home():

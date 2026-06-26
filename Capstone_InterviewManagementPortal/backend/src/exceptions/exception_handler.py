@@ -9,6 +9,7 @@ from src.exceptions.auth_exceptions import (
     InvalidRoleException,
     PasswordValidationException
 )
+from src.exceptions.user_exceptions import (DuplicateEmailException)
 
 def register_exception_handlers(app):
     """ Register all application exception handlers."""
@@ -50,5 +51,13 @@ def register_exception_handlers(app):
 
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": str(exc)}
+        )
+    
+    @app.exception_handler(DuplicateEmailException)
+    async def duplicate_email_exception_handler(request: Request, exc: DuplicateEmailException):
+
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
             content={"message": str(exc)}
         )
