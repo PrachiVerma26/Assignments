@@ -26,7 +26,8 @@ def seed_admin() -> None:
         email=admin_email,
         password=encode_password(settings.ADMIN_PASSWORD),
         role=UserRole.ADMIN,
-        status=UserStatus.ACTIVE
+        status=UserStatus.ACTIVE,
+        requires_password_reset=False
     )
 
     create_user(admin_user.model_dump())

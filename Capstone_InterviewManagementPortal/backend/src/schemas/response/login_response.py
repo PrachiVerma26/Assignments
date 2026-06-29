@@ -11,3 +11,4 @@ class LoginResponse(BaseModel):
     email: str
     role: str
     status: str
+    requires_password_reset: bool

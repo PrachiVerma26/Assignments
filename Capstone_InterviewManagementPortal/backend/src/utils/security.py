@@ -69,8 +69,7 @@ def require_roles(current_user: dict,  allowed_roles: List[UserRole],):
     Raises: InvalidRoleException: If the user's role is not authorized.
     """
 
-    if current_user["role"] not in [role.value for role in allowed_roles
-    :
+    if current_user["role"] not in [role.value for role in allowed_roles]:
         raise InvalidRoleException(
             "You are not authorized to perform this operation."
         )

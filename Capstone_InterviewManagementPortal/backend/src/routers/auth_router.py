@@ -30,19 +30,15 @@ def login(payload: LoginRequest):
         name=user["name"],
         email=user["email"],
         role=user["role"],
-        status=user["status"]
+        status=user["status"], 
+        requires_password_reset=user["requires_password_reset"]
     )
 
 @router.post("/reset-password", response_model=SuccessResponse)
 def reset_password_user(request: ResetPasswordRequest, credentials: HTTPBasicCredentials = Depends(security)):
-    """
-    Reset user's password.
-    """
-
+    """Reset user's password."""
     app_logger.info(f"Password reset requested for email: {credentials.username}")
-
     reset_password(credentials.username, credentials.password, request.new_password)
 
     app_logger.info(f"Password reset completed for email: {credentials.username}")
-
     return SuccessResponse(message="Password reset successfully.")    

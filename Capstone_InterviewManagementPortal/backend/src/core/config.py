@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     ADMIN_NAME: str
     ADMIN_EMAIL: str
     ADMIN_PASSWORD: str
+    DEFAULT_USER_PASSWORD: str
 
     # Pydantic settings configuration
     model_config = SettingsConfigDict(

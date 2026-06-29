@@ -26,11 +26,7 @@ class CreateUserResponse(BaseModel):
 
 
 class UserListResponse(BaseModel):
-    """Response returned while fetching users with pagination."""
+    """Response returned while fetching users."""
 
     message: str
     users: List[UserResponse]
-    total: int
-    page: int
-    limit: int
-    total_pages: int
