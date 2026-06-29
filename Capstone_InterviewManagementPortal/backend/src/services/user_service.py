@@ -1,188 +1,178 @@
-"""
-User Service: Complete User Management implementation with all CRUD operations.
+"""User Service: Contains business rules for user management.
 """
 
 from datetime import datetime
-from typing import Optional
-from bson import ObjectId
-from bson.errors import InvalidId
-from pymongo.errors import PyMongoError
-
+from bson import ObjectId, errors as bson_errors
+from src.core.config import settings
 from src.enums.user_status import UserStatus
-from src.models.user import User
-from src.repositories.user_repository import (
-    create_user,
-    find_all_users,
-    find_user_by_email,
-    find_user_by_id,
-    find_users_paginated,
-    update_user,
-    update_user_status,
-)
+from src.repositories import user_repository
 from src.schemas.request.create_user_request import CreateUserRequest
 from src.schemas.request.update_user_request import UpdateUserRequest
+from src.schemas.response.user_response import CreateUserResponse, UserResponse, UserListResponse
 from src.schemas.response.success_response import SuccessResponse
-from src.schemas.response.user_response import (CreateUserResponse, UserListResponse, UserResponse,)
 from src.utils.logger import app_logger
-from src.utils.password_utils import validate_password, encode_password
-from src.exceptions.auth_exceptions import UserNotFoundException
-from src.exceptions.user_exceptions import DuplicateEmailException, UserAlreadyInactiveException
+from src.utils.password_utils import encode_password, validate_password
+from src.exceptions import user_exceptions
+
+def create_new_user(request: CreateUserRequest) -> CreateUserResponse:
+    """Create user."""
+    app_logger.info("Create user request received for: %s", request.email)
+    email = request.email.strip().lower()
+    if user_repository.find_user_by_email(email):
+        raise user_exceptions.DuplicateEmailException("Email already exists.")
+    default_password = settings.DEFAULT_USER_PASSWORD
+    validate_password(default_password)
+    encoded_password = encode_password(default_password)
+    user_data = {
+        "name": request.name.strip(),
+        "email": email,
+        "password": encoded_password,
+        "role": request.role.value,
+        "status": UserStatus.ACTIVE.value,
+        "requires_password_reset": True,
+        "created_at": datetime.utcnow(),
+    }
+    insert_result = user_repository.create_user(user_data)
+    user_data["_id"] = insert_result.inserted_id
+    app_logger.info("User created successfully: %s", insert_result.inserted_id)
+
+    return CreateUserResponse(
+        message="User created successfully.",
+        user=UserResponse(
+            id=str(user_data["_id"]),
+            name=user_data["name"],
+            email=user_data["email"],
+            role=user_data["role"],
+            status=user_data["status"],
+            created_at=user_data["created_at"],
+        ),
+    )
 
 
-def _normalize_email(email: str) -> str:
-    return email.strip().lower()
+def list_users() -> UserListResponse:
+    """List all users."""
+    app_logger.info("List users request received")
+    users = user_repository.find_all_users()
+    user_responses = [
+        UserResponse(
+            id=str(user["_id"]),
+            name=user["name"],
+            email=user["email"],
+            role=user["role"],
+            status=user["status"],
+            created_at=user["created_at"],
+        )
+        for user in users
+    ]
+    app_logger.info("Users listed successfully")
+    return UserListResponse(message="Users retrieved successfully.", users=user_responses)
 
 
-def _validate_unique_email(email: str, exclude_user_id: str | None = None) -> None:
-    existing = find_user_by_email(email)
-    if existing:
-        if exclude_user_id and str(existing.get("_id")) == exclude_user_id:
-            return
-        app_logger.warning("Duplicate email detected: %s", email)
-        raise DuplicateEmailException("Email already exists.")
-
-
-def _build_user_response(user: dict) -> UserResponse:
-    role = user["role"].value if hasattr(user["role"], "value") else user["role"]
-    status = user["status"].value if hasattr(user["status"], "value") else user["status"]
+def get_user_by_id(user_id: str) -> UserResponse:
+    """Get user by ID."""
+    app_logger.info("Get user by ID request received for: %s", user_id)
+    try:
+        ObjectId(user_id)
+    except bson_errors.InvalidId:
+        raise user_exceptions.InvalidObjectIdException("Invalid ObjectId format.")
+    
+    user = user_repository.find_user_by_id(user_id)
+    if not user:
+        raise user_exceptions.UserNotFoundException("User not found.")
+    
+    app_logger.info("User retrieved successfully: %s", user_id)
     return UserResponse(
         id=str(user["_id"]),
         name=user["name"],
         email=user["email"],
-        role=role,
-        status=status,
+        role=user["role"],
+        status=user["status"],
         created_at=user["created_at"],
     )
 
 
-def _get_user_or_raise(user_id: str) -> dict:
+def update_user(user_id: str, request: UpdateUserRequest) -> UserResponse:
+    """Update user."""
+    app_logger.info("Update user request received for: %s", user_id)
     try:
         ObjectId(user_id)
-    except InvalidId:
-        raise UserNotFoundException("User not found.")
-
-    user = find_user_by_id(user_id)
+    except bson_errors.InvalidId:
+        raise user_exceptions.InvalidObjectIdException("Invalid ObjectId format.")
+    
+    user = user_repository.find_user_by_id(user_id)
     if not user:
-        raise UserNotFoundException("User not found.")
-    return user
-
-
-def create_new_user(payload: CreateUserRequest) -> CreateUserResponse:
-    app_logger.info("Create user request received for: %s", payload.email)
-
-    email = _normalize_email(payload.email)
-    _validate_unique_email(email)
-
-    validate_password(payload.password)
-    encoded_password = encode_password(payload.password)
-
-    user = User(
-        name=payload.name.strip(),
-        email=email,
-        password=encoded_password,
-        role=payload.role,
-        status=UserStatus.ACTIVE,
-    )
-
-    try:
-        result = create_user(user.model_dump())
-    except PyMongoError:
-        app_logger.exception("Failed to create user: %s", email)
-        raise
-
-    created = user.model_dump()
-    created["_id"] = result.inserted_id
-
-    app_logger.info("User created successfully: %s", result.inserted_id)
-
-    return CreateUserResponse(
-        message="User created successfully.",
-        user=_build_user_response(created),
-    )
-
-
-def get_user_by_id(user_id: str) -> UserResponse:
-    app_logger.info("Fetching user by ID: %s", user_id)
+        raise user_exceptions.UserNotFoundException("User not found.")
     
-    user = _get_user_or_raise(user_id)
+    update_data = {k: v for k, v in request.model_dump().items() if v is not None}
     
-    app_logger.info("User found: %s", user["email"])
-    return _build_user_response(user)
-
-
-def list_users(
-    page: int = 1,
-    limit: int = 10,
-    search: Optional[str] = None,
-    active: Optional[bool] = None
-    ) -> UserListResponse:
-
-    app_logger.info("Fetching users - page: %d, limit: %d", page, limit)
-    result = find_users_paginated(page, limit, search, active)
-    users = [_build_user_response(user) for user in result["users"]]
-    
-    app_logger.info("Fetched %d users (total: %d)", len(users), result["total"])
-    
-    return UserListResponse(
-        message="Users retrieved successfully.",
-        users=users,
-        total=result["total"],
-        page=result["page"],
-        limit=result["limit"],
-        total_pages=result["total_pages"],
-    )
-
-
-def update_user(user_id: str, payload: UpdateUserRequest) -> UserResponse:
-    app_logger.info("Update user request received for: %s", user_id)
-
-    user = _get_user_or_raise(user_id)
-    
-    # Prepare update data
-    update_data = {}
-    
-    if payload.name:
-        update_data["name"] = payload.name.strip()
-    
-    if payload.email:
-        email = _normalize_email(payload.email)
-        _validate_unique_email(email, user_id)
+    if "email" in update_data:
+        email = update_data["email"].strip().lower()
         update_data["email"] = email
+        existing_user = user_repository.find_user_by_email(email)
+        if existing_user and str(existing_user["_id"]) != user_id:
+            raise user_exceptions.DuplicateEmailException("Email already exists.")
     
-    if payload.role:
-        update_data["role"] = payload.role.value
+    if "name" in update_data:
+        update_data["name"] = update_data["name"].strip()
     
-    # Always update the timestamp
+    if "role" in update_data:
+        update_data["role"] = update_data["role"].value
+    
     update_data["updated_at"] = datetime.utcnow()
-
-    try:
-        update_user(user_id, update_data)
-    except PyMongoError:
-        app_logger.exception("Failed to update user: %s", user_id)
-        raise
-
-    # Fetch updated user
-    updated_user = find_user_by_id(user_id)
+    
+    user_repository.update_user(user_id, update_data)
+    updated_user = user_repository.find_user_by_id(user_id)
     
     app_logger.info("User updated successfully: %s", user_id)
-    return _build_user_response(updated_user)
-
+    return UserResponse(
+        id=str(updated_user["_id"]),
+        name=updated_user["name"],
+        email=updated_user["email"],
+        role=updated_user["role"],
+        status=updated_user["status"],
+        created_at=updated_user["created_at"],
+    )
 
 def disable_user(user_id: str) -> SuccessResponse:
+    """Disable user."""
     app_logger.info("Disable user request received for: %s", user_id)
-
-    user = _get_user_or_raise(user_id)
-    
-    # Check if already inactive
-    current_status = user["status"].value if hasattr(user["status"], "value") else user["status"]
-    if current_status == UserStatus.INACTIVE.value:
-        raise UserAlreadyInactiveException("User is already inactive.")
-
     try:
-        update_user_status(user_id, UserStatus.INACTIVE.value)
-    except PyMongoError:
-        app_logger.exception("Failed to disable user: %s", user_id)
-        raise
+        ObjectId(user_id)
+    except bson_errors.InvalidId:
+        raise user_exceptions.InvalidObjectIdException("Invalid ObjectId format.")
+    user = user_repository.find_user_by_id(user_id)
+    if not user:
+        raise user_exceptions.UserNotFoundException("User not found.")
+    if user["status"] == UserStatus.INACTIVE.value:
+        raise user_exceptions.UserAlreadyInactiveException("User is already inactive.")
+    
+    update_data = { "status": UserStatus.INACTIVE.value, "updated_at": datetime.now()}
 
+    user_repository.update_user(user_id, update_data)
     app_logger.info("User disabled successfully: %s", user_id)
     return SuccessResponse(message="User disabled successfully.")
+
+def enable_user(user_id: str) -> SuccessResponse:
+    """Enable user."""
+    app_logger.info("Enable user request received for: %s", user_id)
+    try:
+        ObjectId(user_id)
+    except bson_errors.InvalidId:
+        raise user_exceptions.InvalidObjectIdException("Invalid ObjectId format.")
+    
+    user = user_repository.find_user_by_id(user_id)
+    if not user:
+        raise user_exceptions.UserNotFoundException("User not found.")
+    
+    if user["status"] == UserStatus.ACTIVE.value:
+        raise user_exceptions.UserAlreadyActiveException("User is already active.")
+    
+    update_data = {
+        "status": UserStatus.ACTIVE.value,
+        "updated_at": datetime.utcnow(),
+    }
+    
+    user_repository.update_user(user_id, update_data)
+    
+    app_logger.info("User enabled successfully: %s", user_id)
+    return SuccessResponse(message="User enabled successfully.")
