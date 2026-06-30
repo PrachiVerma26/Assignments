@@ -1,16 +1,6 @@
-/**
- * Authentication Service: Handles all authentication-related API communication.
- * React components should use this service instead of directly calling the Fetch API.
- */
-
+// Authentication Service: Handles all authentication-related API communication
 import { API_BASE_URL, AUTH_ENDPOINTS } from "../config/api";
 
-/** Authenticates a user.
- * @param {Object} credentials
- * @param {string} credentials.email
- * @param {string} credentials.password
- * @returns {Promise<Object>} Authenticated user details.
- */
 export const login = async (credentials) => {
     try {
         const response = await fetch(
@@ -42,12 +32,6 @@ export const login = async (credentials) => {
     }
 };
 
-/** Sends a password reset request.
- * @param {Object} payload
- * @param {string} payload.email
- * @param {string} payload.newPassword
- * @returns {Promise<Object>} Password reset response.
- */
 export const resetPassword = async ({email, currentPassword, newPassword}) => {
     try {
         // Generate HTTP Basic Authentication token
