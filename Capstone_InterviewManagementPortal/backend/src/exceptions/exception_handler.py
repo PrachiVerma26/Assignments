@@ -2,14 +2,8 @@
 
 from fastapi import (Request,status)
 from fastapi.responses import JSONResponse
-from src.exceptions.auth_exceptions import (
-    UserNotFoundException,
-    InvalidCredentialsException,
-    InactiveUserException,
-    InvalidRoleException,
-    PasswordValidationException
-)
-from src.exceptions.user_exceptions import (DuplicateEmailException)
+from src.exceptions.auth_exceptions import (UserNotFoundException, InvalidCredentialsException, InactiveUserException, InvalidRoleException, PasswordValidationException)
+from src.exceptions.user_exceptions import DuplicateEmailException, UserAlreadyActiveException
 
 def register_exception_handlers(app):
     """ Register all application exception handlers."""
@@ -60,4 +54,11 @@ def register_exception_handlers(app):
         return JSONResponse(
             status_code=status.HTTP_409_CONFLICT,
             content={"message": str(exc)}
+        )
+    
+    @app.exception_handler(UserAlreadyActiveException)
+    async def user_already_active_exception_handler(request, exc):
+        return JSONResponse(
+            status_code=400,
+            content={"success": False, "message": str(exc) }
         )

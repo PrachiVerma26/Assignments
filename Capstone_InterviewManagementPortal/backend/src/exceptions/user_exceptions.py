@@ -11,3 +11,7 @@ class UserAlreadyInactiveException(Exception):
 class InvalidObjectIdException(Exception):
     """ Raised when the supplied MongoDB ObjectId is invalid."""
     pass
+
+class UserAlreadyActiveException(Exception):
+    """Raised when attempting to enable an already active user."""
+    pass
