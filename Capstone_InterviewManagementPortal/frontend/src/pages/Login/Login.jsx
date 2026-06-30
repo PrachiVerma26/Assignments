@@ -39,13 +39,14 @@ function Login() {
             setIsLoading(true);
             const response = await login({email: email.trim(), password});
 
-            // Save authenticated user details
+            // Save authenticated user details including password for API authentication
             saveSession({
                 id: response.id,
                 name: response.name,
                 email: response.email,
                 role: response.role,
                 status: response.status,
+                password: password, // Store password for API authentication
             });
 
             // Redirect based on user role

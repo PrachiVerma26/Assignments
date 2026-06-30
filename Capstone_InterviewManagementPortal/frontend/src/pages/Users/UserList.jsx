@@ -232,14 +232,6 @@ return (
                                             </td>
                                             <td>{formatDate(user.created_at)}</td>
                                             <td className="actions-cell">
-                                                <button 
-                                                    className="edit-btn" 
-                                                    onClick={() => handleEditUser(user.id)} 
-                                                    title="Edit user"
-                                                    disabled={isUserLoading}
-                                                >
-                                                    Edit
-                                                </button>
                                                 <div className="action-menu-container">
                                                     <button className="menu-btn"  onClick={() => handleUserActions(user.id)} title="More actions" disabled={isUserLoading}> {isUserLoading ? "Loading..." : "⋮"}</button>
                                                     {activeActionMenu === user.id && (
@@ -247,7 +239,7 @@ return (
                                                             {user.status === 'ACTIVE' ? (
                                                                 <button className="dropdown-action" onClick={() => handleDisableUser(user.id)} disabled={isUserLoading}>Disable User</button>) : (
                                                                 <button className="dropdown-action" onClick={() => handleEnableUser(user.id)} disabled={isUserLoading}>Enable User</button>)}
-                                                            <button className="dropdown-action" onClick={() => handleEditUser(user.id)}disabled={isUserLoading}>Edit User</button>
+                                                            <button className="dropdown-action" onClick={() => handleEditUser(user.id)} disabled={isUserLoading}>Edit User</button>
                                                         </div>)}
                                                 </div>
                                             </td>

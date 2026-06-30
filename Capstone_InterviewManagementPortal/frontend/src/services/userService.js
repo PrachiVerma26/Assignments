@@ -4,10 +4,10 @@ import { getSession } from "../utils/session";
 
 const getAuthHeaders = () => {
     const session = getSession();
-    if (!session || !session.email) {
+    if (!session || !session.email || !session.password) {
         throw new Error("No valid session found. Please login again.");
     }
-    const basicToken = btoa(`${session.email}:Admin@123`);
+    const basicToken = btoa(`${session.email}:${session.password}`);
     return {
         "Content-Type": "application/json",
         "Authorization": `Basic ${basicToken}`,
