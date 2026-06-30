@@ -4,6 +4,7 @@ from fastapi import (Request,status)
 from fastapi.responses import JSONResponse
 from src.exceptions.auth_exceptions import (UserNotFoundException, InvalidCredentialsException, InactiveUserException, InvalidRoleException, PasswordValidationException)
 from src.exceptions.user_exceptions import DuplicateEmailException, UserAlreadyActiveException
+from src.exceptions.job_exceptions import JobNotFoundException, DuplicateJobTitleException
 
 def register_exception_handlers(app):
     """ Register all application exception handlers."""
@@ -61,4 +62,18 @@ def register_exception_handlers(app):
         return JSONResponse(
             status_code=400,
             content={"success": False, "message": str(exc) }
+        )
+    
+    @app.exception_handler(JobNotFoundException)
+    async def job_not_found_handler(request: Request, exc: JobNotFoundException):
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": str(exc)}
+        )
+    
+    @app.exception_handler(DuplicateJobTitleException)
+    async def duplicate_job_title_handler(request: Request, exc: DuplicateJobTitleException):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": str(exc)}
         )

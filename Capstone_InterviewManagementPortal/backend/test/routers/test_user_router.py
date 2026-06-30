@@ -1,66 +1,82 @@
-from datetime import datetime,UTC
+"""Unit tests for user router endpoints."""
+
+import pytest
+from datetime import datetime, UTC
 from fastapi.testclient import TestClient
 from src.main import app
+from src.enums.role_types import UserRole
 from src.utils.security import get_current_user
 
-def test_create_user_success(mocker):
-    # Mock the dependency
-    def mock_get_current_user():
-        return {"_id":"admin_id","email":"admin@nucleusteq.com","role":"ADMIN"}
+
+@pytest.fixture(autouse=True)
+def clear_dependency_overrides():
+    app.dependency_overrides.clear()
+    yield
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def client():
+    return TestClient(app)
+
+
+@pytest.fixture
+def override_current_user():
+    def _override(role=UserRole.ADMIN.value, email="admin@nucleusteq.com"):
+        app.dependency_overrides[get_current_user] = lambda: {
+            "_id": "admin_id",
+            "email": email,
+            "role": role,
+        }
+    return _override
+
+
+def test_create_user_success(client, mocker, override_current_user):
+    override_current_user()
     
-    app.dependency_overrides[get_current_user] = mock_get_current_user
-    
-    # Mock service function
     mock_response = {
-        "message":"User created successfully.",
-        "user":{
-            "id":"123",
-            "name":"John Doe",
-            "email":"john@nucleusteq.com",
-            "role":"INTERVIEWER",
-            "status":"ACTIVE",
-            "created_at":datetime.now(UTC).isoformat()
+        "message": "User created successfully.",
+        "user": {
+            "id": "123",
+            "name": "John Doe",
+            "email": "john@nucleusteq.com",
+            "role": "INTERVIEWER",
+            "status": "ACTIVE",
+            "created_at": datetime.now(UTC).isoformat()
         }
     }
-    mocker.patch("src.services.user_service.create_new_user",return_value=mock_response)
+    mock_create_user = mocker.patch(
+        "src.routers.user_router.user_service.create_new_user",
+        return_value=mock_response
+    )
     
-    client = TestClient(app)
-    response = client.post("/users",json={
-        "name":"John Doe",
-        "email":"john@nucleusteq.com",
-        "role":"INTERVIEWER"
+    response = client.post("/users", json={
+        "name": "John Doe",
+        "email": "john@nucleusteq.com",
+        "role": "INTERVIEWER"
     })
-    
-    # Cleanup
-    app.dependency_overrides = {}
     
     assert response.status_code == 201
     assert response.json()["message"] == "User created successfully."
+    mock_create_user.assert_called_once()
 
-def test_create_user_unauthorized(mocker):
-    # Mock non-admin user
-    def mock_get_current_user():
-        return {"_id":"user_id","email":"user@nucleusteq.com","role":"INTERVIEWER"}
+
+def test_create_user_unauthorized(client, mocker, override_current_user):
+    override_current_user(role=UserRole.INTERVIEWER.value)
+    mock_create_user = mocker.patch("src.routers.user_router.user_service.create_new_user")
     
-    app.dependency_overrides[get_current_user] = mock_get_current_user
-    
-    client = TestClient(app)
-    response = client.post("/users",json={
-        "name":"John Doe",
-        "email":"john@nucleusteq.com", 
-        "role":"INTERVIEWER"
+    response = client.post("/users", json={
+        "name": "John Doe",
+        "email": "john@nucleusteq.com", 
+        "role": "INTERVIEWER"
     })
     
-    # Cleanup
-    app.dependency_overrides = {}
-    
     assert response.status_code == 403
+    mock_create_user.assert_not_called()
 
-def test_list_users_success(mocker):
-    def mock_get_current_user():
-        return {"_id":"admin_id","role":"ADMIN"}
-    
-    app.dependency_overrides[get_current_user] = mock_get_current_user
+
+def test_list_users_success(client, mocker, override_current_user):
+    override_current_user()
     
     mock_response = {
         "message":"Users retrieved successfully.",
