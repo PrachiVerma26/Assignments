@@ -15,3 +15,11 @@ export const USER_ENDPOINTS = {
     UPDATE_USER: "/users",
     UPDATE_STATUS: "/users",
 };
+
+/* Job Management API endpoints.*/
+export const JOB_ENDPOINTS = {
+    LIST_JOBS: "/jobs",
+    GET_JOB: "/jobs",
+    CREATE_JOB: "/jobs",
+    UPDATE_JOB: "/jobs",
+};
