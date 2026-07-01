@@ -1,0 +1,26 @@
+.dashboard-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 2rem;
+    align-self: flex-start;
+}
+
+.dashboard-card {
+    width: 420px;
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-card h2 {
+    color: #1550c8;
+    margin-bottom: 1rem;
+}
+
+.dashboard-card p {
+    margin: 10px 0;
+    color: #555;
+}
