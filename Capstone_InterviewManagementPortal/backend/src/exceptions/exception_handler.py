@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from src.exceptions.auth_exceptions import (UserNotFoundException, InvalidCredentialsException, InactiveUserException, InvalidRoleException, PasswordValidationException)
 from src.exceptions.user_exceptions import DuplicateEmailException, UserAlreadyActiveException
 from src.exceptions.job_exceptions import JobNotFoundException, DuplicateJobTitleException
+from src.exceptions.candidate_exceptions import CandidateNotFoundException, CandidateEmailAlreadyExistsException, CandidateMobileAlreadyExistsException, InvalidNucleusTeqEmailException
 
 def register_exception_handlers(app):
     """ Register all application exception handlers."""
@@ -73,6 +74,34 @@ def register_exception_handlers(app):
     
     @app.exception_handler(DuplicateJobTitleException)
     async def duplicate_job_title_handler(request: Request, exc: DuplicateJobTitleException):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": str(exc)}
+        )
+
+    @app.exception_handler(CandidateNotFoundException)
+    async def candidate_not_found_handler(request: Request, exc: CandidateNotFoundException):
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"message": str(exc)}
+        )
+
+    @app.exception_handler(CandidateEmailAlreadyExistsException)
+    async def candidate_email_exists_handler(request: Request, exc: CandidateEmailAlreadyExistsException):
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
+            content={"message": str(exc)}
+        )
+
+    @app.exception_handler(CandidateMobileAlreadyExistsException)
+    async def candidate_mobile_exists_handler(request: Request, exc: CandidateMobileAlreadyExistsException):
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT,
+            content={"message": str(exc)}
+        )
+
+    @app.exception_handler(InvalidNucleusTeqEmailException)
+    async def invalid_nucleusteq_email_handler(request: Request, exc: InvalidNucleusTeqEmailException):
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={"message": str(exc)}

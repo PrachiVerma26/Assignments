@@ -11,8 +11,7 @@ class Candidate(BaseModel):
     current_company: str
     total_experience: float
     applied_job_id: str
-    status: CandidateStatus = CandidateStatus.PROFILE_CREATED
+    status: CandidateStatus = CandidateStatus.PROFILE_CREATED       # default status set to profile created
     resume_file_id: Optional[str] = None
-    created_by: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = None
