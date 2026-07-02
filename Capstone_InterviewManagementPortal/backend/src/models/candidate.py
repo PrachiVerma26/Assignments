@@ -1,20 +1,18 @@
 from datetime import datetime
-from pydantic import (BaseModel, EmailStr,Field)
-from src.enums.candidate_status import (CandidateStatus)
+from typing import Optional
+from pydantic import BaseModel, EmailStr, Field
+from src.enums.candidate_status import CandidateStatus
 
 class Candidate(BaseModel):
-    """
-    Represents a candidate applying for a job.
-    A candidate record is created by an HR user and can later be linked to multiple interviews.
-    """
-
-    name: str
+    first_name: str
+    last_name: str
     email: EmailStr
-    phone: str
-    experience: int
-    resume_path: str
-    status: CandidateStatus
-
-    # Stores the user_id of the HR/Admin who created the candidate profile.
+    mobile: str
+    current_company: str
+    total_experience: float
+    applied_job_id: str
+    status: CandidateStatus = CandidateStatus.PROFILE_CREATED
+    resume_file_id: Optional[str] = None
     created_by: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = None
