@@ -9,26 +9,14 @@ import { saveSession } from "../../utils/session";
 import "./Login.css";
 
 function Login() {
-    // Form State
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
-    // Password Visibility State
     const [showPassword, setShowPassword] = useState(false);
-
-    // Validation & API Error State
     const [errors, setErrors] = useState({});
     const [apiError, setApiError] = useState("");
-
-    // Loading State
     const [isLoading, setIsLoading] = useState(false);
-
-    // React Router navigation
     const navigate = useNavigate();
 
-    /** Validates login form.
-     * @returns {boolean}
-     */
     const validateForm = () => {
         const validationErrors = {};
 
@@ -45,17 +33,14 @@ function Login() {
         }
 
         setErrors(validationErrors);
-
         return Object.keys(validationErrors).length === 0;
     };
 
     /** Handles login submission.*/
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         // Clear previous API errors
         setApiError("");
-
         // Validate form
         if (!validateForm()) {
             return;
@@ -63,7 +48,6 @@ function Login() {
 
         try {
             setIsLoading(true);
-
             const response = await login({
                 email: email.trim(),
                 password,
@@ -81,9 +65,7 @@ function Login() {
             // Redirect to dashboard
             navigate("/dashboard");
         } catch (error) {
-            setApiError(
-                error.message || "Unable to sign in."
-            );
+            setApiError(error.message || "Unable to sign in.");
         } finally {
             setIsLoading(false);
         }
@@ -95,29 +77,20 @@ function Login() {
                 <h1>Interview Management Portal</h1>
                 <p className="login-subtitle"> Sign in to your account</p>
 
-                {/* API Error */}
                 {apiError && (<p className="api-error">{apiError} </p>)}
-
-                {/* Email */}
                 <div className="form-group">
                     <label htmlFor="email">Email</label>
 
                     <input id="email" type="email" placeholder="Enter your email" value={email}
                         onChange={(event) => {
                             setEmail(event.target.value);
-                            setErrors((previous) => ({
-                                ...previous,
-                                email: "",
-                            }));
+                            setErrors((previous) => ({...previous, email: "",}));
                         }}
                     />
 
-                    {errors.email && (
-                        <p className="error-message">{errors.email}</p>
-                    )}
+                    {errors.email && (<p className="error-message">{errors.email}</p>)}
                 </div>
 
-                {/* Password */}
                 <div className="form-group">
                     <div className="form-label-row">
                         <label htmlFor="password">Password</label>
@@ -128,10 +101,7 @@ function Login() {
                         <input id="password" type={ showPassword ? "text": "password"} placeholder="Enter your password" value={password}
                             onChange={(event) => {
                                 setPassword(event.target.value);
-                                setErrors((previous) => ({
-                                    ...previous,
-                                    password: "",
-                                }));
+                                setErrors((previous) => ({...previous, password: ""}));
                             }}
                         />
 
@@ -140,9 +110,7 @@ function Login() {
                         </button>
                     </div>
 
-                    {errors.password && (
-                        <p className="error-message">{errors.password}</p>
-                    )}
+                    {errors.password && (<p className="error-message">{errors.password}</p>)}
                 </div>
 
                 <button type="submit" className="login-button" disabled={isLoading}>
