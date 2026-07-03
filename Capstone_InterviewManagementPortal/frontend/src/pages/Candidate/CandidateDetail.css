@@ -1,0 +1,98 @@
+.cd-page {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.cd-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.cd-breadcrumb-link {
+    color: #1550c8;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.cd-breadcrumb-link:hover { text-decoration: underline; }
+
+.cd-breadcrumb-sep { color: #9ca3af; }
+
+.cd-breadcrumb-current { color: #6b7280; }
+
+.cd-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.cd-subtitle {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0 0 1rem;
+}
+
+.cd-state {
+    padding: 1rem;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.cd-state.error {
+    color: #dc2626;
+    background: #fef2f2;
+    border-radius: 8px;
+    border: 1px solid #fecaca;
+}
+
+.cd-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.cd-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    align-items: start;
+    padding: 18px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    gap: 1rem;
+}
+
+.cd-row:last-child { border-bottom: none; }
+
+.cd-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.cd-value {
+    font-size: 0.9rem;
+    color: #374151;
+    line-height: 1.6;
+}
+
+.cd-back-btn {
+    align-self: flex-start;
+    margin-top: 0.75rem;
+    padding: 10px 20px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    color: #374151;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.cd-back-btn:hover { background: #f3f4f6; }
