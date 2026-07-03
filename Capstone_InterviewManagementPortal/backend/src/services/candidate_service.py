@@ -4,7 +4,7 @@ from datetime import datetime
 from bson import ObjectId
 from bson.errors import InvalidId
 from src.enums.candidate_status import CandidateStatus
-from src.exceptions import candidate_exceptions 
+from src.exceptions.candidate_exceptions import CandidateEmailAlreadyExistsException, CandidateMobileAlreadyExistsException, InvalidNucleusTeqEmailException, CandidateNotFoundException
 from src.models.candidate import Candidate
 from src.repositories import candidate_repository
 from src.schemas.response.candidate_response import CandidateResponse, CandidateListResponse, CreateCandidateResponse
@@ -15,10 +15,10 @@ def _get_candidate_or_raise(candidate_id: str) -> dict:
     try:
         ObjectId(candidate_id)
     except InvalidId:
-        raise candidate_exceptions.CandidateNotFoundException("Candidate not found.")
+        raise CandidateNotFoundException("Candidate not found.")
     candidate = candidate_repository.get_candidate_by_id(candidate_id)
     if not candidate:
-        raise candidate_repository.CandidateNotFoundException("Candidate not found.")
+        raise CandidateNotFoundException("Candidate not found.")
     return candidate
 
 def _build_candidate_response(candidate: dict) -> CandidateResponse:
