@@ -2,17 +2,20 @@
 User repository: Contains only MongoDB operations related to user collection.
 """
 
-from src.core.database import db
+from src.core.database import Database
 from src.constants.auth_constants import USER_COLLECTION
 
-def find_user_by_email(email: str):
-    return db[USER_COLLECTION].find_one({"email": email.lower()})
+def get_user_collection():
+    return Database.get_database()[USER_COLLECTION]
 
-def create_user(user_data: dict):
-    return db[USER_COLLECTION].insert_one(user_data)
+async def find_user_by_email(email: str):
+    return await get_user_collection().find_one({"email": email.lower()})
 
-def update_password_by_email(email: str, encoded_password: str):
-    return db[USER_COLLECTION].update_one(
+async def create_user(user_data: dict):
+    return await get_user_collection().insert_one(user_data)
+
+async def update_password_by_email(email: str, encoded_password: str):
+    return await get_user_collection().update_one(
         {"email": email.lower()},
         {"$set": {"password": encoded_password}}
     )
