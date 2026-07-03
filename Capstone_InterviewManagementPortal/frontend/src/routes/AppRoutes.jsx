@@ -8,6 +8,9 @@ import Dashboard from "../pages/Dashboard/Dashboard";
 import UserList from "../pages/Users/UserList";
 import JobList from "../pages/Jobs/JobList";
 import JobDetail from "../pages/Jobs/JobDetail";
+import CandidateList from "../pages/Candidate/CandidateList";
+import CandidateDetail from "../pages/Candidate/CandidateDetail";
+import CandidateRegistration from "../pages/Candidate/CandidateRegistration";
 
 function AppRoutes() {
     return (
@@ -21,6 +24,10 @@ function AppRoutes() {
             <Route path="/jobs/:id" element={<JobDetail />}/>
             <Route path="/jobs/create" element={<Navigate to="/jobs" replace />}/>
             <Route path="/jobs/:id/edit" element={<Navigate to="/jobs" replace />}/>
+            <Route path="/candidates" element={<CandidateList />}/>
+            <Route path="/candidates/create" element={<CandidateRegistration />}/>
+            <Route path="/candidates/:id" element={<CandidateDetail />}/>
+            <Route path="/candidates/:id/edit" element={<CandidateRegistration />}/>
         </Routes>
     );
 }
