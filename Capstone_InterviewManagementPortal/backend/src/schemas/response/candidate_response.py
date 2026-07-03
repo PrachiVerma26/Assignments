@@ -5,6 +5,7 @@ from src.enums.candidate_status import CandidateStatus
 
 
 class CandidateResponse(BaseModel):
+    id: str
     first_name: str
     last_name: str
     email: EmailStr

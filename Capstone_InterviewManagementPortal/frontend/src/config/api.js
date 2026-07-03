@@ -23,3 +23,11 @@ export const JOB_ENDPOINTS = {
     CREATE_JOB: "/jobs",
     UPDATE_JOB: "/jobs",
 };
+
+/* Candidate Management API endpoints.*/
+export const CANDIDATE_ENDPOINTS = {
+    LIST_CANDIDATES: "/candidates",
+    GET_CANDIDATE: "/candidates",
+    CREATE_CANDIDATE: "/candidates",
+    UPDATE_CANDIDATE: "/candidates",
+};

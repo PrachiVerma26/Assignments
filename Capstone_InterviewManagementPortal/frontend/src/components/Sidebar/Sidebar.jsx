@@ -13,6 +13,10 @@ function Sidebar() {
                     <span>Job</span>
                 </NavLink>
 
+                <NavLink to="/candidates" className={({ isActive }) =>`sidebar-link${isActive ? " active" : ""}`}>
+                    <span>Candidate</span>
+                </NavLink>
+
             </nav>
         </aside>
     );

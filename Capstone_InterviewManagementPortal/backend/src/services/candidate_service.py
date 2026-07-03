@@ -24,6 +24,7 @@ def _get_candidate_or_raise(candidate_id: str) -> dict:
 def _build_candidate_response(candidate: dict) -> CandidateResponse:
     """Convert a candidate document to a CandidateResponse."""
     return CandidateResponse(
+        id=str(candidate["_id"]),
         first_name=candidate["first_name"],
         last_name=candidate["last_name"],
         email=candidate["email"],
