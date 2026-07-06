@@ -5,4 +5,5 @@ from pydantic import BaseModel
 class ResetPasswordRequest(BaseModel):
     """Password reset request payload."""
 
+    old_password: str
     new_password: str

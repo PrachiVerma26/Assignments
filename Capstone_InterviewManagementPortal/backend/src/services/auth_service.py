@@ -2,30 +2,18 @@ from src.constants.auth_constants import ALLOWED_ROLES
 from src.enums.user_status import UserStatus
 from src.repositories.user_repository import (find_user_by_email, update_password_by_email)
 from src.utils.password_utils import (verify_password, encode_password, validate_password)
-from src.exceptions.auth_exceptions import (
-    UserNotFoundException,
-    InvalidCredentialsException,
-    InactiveUserException,
-    InvalidRoleException
-)
+from src.exceptions.auth_exceptions import UserNotFoundException, InvalidCredentialsException, InactiveUserException, InvalidRoleException, PasswordValidationException
 from src.utils.logger import app_logger
 
 def validate_role(role):
-    """
-    Validate user role.
-    """
-
+    """ Validate user role."""
     if role not in ALLOWED_ROLES:
         raise InvalidRoleException("User has an invalid role.")
 
 async def authenticate_user(email: str, password: str) -> dict:
-    """
-    Authenticate user using email and password.
-    """
-
+    """ Authenticate user using email and password. """
     email = email.strip().lower()
     user = await find_user_by_email(email)
-
     if not user:
         app_logger.warning(f"Login failed. User not found: {email}")
         raise UserNotFoundException("User does not exist.")
@@ -43,10 +31,8 @@ async def authenticate_user(email: str, password: str) -> dict:
     app_logger.info(f"User login successful: {email}")
     return user
 
-async def reset_password(email: str, new_password: str) -> None:
-    """
-    Reset user password.
-    """
+async def reset_password(email: str, old_password: str, new_password: str) -> None:
+    """ Reset user password. """
 
     email = email.strip().lower()
     user = await find_user_by_email(email)
@@ -54,6 +40,15 @@ async def reset_password(email: str, new_password: str) -> None:
     if not user:
         raise UserNotFoundException("User does not exist.")
 
+    # verifying the old password
+    if not verify_password(old_password, user["password"]):
+        app_logger.warning(f"Invalid old password for: {email}")
+        raise InvalidCredentialsException("Old password is incorrect.")
+    
+    # preventing user to use the old password as their new password
+    if verify_password(new_password, user["password"]):
+        raise PasswordValidationException("New password cannot be the same as the current password.")
+    
     # Password policy validation
     validate_password(new_password)
     encoded_password = encode_password(new_password)

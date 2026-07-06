@@ -82,20 +82,19 @@ def test_validate_role_invalid():
 async def test_reset_password_success(mocker):
     """Verify password reset updates the user's password successfully."""
 
-    mocker.patch("src.services.auth_service.find_user_by_email", return_value={"email": "admin@nucleusteq.com"})
-    mocker.patch("src.services.auth_service.validate_password")
-    mocker.patch("src.services.auth_service.encode_password", return_value="encoded_password")
-
+    mocker.patch("src.services.auth_service.find_user_by_email", return_value={"email": "admin@nucleusteq.com", "password": "encoded_old_password"})
+    mocker.patch("src.services.auth_service.verify_password", side_effect = [True, False])
+    mock_validate = mocker.patch("src.services.auth_service.validate_password")
+    mocker.patch("src.services.auth_service.encode_password", return_value="encoded_new_password")
     mock_update = mocker.patch("src.services.auth_service.update_password_by_email")
-    await reset_password("admin@nucleusteq.com", "NewPassword@123")
-
-    mock_update.assert_called_once_with("admin@nucleusteq.com", "encoded_password")
+    await reset_password("admin@nucleusteq.com", "OldPassword@123", "NewPassword@123")
+    mock_validate.assert_called_once_with("NewPassword@123")
+    mock_update.assert_called_once_with("admin@nucleusteq.com", "encoded_new_password")
 
 @pytest.mark.asyncio
 async def test_reset_password_user_not_found(mocker):
     """Test password reset with non-existent user."""
 
     mocker.patch("src.services.auth_service.find_user_by_email", return_value=None)
-
     with pytest.raises(UserNotFoundException):
-        await reset_password("invalid@nucleusteq.com", "NewPassword@123")
+        await reset_password("invalid@nucleusteq.com", "OldPassword@123", "NewPassword@123")
