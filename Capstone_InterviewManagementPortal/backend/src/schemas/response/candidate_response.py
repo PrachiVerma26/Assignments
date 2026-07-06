@@ -29,3 +29,22 @@ class CandidateListResponse(BaseModel):
     page: int
     limit: int
     total_pages: int
+
+class ResumeUploadResponse(BaseModel):
+    message: str
+    resume_file_id: str
+
+class StatusHistoryEntry(BaseModel):
+    previous_status: Optional[str] = None
+    new_status: str
+    updated_at: datetime
+    updated_by: Optional[str] = None
+
+class CandidateStatusUpdateResponse(BaseModel):
+    message: str
+    candidate_id: str
+    status: CandidateStatus
+
+class StatusHistoryResponse(BaseModel):
+    candidate_id: str
+    status_history: List[StatusHistoryEntry]
