@@ -11,3 +11,7 @@ class UserAlreadyInactiveException(Exception):
 class InvalidObjectIdException(Exception):
     """ Raised when the supplied MongoDB ObjectId is invalid."""
     pass
+
+class InvalidEmailDomainException(Exception):
+    """Raised when the email is not from the company domain."""
+    pass

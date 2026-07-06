@@ -25,12 +25,12 @@ async def lifespan(app: FastAPI):
 
     try:
         app_logger.info("Application startup initiated.")
+        await Database.connect()
 
         # Execute startup tasks
-        seed_admin()
+        await seed_admin()
 
         app_logger.info("Application startup completed successfully.")
-
         yield
 
     finally:
@@ -71,10 +71,6 @@ app.include_router(user_router)
 @app.get("/", tags=["Health Check"], response_model=SuccessResponse)
 def home():
     """
-    Health check endpoint.
-    Returns:- SuccessResponse: Confirms that the application is running.
-    """
-
+    Health check endpoint."""
     app_logger.info("Health check endpoint accessed.")
-
     return SuccessResponse(message="Interview Management Portal Backend Running")

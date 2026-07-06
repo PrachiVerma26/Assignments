@@ -7,28 +7,19 @@ import { resetPassword } from "../../services/authService";
 import "./ResetPassword.css";
 
 function ResetPassword() {
-    // Form State
     const [email, setEmail] = useState("");
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-
-    // Password Visibility
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-    // Validation & API State
     const [errors, setErrors] = useState({});
     const [apiError, setApiError] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
-
-    // Loading State
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    /** Validates the reset password form.
-     @returns {boolean} */
     const validateForm = () => {
         const validationErrors = {};
 
@@ -82,23 +73,17 @@ function ResetPassword() {
     /** Handles password reset.*/
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         setApiError("");
         setSuccessMessage("");
-
         if (!validateForm()) {
             return;
         }
 
         try {
             setIsLoading(true);
-
             const response = await resetPassword({email: email.trim(), currentPassword,newPassword});
             setSuccessMessage(response.message);
-            setTimeout(() => {
-                navigate("/login");
-            }, 1500);
-
+            setTimeout(() => {navigate("/login");}, 1500);
         } catch (error) {
             setApiError(error.message);
         } finally {
@@ -111,36 +96,23 @@ function ResetPassword() {
             <form className="login-form" onSubmit={handleSubmit}>
                 <h1>Reset Password</h1>
                 <p className="login-subtitle">Verify your current credentials and create a new password. </p>
+                {apiError && (<p className="api-error"> {apiError}</p>)}
+                {successMessage && (<p className="success-message">{successMessage}</p>)}
 
-                {apiError && (
-                    <p className="api-error"> {apiError}</p>
-                )}
-
-                {successMessage && (
-                    <p className="success-message">{successMessage}</p>
-                )}
-
-                {/* Email */}
                 <div className="form-group">
                     <label htmlFor="email"> Email</label>
-
                     <input id="email" type="email" placeholder="Enter your email" value={email}
                         onChange={(event) => {
                             setEmail(event.target.value);
-
                             setErrors((previous) => ({...previous, email: ""}));
                         }}
                     />
 
-                    {errors.email && (
-                        <p className="error-message">{errors.email}</p>
-                    )}
+                    {errors.email && (<p className="error-message">{errors.email}</p>)}
                 </div>
 
-                {/* Current Password */}
                 <div className="form-group">
                     <label htmlFor="currentPassword">Current Password</label>
-
                     <div className="password-input-wrapper">
                         <input id="currentPassword"
                             type={ showCurrentPassword? "text": "password"}
@@ -148,26 +120,17 @@ function ResetPassword() {
                             value={currentPassword}
                             onChange={(event) => {
                                 setCurrentPassword(event.target.value);
-
                                 setErrors((previous) => ({...previous, currentPassword: ""}));
                             }}
                         />
 
                         <button type="button" className="toggle-password"
-                            onClick={() =>
-                                setShowCurrentPassword((previous) => !previous)
-                            }
-                        >
-                            {showCurrentPassword? "Hide": "Show"}
+                            onClick={() =>setShowCurrentPassword((previous) => !previous)}>{showCurrentPassword? "Hide": "Show"}
                         </button>
                     </div>
-
-                    {errors.currentPassword && (
-                        <p className="error-message">{errors.currentPassword}</p>
-                    )}
+                    {errors.currentPassword && (<p className="error-message">{errors.currentPassword}</p>)}
                 </div>
 
-                {/* New Password */}
                 <div className="form-group">
                     <label htmlFor="newPassword">New Password</label>
                     <div className="password-input-wrapper">
@@ -178,29 +141,19 @@ function ResetPassword() {
                             value={newPassword}
                             onChange={(event) => {
                                 setNewPassword(event.target.value);
-
                                 setErrors((previous) => ({...previous, newPassword: ""}));
                             }}
                         />
 
                         <button type="button" className="toggle-password"
-                            onClick={() =>
-                                setShowNewPassword((previous) => !previous)
-                            }
-                        >
-                            {showNewPassword? "Hide": "Show"}
+                            onClick={() =>setShowNewPassword((previous) => !previous)}>{showNewPassword? "Hide": "Show"}
                         </button>
                     </div>
-
-                    {errors.newPassword && (
-                        <p className="error-message">{errors.newPassword}</p>
-                    )}
+                    {errors.newPassword && (<p className="error-message">{errors.newPassword}</p>)}
                 </div>
 
-                {/* Confirm Password */}
                 <div className="form-group">
                     <label htmlFor="confirmPassword">Confirm Password</label>
-
                     <div className="password-input-wrapper">
                         <input
                             id="confirmPassword"
@@ -209,32 +162,20 @@ function ResetPassword() {
                             value={confirmPassword}
                             onChange={(event) => {
                                 setConfirmPassword(event.target.value);
-
                                 setErrors((previous) => ({...previous, confirmPassword: ""}));
                             }}
                         />
-
                         <button type="button" className="toggle-password"
-                            onClick={() =>
-                                setShowConfirmPassword((previous) => !previous)
-                            }
-                        >
+                            onClick={() =>setShowConfirmPassword((previous) => !previous)}>
                             {showConfirmPassword ? "Hide" : "Show"}
                         </button>
                     </div>
-
-                    {errors.confirmPassword && (
-                        <p className="error-message">{errors.confirmPassword}</p>
-                    )}
+                    {errors.confirmPassword && (<p className="error-message">{errors.confirmPassword}</p>)}
                 </div>
-
                 <button type="submit" className="login-button" disabled={isLoading}>
                     {isLoading ? "Resetting...": "Reset Password"}
                 </button>
-
-                <p className="login-footer"> Back to{" "}
-                    <Link to="/login">Sign In</Link>
-                </p>
+                <p className="login-footer"> Back to{" "}<Link to="/login">Sign In</Link></p>
             </form>
         </div>
     );

@@ -1,4 +1,4 @@
-from pymongo import MongoClient
+from motor.motor_asyncio import AsyncIOMotorClient
 from src.core.config import settings
 from src.utils.logger import app_logger  # Use centralized logger
 from pymongo.errors import PyMongoError
@@ -9,23 +9,23 @@ class Database:
     database instance throughout the application.
     """
     
-    client = None
+    client: AsyncIOMotorClient | None = None
     db = None
 
     @classmethod
-    def connect(cls):
+    async def connect(cls):
         try:
-            app_logger.info("Connecting to MongoDB...")
-            cls.client = MongoClient(
-                settings.MONGO_URI,
-                serverSelectionTimeoutMS=5000
-            )
+            if cls.client is None:
+                app_logger.info("Connecting to MongoDB...")
+                cls.client = AsyncIOMotorClient(
+                    settings.MONGO_URI,
+                    serverSelectionTimeoutMS=5000
+                )
 
             # Verify database connectivity
-            cls.client.admin.command("ping")
+            await cls.client.admin.command("ping")
             cls.db = cls.client[settings.DATABASE_NAME]
             app_logger.info("MongoDB connection established.")
-            return cls.db
 
         except PyMongoError as ex:
             app_logger.error(f"MongoDB connection failed: {ex}")
@@ -34,16 +34,13 @@ class Database:
     @classmethod
     def get_database(cls):
         if cls.db is None:
-            cls.connect()
+            raise RuntimeError("Database has not been initialized. Call Database.connect() during application startup.")
         return cls.db
     
     @classmethod
     def close(cls):
-        if cls.client:
+        if cls.client is not None:
             cls.client.close()
             cls.client = None
             cls.db = None
             app_logger.info("MongoDB connection closed.")
-
-
-db = Database.get_database()

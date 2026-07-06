@@ -1,8 +1,7 @@
 /** API Configuration: Centralizes all backend API configuration.*/
 
 // Base URL of the FastAPI backend.
-export const API_BASE_URL = "http://localhost:8000";
-
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 /**
  * Authentication API endpoints.
  * These endpoints will be consumed by authService.js.

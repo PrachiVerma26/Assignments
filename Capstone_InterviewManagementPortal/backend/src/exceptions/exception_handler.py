@@ -9,7 +9,7 @@ from src.exceptions.auth_exceptions import (
     InvalidRoleException,
     PasswordValidationException
 )
-from src.exceptions.user_exceptions import (DuplicateEmailException)
+from src.exceptions.user_exceptions import DuplicateEmailException, InvalidEmailDomainException, UserAlreadyInactiveException
 
 def register_exception_handlers(app):
     """ Register all application exception handlers."""
@@ -60,4 +60,18 @@ def register_exception_handlers(app):
         return JSONResponse(
             status_code=status.HTTP_409_CONFLICT,
             content={"message": str(exc)}
+        )
+    
+    @app.exception_handler(InvalidEmailDomainException)
+    async def invalid_email_domain_exception_handler(request: Request, exc: InvalidEmailDomainException):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": str(exc)},
+        )
+    
+    @app.exception_handler(UserAlreadyInactiveException)
+    async def user_already_inactive_exception_handler(request: Request, exc: UserAlreadyInactiveException):
+        return JSONResponse(
+            status_code= status.HTTP_409_CONFLICT, 
+            content= {"message": str(exc)}
         )
