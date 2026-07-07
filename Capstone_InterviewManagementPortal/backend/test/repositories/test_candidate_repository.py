@@ -141,3 +141,68 @@ def test_update_candidate_success(mocker):
         {"_id": candidate_id},
         {"$set": update_data},
     )
+
+# resume upload test cases 
+def test_upload_resume_success(mocker):
+    """Store PDF bytes in GridFS and return a string file_id."""
+    fake_id = ObjectId()
+    mock_fs = mocker.MagicMock()
+    mock_fs.put.return_value = fake_id
+    mocker.patch("src.repositories.candidate_repository.gridfs.GridFS", return_value=mock_fs)
+    mocker.patch("src.repositories.candidate_repository.db", {})
+    result = repository.upload_resume(b"%PDF-1.4 content", "resume.pdf")
+    assert result == str(fake_id)
+    mock_fs.put.assert_called_once_with(b"%PDF-1.4 content", filename="resume.pdf", content_type="application/pdf")
+
+def test_upload_resume_gridfs_failure(mocker):
+    """Propagate GridFS exceptions on upload failure."""
+    mock_fs = mocker.MagicMock()
+    mock_fs.put.side_effect = Exception("GridFS error")
+    mocker.patch("src.repositories.candidate_repository.gridfs.GridFS", return_value=mock_fs)
+    mocker.patch("src.repositories.candidate_repository.db", {})
+    import pytest
+    with pytest.raises(Exception, match="GridFS error"):
+        repository.upload_resume(b"data", "resume.pdf")
+
+def test_delete_resume_success(mocker):
+    """Delete a GridFS file by file_id without error."""
+    mock_fs = mocker.MagicMock()
+    mocker.patch("src.repositories.candidate_repository.gridfs.GridFS", return_value=mock_fs)
+    mocker.patch("src.repositories.candidate_repository.db", {})
+    file_id = str(ObjectId())
+    repository.delete_resume(file_id)
+    mock_fs.delete.assert_called_once_with(ObjectId(file_id))
+
+def test_get_resume_success(mocker):
+    """Return the GridFS file object when it exists."""
+    fake_file = mocker.MagicMock()
+    mock_fs = mocker.MagicMock()
+    mock_fs.get.return_value = fake_file
+    mocker.patch("src.repositories.candidate_repository.gridfs.GridFS", return_value=mock_fs)
+    mocker.patch("src.repositories.candidate_repository.db", {})
+    file_id = str(ObjectId())
+    result = repository.get_resume(file_id)
+    assert result == fake_file
+    mock_fs.get.assert_called_once_with(ObjectId(file_id))
+
+def test_get_resume_not_found(mocker):
+    """Return None when the GridFS file does not exist."""
+    import gridfs as gfs
+    mock_fs = mocker.MagicMock()
+    mock_fs.get.side_effect = gfs.errors.NoFile
+    mocker.patch("src.repositories.candidate_repository.gridfs.GridFS", return_value=mock_fs)
+    mocker.patch("src.repositories.candidate_repository.db", {})
+    result = repository.get_resume(str(ObjectId()))
+    assert result is None
+
+# status history test cases 
+def test_push_status_history_success(mocker):
+    """Append a status history entry using $push."""
+    collection = patch_candidate_collection(mocker)
+    candidate_id = ObjectId()
+    entry = {"previous_status": "PROFILE_CREATED", "new_status": "APPLIED", "updated_at": "2024-01-01"}
+    repository.push_status_history(str(candidate_id), entry)
+    collection.update_one.assert_called_once_with(
+        {"_id": candidate_id},
+        {"$push": {"status_history": entry}},
+    )
