@@ -1,0 +1,39 @@
+/*   Global Application Style: Reset browser default spacing */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Root application styles */
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #edf4ff;
+    color: #1f2937;
+    min-height: 100vh;
+}
+
+/* Links */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Form Elements */
+input,
+button {
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+/* Buttons */
+button {
+    cursor: pointer;
+    border: none;
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    display: block;
+}

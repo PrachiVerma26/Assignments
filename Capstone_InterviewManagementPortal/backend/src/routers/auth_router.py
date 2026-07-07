@@ -37,8 +37,6 @@ async def login(payload: LoginRequest):
 async def reset_password_route(request: ResetPasswordRequest, credentials: HTTPBasicCredentials = Depends(security)):
     """
     Reset user's password.
-    Args:- request (ResetPasswordRequest): Password reset request.
-    Returns:- SuccessResponse: Password reset confirmation.
     """
     app_logger.info(f"Password reset requested for email: {credentials.username}")
     await reset_password(email = credentials.username, old_password=request.old_password, new_password= request.new_password)

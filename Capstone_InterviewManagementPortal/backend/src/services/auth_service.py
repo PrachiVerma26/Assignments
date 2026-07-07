@@ -51,6 +51,8 @@ async def reset_password(email: str, old_password: str, new_password: str) -> No
     
     # Password policy validation
     validate_password(new_password)
+
+    # Encode password
     encoded_password = encode_password(new_password)
     
     await update_password_by_email(email, encoded_password)
