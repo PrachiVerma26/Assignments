@@ -39,7 +39,7 @@ async def reset_password_route(request: ResetPasswordRequest, credentials: HTTPB
     Reset user's password.
     """
     app_logger.info(f"Password reset requested for email: {credentials.username}")
-    await reset_password(request)
+    await reset_password(email = credentials.username, old_password=request.old_password, new_password= request.new_password)
 
     app_logger.info(f"Password reset completed for email: {credentials.username}")
     return SuccessResponse(message="Password reset successfully.")

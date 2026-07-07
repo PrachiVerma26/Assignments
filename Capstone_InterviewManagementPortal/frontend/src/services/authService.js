@@ -31,7 +31,8 @@ export const resetPassword = async ({email, currentPassword, newPassword}) => {
         const response = await axios.post(
             `${API_BASE_URL}${AUTH_ENDPOINTS.RESET_PASSWORD}`,
             {
-                new_password: newPassword,
+                old_password: currentPassword,
+                new_password: newPassword
             },
             {    headers: {
                     Authorization: `Basic ${basicToken}`,
@@ -44,6 +45,7 @@ export const resetPassword = async ({email, currentPassword, newPassword}) => {
         if (error.name ==="ERR_NETWORK" || (error instanceof TypeError && error.message === "Failed to fetch")) {
             throw new Error("Unable to connect to server.");
         }
-        throw new Error(error.response?.data?.message || error.response?.data?.detail || "Password reset failed.");
+        const errorMessage = error.response?.data?.message || error.response?.data?.detail?.[0]?.msg || "Password reset failed.";
+        throw new Error(errorMessage);
     }
 };

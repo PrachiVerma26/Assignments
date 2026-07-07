@@ -9,6 +9,5 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
  */
 export const AUTH_ENDPOINTS = {
     LOGIN: "/auth/login",
-    LOGOUT: "/auth/logout",
     RESET_PASSWORD: "/auth/reset-password",
 };
