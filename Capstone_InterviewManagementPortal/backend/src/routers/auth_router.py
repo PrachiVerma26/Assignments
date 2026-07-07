@@ -22,6 +22,7 @@ async def login(payload: LoginRequest):
     """
     app_logger.info(f"Login attempt for email: {payload.email}")
     user = await authenticate_user(payload.email, payload.password)
+    user = await authenticate_user(payload.email, payload.password)
 
     app_logger.info(f"User '{payload.email}' logged in successfully.")
     return LoginResponse(
@@ -38,7 +39,7 @@ async def login(payload: LoginRequest):
 async def reset_password_route(request: ResetPasswordRequest, credentials: HTTPBasicCredentials = Depends(security)):
     """Reset user's password."""
     app_logger.info(f"Password reset requested for email: {credentials.username}")
-    await reset_password(credentials.username, credentials.password, request.new_password)
+    await reset_password(email = credentials.username, old_password=request.old_password, new_password= request.new_password)
 
     app_logger.info(f"Password reset completed for email: {credentials.username}")
     return SuccessResponse(message="Password reset successfully.")

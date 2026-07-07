@@ -27,6 +27,8 @@ async def lifespan(app: FastAPI):
         app_logger.info("Application startup initiated.")
         await Database.connect()
 
+        await Database.connect()
+
         # Execute startup tasks
         await seed_admin()
 

@@ -8,16 +8,11 @@ export const login = async (credentials) => {
         const response = await axios.post(
             `${API_BASE_URL}${AUTH_ENDPOINTS.LOGIN}`,
             credentials,
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
+            { headers: {"Content-Type": "application/json"} }
         );
         return response.data;
     }catch (error) {
-        if (error.code=== "ERR_NETWORK"  || (error instanceof TypeError && error.message === "Failed to fetch")
-        ) {
+        if (error.code=== "ERR_NETWORK"  || (error instanceof TypeError && error.message === "Failed to fetch")) {
             throw new Error("Unable to connect to the server. Please ensure the backend is running.");
         }
         throw new Error(error.response?.data?.detail || error.response?.data?.message || "Login failed.");
@@ -31,7 +26,8 @@ export const resetPassword = async ({email, currentPassword, newPassword}) => {
         const response = await axios.post(
             `${API_BASE_URL}${AUTH_ENDPOINTS.RESET_PASSWORD}`,
             {
-                new_password: newPassword,
+                old_password: currentPassword,
+                new_password: newPassword
             },
             {    headers: {
                     Authorization: `Basic ${basicToken}`,
@@ -44,6 +40,7 @@ export const resetPassword = async ({email, currentPassword, newPassword}) => {
         if (error.name ==="ERR_NETWORK" || (error instanceof TypeError && error.message === "Failed to fetch")) {
             throw new Error("Unable to connect to server.");
         }
-        throw new Error(error.response?.data?.message || error.response?.data?.detail || "Password reset failed.");
+        const errorMessage = error.response?.data?.message || error.response?.data?.detail?.[0]?.msg || "Password reset failed.";
+        throw new Error(errorMessage);
     }
 };

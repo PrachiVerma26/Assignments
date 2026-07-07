@@ -27,19 +27,25 @@ async def authenticate_user(email: str, password: str) -> dict:
     app_logger.info(f"User login successful: {email}")
     return user
 
-async def reset_password(email: str, current_password: str, new_password: str) -> None:
-    """
-    Reset user password."""
+async def reset_password(email: str, old_password: str, new_password: str) -> None:
+    """ Reset user password. """
+
     email = email.strip().lower()
     user = await user_repository.find_user_by_email(email)
     if not user:
         app_logger.warning(f"Password reset failed. User not found: {email}")
         raise auth_exceptions.UserNotFoundException( "User does not exist.")
+    
     # Verify current password
-    if not verify_password(current_password, user["password"]):
+    if not verify_password(old_password, user["password"]):
         app_logger.warning(f"Invalid current password for: {email}")
-        raise auth_exceptions.InvalidCredentialsException("Current password is incorrect.")    
-    # Validate new password
+        raise auth_exceptions.InvalidCredentialsException("Current password is incorrect.") 
+       
+    # preventing user to use the old password as their new password
+    if verify_password(new_password, user["password"]):
+        raise auth_exceptions.PasswordValidationException("New password cannot be the same as the current password.")
+    
+    # Password policy validation
     validate_password(new_password)
 
     encoded_password = encode_password(new_password)

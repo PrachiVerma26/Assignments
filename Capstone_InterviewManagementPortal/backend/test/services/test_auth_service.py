@@ -2,12 +2,15 @@
    Validate authentication business logic without involving FastAPI or MongoDB.
 """
 from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock
 import pytest
 from src.services.auth_service import authenticate_user,validate_role,reset_password
 from src.exceptions.auth_exceptions import UserNotFoundException,InvalidCredentialsException,InactiveUserException,InvalidRoleException
 from src.enums.user_status import UserStatus
 from src.enums.role_types import UserRole
 
+@pytest.mark.asyncio
+async def test_authenticate_user_success(mocker):
 @pytest.mark.asyncio
 async def test_authenticate_user_success(mocker):
     """Verify successful authentication for an active admin user."""
@@ -25,11 +28,16 @@ async def test_authenticate_user_success(mocker):
 
 @pytest.mark.asyncio
 async def test_authenticate_user_not_found(mocker):
+@pytest.mark.asyncio
+async def test_authenticate_user_not_found(mocker):
     """Verify exception is raised when user does not exist."""
     mocker.patch("src.services.auth_service.user_repository.find_user_by_email", new =AsyncMock(return_value=None))
     with pytest.raises(UserNotFoundException):
         await authenticate_user("invalid@nucleusteq.com", "Admin@123")
+        await authenticate_user("invalid@nucleusteq.com", "Admin@123")
 
+@pytest.mark.asyncio
+async def test_authenticate_user_invalid_password(mocker):
 @pytest.mark.asyncio
 async def test_authenticate_user_invalid_password(mocker):
     """Verify exception is raised for incorrect password."""
@@ -46,6 +54,8 @@ async def test_authenticate_user_invalid_password(mocker):
 
 @pytest.mark.asyncio
 async def test_authenticate_user_inactive_user(mocker):
+@pytest.mark.asyncio
+async def test_authenticate_user_inactive_user(mocker):
     """Verify inactive users cannot login."""
 
     mock_user = {
@@ -59,6 +69,7 @@ async def test_authenticate_user_inactive_user(mocker):
     mocker.patch("src.services.auth_service.verify_password", return_value=True)
     with pytest.raises(InactiveUserException):
         await authenticate_user("admin@nucleusteq.com", "Admin@123")
+        await authenticate_user("admin@nucleusteq.com", "Admin@123")
 
 def test_validate_role_success():
     validate_role(UserRole.ADMIN)
@@ -69,11 +80,21 @@ def test_validate_role_invalid():
 
 @pytest.mark.asyncio
 async def test_reset_password_success(mocker):
-    mock_user = {"email": "admin@nucleusteq.com", "password": "encoded_old_password"}
-    mocker.patch("src.services.auth_service.user_repository.find_user_by_email", new=AsyncMock(return_value=mock_user))
-    mocker.patch("src.services.auth_service.verify_password", return_value=True)
-    mocker.patch("src.services.auth_service.validate_password")
-    mocker.patch("src.services.auth_service.encode_password", return_value="encoded_password")
-    mock_update = mocker.patch("src.services.auth_service.user_repository.update_password_by_email", new=AsyncMock())
+    """Verify password reset updates the user's password successfully."""
+
+    mocker.patch("src.services.auth_service.find_user_by_email", return_value={"email": "admin@nucleusteq.com", "password": "encoded_old_password"})
+    mocker.patch("src.services.auth_service.verify_password", side_effect = [True, False])
+    mock_validate = mocker.patch("src.services.auth_service.validate_password")
+    mocker.patch("src.services.auth_service.encode_password", return_value="encoded_new_password")
+    mock_update = mocker.patch("src.services.auth_service.update_password_by_email")
     await reset_password("admin@nucleusteq.com", "OldPassword@123", "NewPassword@123")
-    mock_update.assert_called_once_with("admin@nucleusteq.com", "encoded_password" )
+    mock_validate.assert_called_once_with("NewPassword@123")
+    mock_update.assert_called_once_with("admin@nucleusteq.com", "encoded_new_password")
+
+@pytest.mark.asyncio
+async def test_reset_password_user_not_found(mocker):
+    """Test password reset with non-existent user."""
+
+    mocker.patch("src.services.auth_service.find_user_by_email", return_value=None)
+    with pytest.raises(UserNotFoundException):
+        await reset_password("invalid@nucleusteq.com", "OldPassword@123", "NewPassword@123")
