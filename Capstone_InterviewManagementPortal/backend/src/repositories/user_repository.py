@@ -1,80 +1,63 @@
 """
-User repository.
-Contains MongoDB operations related to the users collection.
-Responsibilities:
-- Perform CRUD operations.
-- Execute MongoDB queries.
-- Return MongoDB documents/results.
-
-Business validations and exception handling must be performed inside the service layer.
+User repository: Contains only MongoDB operations related to user collection.
 """
+from typing import Any, Dict, Optional
 from bson import ObjectId
-from typing import Optional, Dict, Any
-from pymongo import ASCENDING, DESCENDING
+from pymongo import DESCENDING
+from src.core.database import Database
 from src.constants.auth_constants import USER_COLLECTION
-from src.core.database import db
+from src.enums.role_types import UserRole
 
-def find_user_by_email(email: str):
-    """Retrieve a user by email address."""
-    return db[USER_COLLECTION].find_one({"email": email.lower()})
+def get_user_collection():
+    return Database.get_database()[USER_COLLECTION]
 
-def create_user(user_data: dict):
-    """ Insert a new user document."""
-    return db[USER_COLLECTION].insert_one(user_data)
+async def find_user_by_email(email: str):
+    return await get_user_collection().find_one({"email": email.lower()})
 
-def update_password_by_email(email: str, encoded_password: str):
-    """Update password using email."""
-    return db[USER_COLLECTION].update_one(
+async def create_user(user_data: dict):
+    return await get_user_collection().insert_one(user_data)
+
+async def update_password_by_email(email: str, encoded_password: str):
+    return await get_user_collection().update_one(
         {"email": email.lower()},
-        {"$set": {"password": encoded_password}}
+        {"$set": {"password": encoded_password, "requires_password_reset": False}},
     )
 
+async def find_user_by_id(user_id: str):
+    return await get_user_collection().find_one({"_id": ObjectId(user_id)})
 
-def find_user_by_id(user_id: str):
-    """Retrieve a user using MongoDB ObjectId."""
-    return db[USER_COLLECTION].find_one({"_id": ObjectId(user_id)})
+async def find_all_users():
+    cursor = get_user_collection().find({}, {"password": 0})
+    return await cursor.to_list(length=None)
 
-def find_all_users():
-    """Retrieve all users."""
-    return list(db[USER_COLLECTION].find({},{"password": 0}))
-
-def find_users_paginated(page: int = 1, limit: int = 10, search: Optional[str] = None, active: Optional[bool] = None, sort_by: str = "created_at", sort_order: int = DESCENDING) -> Dict[str, Any]:
+async def find_users_paginated(page: int = 1, limit: int = 10, search: Optional[str] = None, active: Optional[bool] = None,role: Optional[UserRole] = None, sort_by: str = "created_at", sort_order: int = DESCENDING) -> Dict[str, Any]:
     """Retrieve users with pagination and filtering."""
     skip = (page - 1) * limit
+    # Build query filter
     query_filter = {}
     if search:
         query_filter["$or"] = [
             {"name": {"$regex": search, "$options": "i"}},
             {"email": {"$regex": search, "$options": "i"}}
         ]
-    
     if active is not None:
         status = "ACTIVE" if active else "INACTIVE"
         query_filter["status"] = status
-
+    if role is not None:
+        query_filter["role"] = role.value
     # Get total count
-    total_count = db[USER_COLLECTION].count_documents(query_filter)
-
+    total_count = await get_user_collection().count_documents(query_filter)
     # Get paginated results
-    users = list(db[USER_COLLECTION].find(query_filter, {"password": 0}).sort(sort_by, sort_order).skip(skip).limit(limit))
+    cursor = (get_user_collection().find(query_filter, {"password": 0}).sort(sort_by, sort_order).skip(skip).limit(limit))
+    users = await cursor.to_list(length=limit)
 
-    return {
-        "users": users,
-        "total": total_count,
-        "page": page,
-        "limit": limit,
-        "total_pages": (total_count + limit - 1) // limit
-    }
+    return {"users": users, "total": total_count, "page": page, "limit": limit, "total_pages": (total_count + limit - 1) // limit}
 
+async def update_user(user_id: str, update_data: dict):
+    return await get_user_collection().update_one({"_id": ObjectId(user_id)},{ "$set": update_data})
 
-def update_user(user_id: str, update_data: dict):
-    """ Update user information. """
-    return db[USER_COLLECTION].update_one({"_id": ObjectId(user_id)},{ "$set": update_data})
+async def update_user_status(user_id: str, status: str):
+    return await get_user_collection().update_one({"_id": ObjectId(user_id)},{"$set": {"status": status}})
 
-def update_user_status(user_id: str, status: str):
-    """ Update user status."""
-    return db[USER_COLLECTION].update_one({"_id": ObjectId(user_id)},{"$set": {"status": status}})
-
-def find_active_admin():
-    """ Find an active administrator user."""
-    return db[USER_COLLECTION].find_one({"role": "ADMIN", "status": "ACTIVE"})
+async def find_active_admin():
+    return await get_user_collection().find_one({"role": "ADMIN", "status": "ACTIVE"})

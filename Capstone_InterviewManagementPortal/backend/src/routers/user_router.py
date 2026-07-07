@@ -16,45 +16,43 @@ from src.utils.security import (get_current_user, require_roles)
 router = APIRouter(prefix="/users", tags=["User Management"])
 
 @router.post("", response_model=CreateUserResponse, status_code=status.HTTP_201_CREATED)
-def create_user(payload: CreateUserRequest, current_user=Depends(get_current_user),):
-    """
-    Create a new system user and Accessible only by administrators.
-    """
+async def create_user(payload: CreateUserRequest, current_user=Depends(get_current_user)):
+    """ Create a new system user and Accessible only by administrators. """
+
     require_roles(current_user, [UserRole.ADMIN])
     app_logger.info("Create user endpoint invoked by %s",current_user["email"])
-    return user_service.create_new_user(payload)
+    return await user_service.create_new_user(payload)
 
 @router.get("", response_model=UserListResponse)
-def get_users(
+async def get_users(
     page: int = Query(1, ge=1, description="Page number"),
     limit: int = Query(10, ge=1, le=100, description="Items per page"),
     search: Optional[str] = Query(None, description="Search by name or email"),
     active: Optional[bool] = Query(None, description="Filter by active status"),
+    role: Optional[UserRole] = Query(None),
     current_user=Depends(get_current_user)):
     """ Retrieve system users with pagination and search."""
     require_roles(current_user, [UserRole.ADMIN])
     app_logger.info("List users endpoint invoked.")
-    return user_service.list_users(page, limit, search, active)
+    return await user_service.list_users(page, limit, search, active, role)
 
 @router.get("/{user_id}", response_model=UserResponse)
-def get_user(user_id: str, current_user=Depends(get_current_user)):
+async def get_user(user_id: str, current_user=Depends(get_current_user)):
     """ Retrieve a user by ID."""
     require_roles(current_user, [UserRole.ADMIN])
     app_logger.info("Fetching user: %s", user_id)
-    return user_service.get_user_by_id(user_id)
+    return await user_service.get_user_by_id(user_id)
 
 @router.put("/{user_id}", response_model=UserResponse)
-def update_existing_user(user_id: str, payload: UpdateUserRequest, current_user=Depends(get_current_user)):
+async def update_existing_user(user_id: str, payload: UpdateUserRequest, current_user=Depends(get_current_user)):
     """Update user details."""
     require_roles(current_user, [UserRole.ADMIN])
     app_logger.info("Updating user: %s", user_id)
-    return user_service.update_user(user_id, payload)
+    return await user_service.update_user(user_id, payload)
 
-@router.patch("/{user_id}/status",response_model=SuccessResponse)
-def update_user_account_status(user_id: str, 
-                               status: UserStatus = Query(..., description="User status (ACTIVE or INACTIVE)"), 
-                               current_user=Depends(get_current_user),):
-
+@router.patch("/{user_id}/status", response_model=SuccessResponse)
+async def disable_user_account(user_id: str,status: UserStatus=Query(..., description="User status (ACTIVE or INACTIVE)"), current_user=Depends(get_current_user)):
+    """Disable user account (soft delete)."""
     require_roles(current_user, [UserRole.ADMIN])
-    app_logger.info("Updating status for user %s to %s", user_id,status.value)
-    return user_service.change_user_status(user_id, status)
+    app_logger.info("Disabling user: %s", user_id)
+    return await user_service.change_user_status(user_id, status)

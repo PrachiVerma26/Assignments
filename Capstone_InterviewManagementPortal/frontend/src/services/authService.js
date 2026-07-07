@@ -1,34 +1,21 @@
-// Authentication Service: Handles all authentication-related API communication
+/**Authentication Service: Handles all authentication-related API communication.*/
+
+import axios from "axios";
 import { API_BASE_URL, AUTH_ENDPOINTS } from "../config/api";
 
 export const login = async (credentials) => {
     try {
-        const response = await fetch(
+        const response = await axios.post(
             `${API_BASE_URL}${AUTH_ENDPOINTS.LOGIN}`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(credentials),
-            }
+            credentials,
+            { headers: {"Content-Type": "application/json"} }
         );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.detail ||data.message ||"Login failed.");
-        }
-
-        return data;
-
-    } catch (error) {
-        if (error instanceof TypeError && error.message === "Failed to fetch"
-        ) {
+        return response.data;
+    }catch (error) {
+        if (error.code=== "ERR_NETWORK"  || (error instanceof TypeError && error.message === "Failed to fetch")) {
             throw new Error("Unable to connect to the server. Please ensure the backend is running.");
         }
-
-        throw error;
+        throw new Error(error.response?.data?.detail || error.response?.data?.message || "Login failed.");
     }
 };
 
@@ -36,34 +23,24 @@ export const resetPassword = async ({email, currentPassword, newPassword}) => {
     try {
         // Generate HTTP Basic Authentication token
         const basicToken = btoa(`${email}:${currentPassword}`);
-
-        const response = await fetch(
+        const response = await axios.post(
             `${API_BASE_URL}${AUTH_ENDPOINTS.RESET_PASSWORD}`,
             {
-                method: "POST",
-
-                headers: {
+                old_password: currentPassword,
+                new_password: newPassword
+            },
+            {    headers: {
                     Authorization: `Basic ${basicToken}`,
                     "Content-Type": "application/json",
                 },
-
-                body: JSON.stringify({new_password: newPassword}),
             }
         );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message ||data.detail ||"Password reset failed.");
-        }
-
-        return data;
-
+        return response.data;
     } catch (error) {
-        if (error.name === "TypeError" && error.message === "Failed to fetch") {
+        if (error.name ==="ERR_NETWORK" || (error instanceof TypeError && error.message === "Failed to fetch")) {
             throw new Error("Unable to connect to server.");
         }
-
-        throw error;
+        const errorMessage = error.response?.data?.message || error.response?.data?.detail?.[0]?.msg || "Password reset failed.";
+        throw new Error(errorMessage);
     }
 };
