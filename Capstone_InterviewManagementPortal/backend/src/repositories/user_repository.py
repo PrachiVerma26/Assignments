@@ -6,6 +6,7 @@ from bson import ObjectId
 from pymongo import DESCENDING
 from src.core.database import Database
 from src.constants.auth_constants import USER_COLLECTION
+from src.enums.role_types import UserRole
 
 def get_user_collection():
     return Database.get_database()[USER_COLLECTION]
@@ -29,7 +30,7 @@ async def find_all_users():
     cursor = get_user_collection().find({}, {"password": 0})
     return await cursor.to_list(length=None)
 
-async def find_users_paginated(page: int = 1, limit: int = 10, search: Optional[str] = None, active: Optional[bool] = None, sort_by: str = "created_at", sort_order: int = DESCENDING) -> Dict[str, Any]:
+async def find_users_paginated(page: int = 1, limit: int = 10, search: Optional[str] = None, active: Optional[bool] = None,role: Optional[UserRole] = None, sort_by: str = "created_at", sort_order: int = DESCENDING) -> Dict[str, Any]:
     """
     Retrieve users with pagination and filtering.
     Args:
@@ -37,6 +38,7 @@ async def find_users_paginated(page: int = 1, limit: int = 10, search: Optional[
         limit: Number of items per page.
         search: Search term for name or email.
         active: Filter by active status.
+        role: Filter by user role.
         sort_by: Field to sort by.
         sort_order: Sort direction (ASCENDING/DESCENDING).
     Returns: Dictionary containing users list and total count.
@@ -52,6 +54,8 @@ async def find_users_paginated(page: int = 1, limit: int = 10, search: Optional[
     if active is not None:
         status = "ACTIVE" if active else "INACTIVE"
         query_filter["status"] = status
+    if role is not None:
+        query_filter["role"] = role.value
     # Get total count
     total_count = await get_user_collection().count_documents(query_filter)
     # Get paginated results
@@ -68,4 +72,3 @@ async def update_user_status(user_id: str, status: str):
 
 async def find_active_admin():
     return await get_user_collection().find_one({"role": "ADMIN", "status": "ACTIVE"})
-

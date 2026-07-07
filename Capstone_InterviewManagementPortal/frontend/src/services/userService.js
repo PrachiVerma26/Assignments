@@ -1,7 +1,7 @@
 // User Service: Handles all user management API communication
 import { API_BASE_URL, USER_ENDPOINTS } from "../config/api";
 import { getSession } from "../utils/session";
-
+import axios from "axios";
 const getAuthHeaders = () => {
     const session = getSession();
     if (!session || !session.email || !session.password) {
@@ -14,7 +14,7 @@ const getAuthHeaders = () => {
     };
 };
 
-export const getUsers = async ({ page = 1, limit = 10, search = "", active = null } = {}) => {
+export const getUsers = async ({ page = 1, limit = 10, search = "", active = null, role = "" } = {}) => {
     try {
         // Build query parameters
         const params = new URLSearchParams();
@@ -25,6 +25,9 @@ export const getUsers = async ({ page = 1, limit = 10, search = "", active = nul
         }
         if (active !== null) {
             params.append("active", active.toString());
+        }
+        if (role) {
+            params.append("role", role);
         }
         const response = await axios.get(
             `${API_BASE_URL}${USER_ENDPOINTS.LIST_USERS}?${params.toString()}`,

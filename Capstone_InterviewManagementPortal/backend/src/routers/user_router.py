@@ -29,11 +29,12 @@ async def get_users(
     limit: int = Query(10, ge=1, le=100, description="Items per page"),
     search: Optional[str] = Query(None, description="Search by name or email"),
     active: Optional[bool] = Query(None, description="Filter by active status"),
+    role: Optional[UserRole] = Query(None),
     current_user=Depends(get_current_user)):
     """ Retrieve system users with pagination and search."""
     require_roles(current_user, [UserRole.ADMIN])
     app_logger.info("List users endpoint invoked.")
-    return await user_service.list_users(page, limit, search, active)
+    return await user_service.list_users(page, limit, search, active, role)
 
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(user_id: str, current_user=Depends(get_current_user)):

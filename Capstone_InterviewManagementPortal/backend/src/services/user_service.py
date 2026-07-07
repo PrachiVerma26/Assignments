@@ -85,9 +85,9 @@ async def get_user_by_id(user_id: str) -> UserResponse:
     app_logger.info("User found: %s", user["email"])
     return _build_user_response(user)
 
-async def list_users(page: int = 1, limit: int = 10, search: Optional[str] = None, active: Optional[bool] = None) -> UserListResponse:
+async def list_users(page: int = 1, limit: int = 10, search: Optional[str] = None, active: Optional[bool] = None, role: Optional[UserRole] = None) -> UserListResponse:
     app_logger.info("Fetching users - page: %d, limit: %d", page, limit)
-    result = await user_repository.find_users_paginated(page, limit, search, active)
+    result = await user_repository.find_users_paginated(page, limit, search, active, role)
     users = [_build_user_response(user) for user in result["users"]]    
     return UserListResponse(
         message="Users retrieved successfully.",
