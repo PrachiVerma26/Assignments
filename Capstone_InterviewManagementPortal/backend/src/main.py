@@ -25,12 +25,12 @@ async def lifespan(app: FastAPI):
 
     try:
         app_logger.info("Application startup initiated.")
+        await Database.connect()
 
         # Execute startup tasks
-        seed_admin()
+        await seed_admin()
 
         app_logger.info("Application startup completed successfully.")
-
         yield
 
     finally:
@@ -42,15 +42,10 @@ async def lifespan(app: FastAPI):
         app_logger.info("Database connection closed.")
         app_logger.info("Application shutdown completed.")
 
-app = FastAPI(
-    title="Interview Management Portal API",
-    lifespan=lifespan,
-)
+app = FastAPI(title="Interview Management Portal API", lifespan=lifespan)
 
 # Allowed frontend origins
-origins = [
-    "http://localhost:5173",
-]
+origins = ["http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -65,16 +60,11 @@ register_exception_handlers(app)
 
 # Register application routers
 app.include_router(auth_router)
-
 app.include_router(user_router)
 
 @app.get("/", tags=["Health Check"], response_model=SuccessResponse)
 def home():
     """
-    Health check endpoint.
-    Returns:- SuccessResponse: Confirms that the application is running.
-    """
-
+    Health check endpoint."""
     app_logger.info("Health check endpoint accessed.")
-
     return SuccessResponse(message="Interview Management Portal Backend Running")

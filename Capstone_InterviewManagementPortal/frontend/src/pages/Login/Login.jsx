@@ -97,9 +97,7 @@ function Login() {
                             {showPassword? "Hide": "Show"}
                         </button>
                     </div>
-                    {errors.password && (
-                        <p className="error-message">{errors.password}</p>
-                    )}
+                    {errors.password && (<p className="error-message">{errors.password}</p>)}
                 </div>
                 <button type="submit" className="login-button" disabled={isLoading}>{isLoading? "Signing In...": "Sign In"}</button>
                 <p className="login-footer">For account access,{" "}<a href="mailto:admin@nucleusteq.com">contact your administrator</a></p>

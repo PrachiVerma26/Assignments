@@ -1,141 +1,219 @@
 import pytest
-from datetime import datetime,UTC
+from unittest.mock import AsyncMock
+from datetime import datetime, UTC
 from bson import ObjectId
-from src.services.user_service import create_new_user,get_user_by_id,list_users,update_user,change_user_status
-from src.exceptions.auth_exceptions import UserNotFoundException
-from src.exceptions.user_exceptions import DuplicateEmailException,UserAlreadyInactiveException
-from src.enums.user_status import UserStatus
 from src.enums.role_types import UserRole
+from src.enums.user_status import UserStatus
+from src.exceptions.auth_exceptions import UserNotFoundException
+from src.services.user_service import (create_new_user, get_user_by_id, update_user, change_user_status)
+from src.exceptions.user_exceptions import DuplicateEmailException, InvalidEmailDomainException, UserAlreadyInactiveException
 
 class CreateUserRequestMock:
-    def __init__(self,name,email,role,password="Password@123"):
-        self.name=name
-        self.email=email
-        self.role=role
-        self.password=password
+    def __init__(self, name, email, role):
+        self.name = name
+        self.email = email
+        self.role = role
 
 class UpdateUserRequestMock:
-    def __init__(self,name=None,email=None,role=None):
-        self.name=name
-        self.email=email
-        self.role=role
+    def __init__(self, name=None, email=None, role=None):
+        self.name = name
+        self.email = email
+        self.role = role
 
-def test_create_user_success(mocker):
-    mocker.patch("src.services.user_service.user_repository.find_user_by_email",return_value=None)
-    mocker.patch("src.services.user_service.user_repository.find_active_admin",return_value=None)
-    mocker.patch("src.services.user_service.encode_password",return_value="encoded_pass")
-    mock_result=mocker.Mock()
-    mock_result.inserted_id=ObjectId()
-    mocker.patch("src.services.user_service.user_repository.create_user",return_value=mock_result)
-    request=CreateUserRequestMock("John Doe","john@nucleusteq.com",UserRole.INTERVIEWER)
-    result=create_new_user(request)
-    assert result.message=="User created successfully."
-    assert result.user.name=="John Doe"
+@pytest.mark.asyncio
+async def test_create_user_success(mocker):
+    mocker.patch("src.services.user_service.user_repository.find_user_by_email", new=AsyncMock(return_value=None))
+    mocker.patch("src.services.user_service.user_repository.find_active_admin", new=AsyncMock(return_value=None))
+    mocker.patch("src.services.user_service.encode_password",return_value="encoded_password")
+    insert_result = mocker.Mock()
+    insert_result.inserted_id = ObjectId()
+    mocker.patch("src.services.user_service.user_repository.create_user", new=AsyncMock(return_value=insert_result))
+    request = CreateUserRequestMock("Ram Verma", "ram@nucleusteq.com", UserRole.INTERVIEWER)
+    result = await create_new_user(request)
+    assert result.message == "User created successfully."
+    assert result.user.name == "Ram Verma"
+    assert result.user.email == "ram@nucleusteq.com"
 
-def test_create_user_duplicate_email(mocker):
-    mocker.patch("src.services.user_service.user_repository.find_user_by_email",return_value={"email":"john@nucleusteq.com"})
-    request=CreateUserRequestMock("John Doe","john@nucleusteq.com",UserRole.INTERVIEWER)
+@pytest.mark.asyncio
+async def test_create_user_duplicate_email(mocker):
+    mocker.patch("src.services.user_service.user_repository.find_user_by_email", new=AsyncMock(return_value={"email": "ram@nucleusteq.com"}))
+    request = CreateUserRequestMock(
+        "Ram Verma",
+        "ram@nucleusteq.com",
+        UserRole.INTERVIEWER)
     with pytest.raises(DuplicateEmailException):
-        create_new_user(request)
+        await create_new_user(request)
 
-def test_list_users_success(mocker):
-    mock_data={"users":[{"_id":ObjectId(),"name":"John Doe","email":"john@nucleusteq.com","role":UserRole.INTERVIEWER.value,"status":UserStatus.ACTIVE.value,"created_at":datetime.now(UTC)}],"total":1,"page":1,"limit":10,"total_pages":1}
-    mocker.patch("src.services.user_service.user_repository.find_users_paginated",return_value=mock_data)
-    result=list_users()
-    assert result.message=="Users retrieved successfully."
-    assert len(result.users)==1
+@pytest.mark.asyncio
+async def test_create_user_invalid_domain():
+    request = CreateUserRequestMock(
+        "Ram Verma",
+        "ram@gmail.com",
+        UserRole.INTERVIEWER)
+    with pytest.raises(InvalidEmailDomainException):
+        await create_new_user(request)
 
-def test_list_users_empty(mocker):
-    mock_data={"users":[],"total":0,"page":1,"limit":10,"total_pages":0}
-    mocker.patch("src.services.user_service.user_repository.find_users_paginated",return_value=mock_data)
-    result=list_users()
-    assert result.message=="Users retrieved successfully."
-    assert len(result.users)==0
-
-def test_get_user_by_id_success(mocker):
-    user_id=str(ObjectId())
-    mock_user={"_id":ObjectId(user_id),"name":"John Doe","email":"john@nucleusteq.com","role":UserRole.INTERVIEWER.value,"status":UserStatus.ACTIVE.value,"created_at":datetime.now(UTC)}
-    mocker.patch("src.services.user_service.user_repository.find_user_by_id",return_value=mock_user)
-    result=get_user_by_id(user_id)
-    assert result.name=="John Doe"
-
-def test_get_user_by_id_invalid_objectid():
-    with pytest.raises(UserNotFoundException):
-        get_user_by_id("invalid_id")
-
-def test_get_user_by_id_not_found(mocker):
-    user_id=str(ObjectId())
-    mocker.patch("src.services.user_service.user_repository.find_user_by_id",return_value=None)
-    with pytest.raises(UserNotFoundException):
-        get_user_by_id(user_id)
-
-def test_update_user_name(mocker):
-    user_id=str(ObjectId())
-    mock_user={"_id":ObjectId(user_id),"name":"John Doe","email":"john@nucleusteq.com","role":UserRole.INTERVIEWER.value,"status":UserStatus.ACTIVE.value,"created_at":datetime.now(UTC)}
-    updated_user=mock_user.copy()
-    updated_user["name"]="John Updated"
-    mocker.patch("src.services.user_service.user_repository.find_user_by_id",side_effect=[mock_user,updated_user])
-    mocker.patch("src.services.user_service.user_repository.update_user")
-    request=UpdateUserRequestMock(name="John Updated")
-    result=update_user(user_id,request)
-    assert result.name=="John Updated"
-
-def test_update_user_email(mocker):
-    user_id=str(ObjectId())
-    mock_user={"_id":ObjectId(user_id),"name":"John Doe","email":"john@nucleusteq.com","role":UserRole.INTERVIEWER.value,"status":UserStatus.ACTIVE.value,"created_at":datetime.now(UTC)}
-    updated_user=mock_user.copy()
-    updated_user["email"]="john.updated@nucleusteq.com"
-    mocker.patch("src.services.user_service.user_repository.find_user_by_id",side_effect=[mock_user,updated_user])
-    mocker.patch("src.services.user_service.user_repository.find_user_by_email",return_value=None)
-    mocker.patch("src.services.user_service.user_repository.update_user")
-    request=UpdateUserRequestMock(email="john.updated@nucleusteq.com")
-    result=update_user(user_id,request)
-    assert result.email=="john.updated@nucleusteq.com"
-
-def test_update_user_duplicate_email(mocker):
-    user_id=str(ObjectId())
-    other_user_id=str(ObjectId())
-    mock_user={"_id":ObjectId(user_id),"email":"john@nucleusteq.com"}
-    existing_user={"_id":ObjectId(other_user_id),"email":"existing@nucleusteq.com"}
-    mocker.patch("src.services.user_service.user_repository.find_user_by_id",return_value=mock_user)
-    mocker.patch("src.services.user_service.user_repository.find_user_by_email",return_value=existing_user)
-    request=UpdateUserRequestMock(email="existing@nucleusteq.com")
+@pytest.mark.asyncio
+async def test_create_admin_when_admin_exists(mocker):
+    mocker.patch("src.services.user_service.user_repository.find_user_by_email", new=AsyncMock(return_value=None))
+    mocker.patch("src.services.user_service.user_repository.find_active_admin", new=AsyncMock(return_value={"_id": ObjectId(), "role": "ADMIN", "status": "ACTIVE"}))
+    request = CreateUserRequestMock(
+        "Admin",
+        "admin2@nucleusteq.com",
+        UserRole.ADMIN)
     with pytest.raises(DuplicateEmailException):
-        update_user(user_id,request)
+        await create_new_user(request)
 
-def test_update_user_not_found(mocker):
-    user_id=str(ObjectId())
-    mocker.patch("src.services.user_service.user_repository.find_user_by_id",return_value=None)
-    request=UpdateUserRequestMock(name="John Updated")
+@pytest.mark.asyncio
+async def test_get_user_by_id_success(mocker):
+    user_id = str(ObjectId())
+    mock_user = {
+        "_id": ObjectId(user_id),
+        "name": "Ram Verma",
+        "email": "ram@nucleusteq.com",
+        "role": UserRole.INTERVIEWER.value,
+        "status": UserStatus.ACTIVE.value,
+        "created_at": datetime.now(UTC),
+    }
+    mocker.patch("src.services.user_service.user_repository.find_user_by_id", new=AsyncMock(return_value=mock_user))
+    result = await get_user_by_id(user_id)
+    assert result.name == "Ram Verma"
+    assert result.email == "ram@nucleusteq.com"
+
+@pytest.mark.asyncio
+async def test_get_user_by_id_not_found(mocker):
+    user_id = str(ObjectId())
+    mocker.patch( "src.services.user_service.user_repository.find_user_by_id", new=AsyncMock(return_value=None))
     with pytest.raises(UserNotFoundException):
-        update_user(user_id,request)
+        await get_user_by_id(user_id)
 
-def test_update_user_invalid_objectid():
-    request=UpdateUserRequestMock(name="John Updated")
+@pytest.mark.asyncio
+async def test_get_user_by_id_invalid_objectid():
     with pytest.raises(UserNotFoundException):
-        update_user("invalid_id",request)
+        await get_user_by_id("invalid_id")
 
-def test_change_user_status_success(mocker):
-    user_id=str(ObjectId())
-    mock_user={"_id":ObjectId(user_id),"status":UserStatus.ACTIVE.value}
-    mocker.patch("src.services.user_service.user_repository.find_user_by_id",return_value=mock_user)
-    mocker.patch("src.services.user_service.user_repository.update_user_status")
-    result=change_user_status(user_id, UserStatus.INACTIVE)
-    assert result.message=="User disabled successfully."
+@pytest.mark.asyncio
+async def test_update_user_name(mocker):
+    user_id = str(ObjectId())
+    existing = {
+        "_id": ObjectId(user_id),
+        "name": "Ram Verma",
+        "email": "ram@nucleusteq.com",
+        "role": UserRole.INTERVIEWER.value,
+        "status": UserStatus.ACTIVE.value,
+        "created_at": datetime.now(UTC),
+    }
+    updated = existing.copy()
+    updated["name"] = "ram Updated"
+    mocker.patch("src.services.user_service.user_repository.find_user_by_id", new=AsyncMock(side_effect=[existing, updated]))
+    mocker.patch("src.services.user_service.user_repository.update_user", new=AsyncMock())
+    request = UpdateUserRequestMock(name="ram Updated")
+    result = await update_user(user_id, request)
+    assert result.name == "ram Updated"
 
-def test_change_user_status_already_inactive(mocker):
-    user_id=str(ObjectId())
-    mock_user={"_id":ObjectId(user_id),"status":UserStatus.INACTIVE.value}
-    mocker.patch("src.services.user_service.user_repository.find_user_by_id",return_value=mock_user)
+@pytest.mark.asyncio
+async def test_update_user_email(mocker):
+    user_id = str(ObjectId())
+    existing = {
+        "_id": ObjectId(user_id),
+        "name": "Ram Verma",
+        "email": "ram@nucleusteq.com",
+        "role": UserRole.INTERVIEWER.value,
+        "status": UserStatus.ACTIVE.value,
+        "created_at": datetime.now(UTC),
+    }
+    updated = existing.copy()
+    updated["email"] = "ram.updated@nucleusteq.com"
+
+    mocker.patch(
+        "src.services.user_service.user_repository.find_user_by_id",
+        new=AsyncMock(side_effect=[existing, updated]),
+    )
+
+    mocker.patch(
+        "src.services.user_service.user_repository.find_user_by_email",
+        new=AsyncMock(return_value=None),
+    )
+
+    mocker.patch(
+        "src.services.user_service.user_repository.update_user",
+        new=AsyncMock(),
+    )
+
+    request = UpdateUserRequestMock(email="ram.updated@nucleusteq.com")
+
+    result = await update_user(user_id, request)
+
+    assert result.email == "ram.updated@nucleusteq.com"
+
+@pytest.mark.asyncio
+async def test_update_user_duplicate_email(mocker):
+    user_id = str(ObjectId())
+    existing = {"_id": ObjectId(user_id), "email": "ram@nucleusteq.com"}
+    another = {"_id": ObjectId(), "email": "existing@nucleusteq.com"}
+    mocker.patch("src.services.user_service.user_repository.find_user_by_id", new=AsyncMock(return_value=existing))
+    mocker.patch("src.services.user_service.user_repository.find_user_by_email", new=AsyncMock(return_value=another))
+    request = UpdateUserRequestMock(email="existing@nucleusteq.com")
+    with pytest.raises(DuplicateEmailException):
+        await update_user(user_id, request)
+
+@pytest.mark.asyncio
+async def test_update_user_invalid_domain(mocker):
+    user_id = str(ObjectId())
+    existing = {"_id": ObjectId(user_id), "email": "ram@nucleusteq.com"}
+    mocker.patch("src.services.user_service.user_repository.find_user_by_id", new=AsyncMock(return_value=existing))
+    request = UpdateUserRequestMock(email="ram@gmail.com")
+    with pytest.raises(InvalidEmailDomainException):
+        await update_user(user_id, request)
+
+@pytest.mark.asyncio
+async def test_update_user_not_found(mocker):
+    user_id = str(ObjectId())
+    mocker.patch("src.services.user_service.user_repository.find_user_by_id", new=AsyncMock(return_value=None))
+    request = UpdateUserRequestMock(name="Updated")
+    with pytest.raises(UserNotFoundException):
+        await update_user(user_id, request)
+
+@pytest.mark.asyncio
+async def test_update_user_invalid_objectid():
+    request = UpdateUserRequestMock(name="Updated")
+    with pytest.raises(UserNotFoundException):
+        await update_user("invalid_id", request)
+
+@pytest.mark.asyncio
+async def test_disable_user_success(mocker):
+    user_id = str(ObjectId())
+    user = {"_id": ObjectId(user_id), "status": UserStatus.ACTIVE.value}
+    mocker.patch("src.services.user_service.user_repository.find_user_by_id", new=AsyncMock(return_value=user))
+    mocker.patch("src.services.user_service.user_repository.update_user_status", new=AsyncMock())
+    result = await change_user_status(user_id, UserStatus.INACTIVE)
+    assert result.message == "User disabled successfully."
+
+@pytest.mark.asyncio
+async def test_enable_user_success(mocker):
+    user_id = str(ObjectId())
+    user = {"_id": ObjectId(user_id), "status": UserStatus.INACTIVE.value}
+    mocker.patch("src.services.user_service.user_repository.find_user_by_id", new=AsyncMock(return_value=user))
+    mocker.patch("src.services.user_service.user_repository.update_user_status", new=AsyncMock())
+    result = await change_user_status(user_id, UserStatus.ACTIVE)
+    assert result.message == "User enabled successfully."
+
+@pytest.mark.asyncio
+async def test_disable_user_already_inactive(mocker):
+    user_id = str(ObjectId())
+    user = {"_id": ObjectId(user_id), "status": UserStatus.INACTIVE.value}
+    mocker.patch("src.services.user_service.user_repository.find_user_by_id", new=AsyncMock(return_value=user))
     with pytest.raises(UserAlreadyInactiveException):
-        change_user_status(user_id, UserStatus.INACTIVE)
+        await change_user_status(user_id, UserStatus.INACTIVE)
 
-def test_change_user_status_not_found(mocker):
-    user_id=str(ObjectId())
-    mocker.patch("src.services.user_service.user_repository.find_user_by_id",return_value=None)
+@pytest.mark.asyncio
+async def test_change_status_user_not_found(mocker):
+    user_id = str(ObjectId())
+    mocker.patch("src.services.user_service.user_repository.find_user_by_id", new=AsyncMock(return_value=None))
     with pytest.raises(UserNotFoundException):
-        change_user_status(user_id, UserStatus.INACTIVE)
+        await change_user_status(user_id, UserStatus.INACTIVE)
 
-def test_change_user_status_invalid_objectid():
+@pytest.mark.asyncio
+async def test_change_status_invalid_objectid():
     with pytest.raises(UserNotFoundException):
-        change_user_status("invalid_id", UserStatus.INACTIVE)
+        await change_user_status("invalid_id", UserStatus.INACTIVE)
