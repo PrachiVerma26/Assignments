@@ -20,7 +20,7 @@ async def create_user(user_data: dict):
 async def update_password_by_email(email: str, encoded_password: str):
     return await get_user_collection().update_one(
         {"email": email.lower()},
-        {"$set": {"password": encoded_password}}
+        {"$set": {"password": encoded_password, "requires_password_reset": False}},
     )
 
 async def find_user_by_id(user_id: str):

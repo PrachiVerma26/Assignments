@@ -22,7 +22,6 @@ async def login(payload: LoginRequest):
     """
     app_logger.info(f"Login attempt for email: {payload.email}")
     user = await authenticate_user(payload.email, payload.password)
-    user = await authenticate_user(payload.email, payload.password)
 
     app_logger.info(f"User '{payload.email}' logged in successfully.")
     return LoginResponse(

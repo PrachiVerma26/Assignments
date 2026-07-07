@@ -13,9 +13,7 @@ client=TestClient(app)
 
 def test_login_success(mocker):
     """Verify successful login API response."""
-    mocker.patch(
-        "src.routers.auth_router.authenticate_user",
-        new=AsyncMock(
+    mocker.patch( "src.routers.auth_router.authenticate_user", new=AsyncMock(
             return_value={
                 "_id": "123",
                 "name": "Admin",
@@ -26,8 +24,7 @@ def test_login_success(mocker):
             }
         ),
     )
-    response = client.post(
-        "/auth/login",
+    response = client.post("/auth/login",
         json={
             "email": "admin@nucleusteq.com",
             "password": "Admin@123"
@@ -40,9 +37,7 @@ def test_login_success(mocker):
 
 def test_login_invalid_credentials(mocker):
     """Verify login fails with invalid credentials."""
-    mocker.patch(
-        "src.routers.auth_router.authenticate_user",
-        new=AsyncMock(side_effect=InvalidCredentialsException("Invalid credentials")),
+    mocker.patch("src.routers.auth_router.authenticate_user",
         new=AsyncMock(side_effect=InvalidCredentialsException("Invalid credentials")),
     )
     response = client.post("/auth/login",
@@ -57,13 +52,9 @@ def test_reset_password_success(mocker):
     """Verify successful password reset with authorization."""
 
     # Mock the authenticate_user function used in get_current_user
-    mock_reset = mocker.patch(
-        "src.routers.auth_router.reset_password",
-        new= AsyncMock(),
-    )
+    mock_reset = mocker.patch( "src.routers.auth_router.reset_password", new= AsyncMock())
     
-    response = client.post(
-        "/auth/reset-password",
+    response = client.post( "/auth/reset-password",
         json={"new_password": "NewPassword@123"},)
     mocker.patch("src.routers.auth_router.authenticate_user", new= AsyncMock())
     
@@ -75,13 +66,8 @@ def test_reset_password_success(mocker):
     )
     assert response.status_code == 200
     assert response.json()["message"] == "Password reset successfully."
-    mock_reset.assert_awaited_once_with("admin@nucleusteq.com", "Admin@123", "NewPassword@123")
+    mock_reset.assert_awaited_once_with(email="admin@nucleusteq.com", old_password="Admin@123", new_password="NewPassword@123")
 
-    mock_reset.assert_awaited_once_with(
-        email="admin@nucleusteq.com",
-        old_password="Admin@123",
-        new_password="NewPassword@123",
-    )
 def test_reset_password_unauthorized():
     """Verify reset password fails without proper authorization."""
 

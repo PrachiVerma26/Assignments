@@ -46,18 +46,15 @@ def test_create_user_unauthorized(mocker):
         return {"_id":"user_id","email":"user@nucleusteq.com","role":"INTERVIEWER"}
     
     app.dependency_overrides[get_current_user] = mock_get_current_user
-    
-    client = TestClient(app)
+
     response = client.post("/users",json={
-        "name":"John Doe",
-        "email":"john@nucleusteq.com", 
+        "name":"Ram Verma",
+        "email":"ram@nucleusteq.com", 
         "role":"INTERVIEWER"
     })
     
-    # Cleanup
-    app.dependency_overrides = {}
-    
     assert response.status_code == 403
+    app.dependency_overrides[get_current_user] = override_admin
 
 def test_list_users_success(mocker):
     mocker.patch("src.routers.user_router.user_service.list_users", new=AsyncMock(return_value={"message": "Users retrieved successfully.",
