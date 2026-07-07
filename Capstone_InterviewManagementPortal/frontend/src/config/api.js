@@ -30,4 +30,8 @@ export const CANDIDATE_ENDPOINTS = {
     GET_CANDIDATE: "/candidates",
     CREATE_CANDIDATE: "/candidates",
     UPDATE_CANDIDATE: "/candidates",
+    UPLOAD_RESUME: "/candidates",
+    GET_RESUME: "/candidates",
+    UPDATE_STATUS: "/candidates",
+    GET_STATUS_HISTORY: "/candidates",
 };
