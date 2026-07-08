@@ -3,13 +3,17 @@ from bson import ObjectId
 from typing import Optional, Dict, Any
 from pymongo import DESCENDING
 from src.constants.auth_constants import JOB_COLLECTION
-from src.core.database import db
+from src.core.database import Database
 
-def create_job(job_data: dict):
+def get_job_collection():
+    """Return the jobs collection."""
+    return Database.get_database()[JOB_COLLECTION]
+
+async def create_job(job_data: dict):
     """Insert a new job document."""
-    return db[JOB_COLLECTION].insert_one(job_data)
+    return await get_job_collection().insert_one(job_data)
 
-def get_jobs(page: int = 1, limit: int = 10, search: Optional[str] = None) -> Dict[str, Any]:
+async def get_jobs(page: int = 1, limit: int = 10, search: Optional[str] = None) -> Dict[str, Any]:
     """Retrieve jobs with pagination and filtering."""
     skip = (page - 1) * limit
     query_filter = {}
@@ -23,11 +27,11 @@ def get_jobs(page: int = 1, limit: int = 10, search: Optional[str] = None) -> Di
         ]
 
     # Get total count
-    total_count = db[JOB_COLLECTION].count_documents(query_filter)
+    total_count = await get_job_collection().count_documents(query_filter)
 
     # Get paginated results
-    jobs = list(db[JOB_COLLECTION].find(query_filter).sort("_id", DESCENDING).skip(skip).limit(limit))
-
+    cursor= (get_job_collection().find(query_filter).sort("_id", DESCENDING).skip(skip).limit(limit))
+    jobs= await cursor.to_list(length = limit)
     return {
         "jobs": jobs,
         "total": total_count,
@@ -36,10 +40,14 @@ def get_jobs(page: int = 1, limit: int = 10, search: Optional[str] = None) -> Di
         "total_pages": (total_count + limit - 1) // limit
     }
 
-def get_job_by_id(job_id: str):
+async def get_job_by_id(job_id: str):
     """Retrieve a job using MongoDB ObjectId."""
-    return db[JOB_COLLECTION].find_one({"_id": ObjectId(job_id)})
+    return await get_job_collection().find_one({"_id": ObjectId(job_id)})
 
-def update_job(job_id: str, job_data: dict):
+async def update_job(job_id: str, job_data: dict):
     """Update job information."""
-    return db[JOB_COLLECTION].update_one({"_id": ObjectId(job_id)}, {"$set": job_data})
+    return await get_job_collection().update_one({"_id": ObjectId(job_id)}, {"$set": job_data})
+
+async def get_job_by_title(title: str):
+    """Retrieve a job by title."""
+    return await get_job_collection().find_one({"title": title})

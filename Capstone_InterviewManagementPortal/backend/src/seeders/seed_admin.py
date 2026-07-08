@@ -11,11 +11,11 @@ from src.repositories.user_repository import (find_user_by_email,create_user)
 from src.utils.password_utils import encode_password
 from src.utils.logger import app_logger
 
-def seed_admin() -> None:
+async def seed_admin() -> None:
     """Seed default administrator account."""
 
     admin_email = settings.ADMIN_EMAIL.strip().lower()
-    existing_admin = find_user_by_email(admin_email)
+    existing_admin = await find_user_by_email(admin_email)
 
     if existing_admin:
         app_logger.info("Default admin already exists.")
@@ -30,5 +30,5 @@ def seed_admin() -> None:
         requires_password_reset=False
     )
 
-    create_user(admin_user.model_dump())
+    await create_user(admin_user.model_dump())
     app_logger.info("Default admin created successfully.")
