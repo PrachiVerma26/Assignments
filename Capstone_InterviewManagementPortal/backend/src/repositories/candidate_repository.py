@@ -1,14 +1,17 @@
 from bson import ObjectId
 from typing import Optional, Dict, Any
 from pymongo import DESCENDING
-import gridfs
-
+from motor.motor_asyncio import AsyncIOMotorGridFSBucket
+from gridfs.errors import NoFile
 from src.constants.auth_constants import CANDIDATE_COLLECTION, RESUME_BUCKET
 from src.core.database import Database
 
 def get_candidate_collection():
     """Return the jobs collection."""
     return Database.get_database()[CANDIDATE_COLLECTION]
+
+def get_resume_bucket() -> AsyncIOMotorGridFSBucket:
+    return AsyncIOMotorGridFSBucket(Database.get_database(), bucket_name=RESUME_BUCKET)
 
 async def create_candidate(candidate_data: dict):
     return await get_candidate_collection().insert_one(candidate_data)
@@ -49,26 +52,23 @@ async def get_candidate_by_mobile(mobile: str):
 async def update_candidate(candidate_id: str, candidate_data: dict):
     return await get_candidate_collection().update_one({"_id": ObjectId(candidate_id)}, {"$set": candidate_data})
 
-def upload_resume(file_data: bytes, filename: str) -> str:
+async def upload_resume(file_data: bytes, filename: str) -> str:
     """Store resume bytes in GridFS and return the file_id as a string."""
-    database = Database.get_database()
-    fs = gridfs.GridFS(database, collection=RESUME_BUCKET)
-    file_id = fs.put(file_data, filename=filename, content_type="application/pdf")
+    bucket = get_resume_bucket()
+    file_id = await bucket.upload_from_stream(filename, file_data, metadata={"content_type": "application/pdf",},)
     return str(file_id)
 
-def delete_resume(file_id: str) -> None:
+async def delete_resume(file_id: str) -> None:
     """Delete a resume from GridFS by file_id."""
-    database = Database.get_database()
-    fs = gridfs.GridFS(database, collection=RESUME_BUCKET)
-    fs.delete(ObjectId(file_id))
+    bucket = get_resume_bucket()
+    await bucket.delete(ObjectId(file_id))
 
-def get_resume(file_id: str):
+async def get_resume(file_id: str):
     """Retrieve a GridFS file object by file_id. Returns None if not found."""
-    database = Database.get_database()
-    fs = gridfs.GridFS(database, collection=RESUME_BUCKET)
+    bucket = get_resume_bucket()
     try:
-        return fs.get(ObjectId(file_id))
-    except gridfs.errors.NoFile:
+        return await bucket.open_download_stream( ObjectId(file_id) )
+    except NoFile:
         return None
 
 async def push_status_history(candidate_id: str, history_entry: dict) -> None:

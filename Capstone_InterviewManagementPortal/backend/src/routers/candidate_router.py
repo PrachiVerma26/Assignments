@@ -18,10 +18,9 @@ from src.schemas.response.candidate_response import (
 from src.services import candidate_service
 from src.utils.logger import app_logger
 from src.utils.security import get_current_user, require_roles
+import io
 
 router = APIRouter(prefix="/candidates", tags=["Candidate Management"])
-
-
 @router.post("", response_model=CreateCandidateResponse, status_code=status.HTTP_201_CREATED)
 async def create_candidate(payload: CreateCandidateRequest, current_user=Depends(get_current_user)):
     """Create a candidate profile. Accessible only by HR users."""
@@ -42,23 +41,24 @@ async def get_candidates(
     return await candidate_service.get_candidates(page, limit, search)
 
 @router.get("/{candidate_id}/resume")
-def view_resume(candidate_id: str, current_user=Depends(get_current_user)):
+async def view_resume(candidate_id: str, current_user=Depends(get_current_user)):
     """Stream the resume PDF for a candidate."""
     require_roles(current_user, [UserRole.HR])
     app_logger.info("Resume view endpoint invoked for candidate: %s", candidate_id)
-    grid_file = candidate_service.get_resume(candidate_id)
+    grid_file = await candidate_service.get_resume(candidate_id)
+    file_bytes = await grid_file.read()
     return StreamingResponse(
-        grid_file,
+        io.BytesIO(file_bytes),
         media_type="application/pdf",
         headers={"Content-Disposition": f"inline; filename={grid_file.filename}"},
     )
 
 @router.get("/{candidate_id}/status/history", response_model=StatusHistoryResponse)
-def get_status_history(candidate_id: str, current_user=Depends(get_current_user)):
+async def get_status_history(candidate_id: str, current_user=Depends(get_current_user)):
     """Retrieve the full status history for a candidate."""
     require_roles(current_user, [UserRole.HR])
     app_logger.info("Status history endpoint invoked for candidate: %s", candidate_id)
-    return candidate_service.get_status_history(candidate_id)
+    return await candidate_service.get_status_history(candidate_id)
 
 @router.get("/{candidate_id}", response_model=CandidateResponse)
 async def get_candidate(candidate_id: str, current_user=Depends(get_current_user)):
@@ -73,21 +73,20 @@ async def update_candidate(candidate_id: str, payload: UpdateCandidateRequest, c
     require_roles(current_user, [UserRole.HR])
     app_logger.info("Updating candidate: %s", candidate_id)
     return await candidate_service.update_candidate(candidate_id, payload)
-    return candidate_service.update_candidate(candidate_id, payload)
 
 @router.post("/{candidate_id}/resume", response_model=ResumeUploadResponse, status_code=status.HTTP_201_CREATED)
-def upload_resume(candidate_id: str, file: UploadFile = File(...), current_user=Depends(get_current_user)):
+async def upload_resume(candidate_id: str, file: UploadFile = File(...), current_user=Depends(get_current_user)):
     """Upload or replace a PDF resume for a candidate."""
     require_roles(current_user, [UserRole.HR])
     app_logger.info("Resume upload endpoint invoked for candidate: %s", candidate_id)
-    return candidate_service.upload_resume(candidate_id, file)
+    return await candidate_service.upload_resume(candidate_id, file)
 
 @router.patch("/{candidate_id}/status", response_model=CandidateStatusUpdateResponse)
-def update_candidate_status(
+async def update_candidate_status(
     candidate_id: str,
     new_status: CandidateStatus = Query(..., description="New candidate status"),
     current_user=Depends(get_current_user)):
     """Update the status of a candidate."""
     require_roles(current_user, [UserRole.HR])
     app_logger.info("Status update endpoint invoked for candidate: %s", candidate_id)
-    return candidate_service.update_candidate_status(candidate_id, new_status, current_user)
+    return await candidate_service.update_candidate_status(candidate_id, new_status, current_user)

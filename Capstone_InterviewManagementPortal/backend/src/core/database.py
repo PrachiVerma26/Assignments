@@ -2,6 +2,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from src.core.config import settings
 from src.utils.logger import app_logger  # Use centralized logger
 from pymongo.errors import PyMongoError
+from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 
 class Database:
     """
@@ -36,6 +37,13 @@ class Database:
         if cls.db is None:
             raise RuntimeError("Database has not been initialized. Call Database.connect() during application startup.")
         return cls.db
+    
+    @classmethod
+    def get_resume_bucket(cls):
+        return AsyncIOMotorGridFSBucket(
+            cls.get_database(),
+            bucket_name="RESUME_BUCKET"
+        )
     
     @classmethod
     def close(cls):
