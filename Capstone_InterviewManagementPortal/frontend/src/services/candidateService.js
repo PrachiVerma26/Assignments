@@ -23,28 +23,30 @@ export const updateCandidate = async (candidateId, candidateData) => {
     return response.data;
 };
 
-export const uploadResume = async (id, file) => {
+export const uploadResume = async (candidateId, file) => {
     const formData = new FormData();
     formData.append("file", file);
-    const response = await axiosInstance.post(`${CANDIDATE_ENDPOINTS.UPLOAD_RESUME}/${id}/resume`, formData, {
+    const response = await apiClient.post(CANDIDATE_ENDPOINTS.RESUME(candidateId), formData, {
         headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
 };
 
-export const getResumeUrl = (id) =>
-    `${CANDIDATE_ENDPOINTS.GET_RESUME}/${id}/resume`;
-
-export const updateCandidateStatus = async (id, newStatus) => {
-    const response = await axiosInstance.patch(
-        `${CANDIDATE_ENDPOINTS.UPDATE_STATUS}/${id}/status`,
-        null,
-        { params: { new_status: newStatus } }
-    );
+export const viewResume = async (candidateId) => {
+    const response = await apiClient.get(CANDIDATE_ENDPOINTS.RESUME(candidateId), {
+        responseType: "blob",
+    });
     return response.data;
 };
 
-export const getStatusHistory = async (id) => {
-    const response = await axiosInstance.get(`${CANDIDATE_ENDPOINTS.GET_STATUS_HISTORY}/${id}/status/history`);
+export const updateCandidateStatus = async (candidateId, newStatus) => {
+    const response = await apiClient.patch(CANDIDATE_ENDPOINTS.STATUS(candidateId), null, {
+        params: { new_status: newStatus },
+    });
+    return response.data;
+};
+
+export const getCandidateStatusHistory = async (candidateId) => {
+    const response = await apiClient.get(CANDIDATE_ENDPOINTS.STATUS_HISTORY(candidateId));
     return response.data;
 };

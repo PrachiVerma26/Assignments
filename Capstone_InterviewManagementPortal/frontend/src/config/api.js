@@ -19,4 +19,7 @@ export const JOB_ENDPOINTS = {
 /* Candidate Management API endpoints.*/
 export const CANDIDATE_ENDPOINTS = {
     CANDIDATES: "/candidates",
+    RESUME: (id) => `/candidates/${id}/resume`,
+    STATUS: (id) => `/candidates/${id}/status`,
+    STATUS_HISTORY: (id) => `/candidates/${id}/status/history`,
 };

@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, Pencil, Plus, Search } from "lucide-react";
+import { MoreVertical, Plus, Search } from "lucide-react";
 import Layout from "../../components/layout/Layout";
+import CandidateStatusHistory from "../../components/candidate/CandidateStatusHistory";
 import { getCandidates } from "../../services/candidateService";
 import "./CandidateList.css";
 
@@ -15,13 +16,41 @@ const STATUS_LABELS = {
     HIRED: "Offered",
 };
 
-function CandidateList() {
+function ActionMenu({ candidate, onStatusHistory }) {
     const navigate = useNavigate();
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
+
+    useEffect(() => {
+        const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, []);
+
+    return (
+        <div className="cl-menu-wrapper" ref={ref}>
+            <button className="cl-menu-btn" onClick={() => setOpen(o => !o)}>
+                <MoreVertical size={16} />
+            </button>
+            {open && (
+                <div className="cl-dropdown">
+                    <button className="cl-dropdown-item" onClick={() => { setOpen(false); navigate(`/candidates/${candidate.id}`); }}>View</button>
+                    <button className="cl-dropdown-item" onClick={() => { setOpen(false); navigate(`/candidates/${candidate.id}/edit`); }}>Edit</button>
+                    <button className="cl-dropdown-item" onClick={() => { setOpen(false); onStatusHistory(candidate); }}>Status History</button>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function CandidateList() {
     const [candidates, setCandidates] = useState([]);
     const [search, setSearch] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [pagination, setPagination] = useState({ currentPage: 1, total: 0 });
+    const [historyCandidate, setHistoryCandidate] = useState(null);
+    const navigate = useNavigate();
 
     const fetchCandidates = useCallback(async (page = 1) => {
         setIsLoading(true);
@@ -106,12 +135,7 @@ function CandidateList() {
                                         </span>
                                     </td>
                                     <td className="cl-actions-cell">
-                                        <button className="cl-action-btn" title="View Candidate" onClick={() => navigate(`/candidates/${c.id}`)}>
-                                            <Eye size={16} />
-                                        </button>
-                                        <button className="cl-action-btn" title="Edit Candidate" onClick={() => navigate(`/candidates/${c.id}/edit`)}>
-                                            <Pencil size={16} />
-                                        </button>
+                                        <ActionMenu candidate={c} onStatusHistory={setHistoryCandidate} />
                                     </td>
                                 </tr>
                             ))}
@@ -136,6 +160,14 @@ function CandidateList() {
                     )}
                 </div>
             </div>
+
+            {historyCandidate && (
+                <CandidateStatusHistory
+                    candidateId={historyCandidate.id}
+                    candidateName={`${historyCandidate.first_name} ${historyCandidate.last_name}`}
+                    onClose={() => setHistoryCandidate(null)}
+                />
+            )}
         </Layout>
     );
 }

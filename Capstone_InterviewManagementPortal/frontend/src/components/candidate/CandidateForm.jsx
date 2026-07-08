@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createCandidate, updateCandidate } from "../../services/candidateService";
+import ResumeUpload from "./ResumeUpload";
 import "./CandidateForm.css";
 
 const EMPTY_FORM = {
@@ -20,6 +21,7 @@ function CandidateForm({ mode, candidateData }) {
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [apiError, setApiError] = useState("");
+    const [savedCandidateId, setSavedCandidateId] = useState(null);
 
     useEffect(() => {
         if (isEdit && candidateData) {
@@ -32,6 +34,7 @@ function CandidateForm({ mode, candidateData }) {
                 total_experience: candidateData.total_experience ?? "",
                 applied_job_id: candidateData.applied_job_id || "",
             });
+            setSavedCandidateId(candidateData.id);
         }
     }, [isEdit, candidateData]);
 
@@ -74,10 +77,11 @@ function CandidateForm({ mode, candidateData }) {
             };
             if (isEdit) {
                 await updateCandidate(candidateData.id, payload);
+                navigate("/candidates");
             } else {
-                await createCandidate(payload);
+                const created = await createCandidate(payload);
+                setSavedCandidateId(created.id);
             }
-            navigate("/candidates");
         } catch (err) {
             setApiError(err.message || "Something went wrong. Please try again.");
         } finally {
@@ -185,13 +189,32 @@ function CandidateForm({ mode, candidateData }) {
                         {errors.applied_job_id && <p className="cf-error-msg">{errors.applied_job_id}</p>}
                     </div>
 
+                    {savedCandidateId && (
+                        <div className="cf-group">
+                            <ResumeUpload
+                                candidateId={savedCandidateId}
+                                hasExistingResume={isEdit && Boolean(candidateData?.resume_file_id)}
+                            />
+                        </div>
+                    )}
+
                     <div className="cf-actions">
                         <button type="button" className="cf-cancel" onClick={() => navigate("/candidates")} disabled={isLoading}>
                             Cancel
                         </button>
-                        <button type="submit" className="cf-submit" disabled={isLoading}>
-                            {isLoading ? "Saving..." : isEdit ? "Update Candidate" : "Save Candidate"}
-                        </button>
+                        {!savedCandidateId ? (
+                            <button type="submit" className="cf-submit" disabled={isLoading}>
+                                {isLoading ? "Saving..." : "Save Candidate"}
+                            </button>
+                        ) : isEdit ? (
+                            <button type="submit" className="cf-submit" disabled={isLoading}>
+                                {isLoading ? "Saving..." : "Update Candidate"}
+                            </button>
+                        ) : (
+                            <button type="button" className="cf-submit" onClick={() => navigate("/candidates")}>
+                                Done
+                            </button>
+                        )}
                     </div>
                 </form>
             </div>
