@@ -179,62 +179,59 @@ async def test_update_candidate_success(mocker):
         {"$set": update_data},
     )
 
-# resume upload test cases 
-def test_upload_resume_success(mocker):
+# resume upload test cases
+@pytest.mark.asyncio
+async def test_upload_resume_success(mocker):
     """Store PDF bytes in GridFS and return a string file_id."""
     fake_id = ObjectId()
-    mock_fs = mocker.MagicMock()
-    mock_fs.put.return_value = fake_id
-    mock_database = mocker.Mock()
-    mocker.patch("src.repositories.candidate_repository.gridfs.GridFS", return_value=mock_fs)
-    mocker.patch("src.repositories.candidate_repository.Database.get_database", return_value = mock_database)
-    result = repository.upload_resume(b"%PDF-1.4 content", "resume.pdf")
+    mock_bucket = mocker.MagicMock()
+    mock_bucket.upload_from_stream = AsyncMock(return_value=fake_id)
+    mocker.patch("src.repositories.candidate_repository.get_resume_bucket", return_value=mock_bucket)
+    result = await repository.upload_resume(b"%PDF-1.4 content", "resume.pdf")
     assert result == str(fake_id)
-    mock_fs.put.assert_called_once_with(b"%PDF-1.4 content", filename="resume.pdf", content_type="application/pdf")
+    mock_bucket.upload_from_stream.assert_awaited_once_with(
+        "resume.pdf", b"%PDF-1.4 content", metadata={"content_type": "application/pdf"}
+    )
 
-def test_upload_resume_gridfs_failure(mocker):
+@pytest.mark.asyncio
+async def test_upload_resume_gridfs_failure(mocker):
     """Propagate GridFS exceptions on upload failure."""
-    mock_fs = mocker.MagicMock()
-    mock_fs.put.side_effect = Exception("GridFS error")
-    mock_database= mocker.Mock()
-    mocker.patch("src.repositories.candidate_repository.gridfs.GridFS", return_value=mock_fs)
-    mocker.patch("src.repositories.candidate_repository.Database.get_database", return_value = mock_database )
-    import pytest
+    mock_bucket = mocker.MagicMock()
+    mock_bucket.upload_from_stream = AsyncMock(side_effect=Exception("GridFS error"))
+    mocker.patch("src.repositories.candidate_repository.get_resume_bucket", return_value=mock_bucket)
     with pytest.raises(Exception, match="GridFS error"):
-        repository.upload_resume(b"data", "resume.pdf")
+        await repository.upload_resume(b"data", "resume.pdf")
 
-def test_delete_resume_success(mocker):
+@pytest.mark.asyncio
+async def test_delete_resume_success(mocker):
     """Delete a GridFS file by file_id without error."""
-    mock_fs = mocker.MagicMock()
-    mock_database= mocker.Mock()
-    mocker.patch("src.repositories.candidate_repository.gridfs.GridFS", return_value=mock_fs)
-    mocker.patch("src.repositories.candidate_repository.Database.get_database", return_value= mock_database)
+    mock_bucket = mocker.MagicMock()
+    mock_bucket.delete = AsyncMock()
+    mocker.patch("src.repositories.candidate_repository.get_resume_bucket", return_value=mock_bucket)
     file_id = str(ObjectId())
-    repository.delete_resume(file_id)
-    mock_fs.delete.assert_called_once_with(ObjectId(file_id))
+    await repository.delete_resume(file_id)
+    mock_bucket.delete.assert_awaited_once_with(ObjectId(file_id))
 
-def test_get_resume_success(mocker):
-    """Return the GridFS file object when it exists."""
-    fake_file = mocker.MagicMock()
-    mock_fs = mocker.MagicMock()
-    mock_fs.get.return_value = fake_file
-    mock_database =mocker.Mock()
-    mocker.patch("src.repositories.candidate_repository.gridfs.GridFS", return_value=mock_fs)
-    mocker.patch("src.repositories.candidate_repository.Database.get_database", return_value=mock_database)
+@pytest.mark.asyncio
+async def test_get_resume_success(mocker):
+    """Return the GridFS stream when the file exists."""
+    fake_stream = mocker.MagicMock()
+    mock_bucket = mocker.MagicMock()
+    mock_bucket.open_download_stream = AsyncMock(return_value=fake_stream)
+    mocker.patch("src.repositories.candidate_repository.get_resume_bucket", return_value=mock_bucket)
     file_id = str(ObjectId())
-    result = repository.get_resume(file_id)
-    assert result == fake_file
-    mock_fs.get.assert_called_once_with(ObjectId(file_id))
+    result = await repository.get_resume(file_id)
+    assert result == fake_stream
+    mock_bucket.open_download_stream.assert_awaited_once_with(ObjectId(file_id))
 
-def test_get_resume_not_found(mocker):
+@pytest.mark.asyncio
+async def test_get_resume_not_found(mocker):
     """Return None when the GridFS file does not exist."""
-    import gridfs as gfs
-    mock_fs = mocker.MagicMock()
-    mock_fs.get.side_effect = gfs.errors.NoFile
-    mock_database = mocker.Mock()
-    mocker.patch("src.repositories.candidate_repository.gridfs.GridFS", return_value=mock_fs)
-    mocker.patch("src.repositories.candidate_repository.Database.get_database", return_value=mock_database)
-    result = repository.get_resume(str(ObjectId()))
+    from gridfs.errors import NoFile
+    mock_bucket = mocker.MagicMock()
+    mock_bucket.open_download_stream = AsyncMock(side_effect=NoFile)
+    mocker.patch("src.repositories.candidate_repository.get_resume_bucket", return_value=mock_bucket)
+    result = await repository.get_resume(str(ObjectId()))
     assert result is None
 
 @pytest.mark.asyncio

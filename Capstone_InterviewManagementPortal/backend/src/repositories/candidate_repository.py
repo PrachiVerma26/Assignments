@@ -10,8 +10,6 @@ def get_candidate_collection():
     """Return the jobs collection."""
     return Database.get_database()[CANDIDATE_COLLECTION]
 
-def get_resume_bucket() -> AsyncIOMotorGridFSBucket:
-    return AsyncIOMotorGridFSBucket(Database.get_database(), bucket_name=RESUME_BUCKET)
 
 async def create_candidate(candidate_data: dict):
     return await get_candidate_collection().insert_one(candidate_data)
@@ -52,22 +50,22 @@ async def get_candidate_by_mobile(mobile: str):
 async def update_candidate(candidate_id: str, candidate_data: dict):
     return await get_candidate_collection().update_one({"_id": ObjectId(candidate_id)}, {"$set": candidate_data})
 
+def get_resume_bucket() -> AsyncIOMotorGridFSBucket:
+    return AsyncIOMotorGridFSBucket(Database.get_database(), bucket_name=RESUME_BUCKET)
+
 async def upload_resume(file_data: bytes, filename: str) -> str:
-    """Store resume bytes in GridFS and return the file_id as a string."""
     bucket = get_resume_bucket()
-    file_id = await bucket.upload_from_stream(filename, file_data, metadata={"content_type": "application/pdf",},)
+    file_id = await bucket.upload_from_stream(filename, file_data, metadata={"content_type": "application/pdf"})
     return str(file_id)
 
 async def delete_resume(file_id: str) -> None:
-    """Delete a resume from GridFS by file_id."""
     bucket = get_resume_bucket()
     await bucket.delete(ObjectId(file_id))
 
 async def get_resume(file_id: str):
-    """Retrieve a GridFS file object by file_id. Returns None if not found."""
     bucket = get_resume_bucket()
     try:
-        return await bucket.open_download_stream( ObjectId(file_id) )
+        return await bucket.open_download_stream(ObjectId(file_id))
     except NoFile:
         return None
 
