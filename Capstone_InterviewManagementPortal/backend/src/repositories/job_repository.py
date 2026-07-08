@@ -46,7 +46,7 @@ async def get_job_by_id(job_id: str):
 
 async def update_job(job_id: str, job_data: dict):
     """Update job information."""
-    return get_job_collection().update_one({"_id": ObjectId(job_id)}, {"$set": job_data})
+    return await get_job_collection().update_one({"_id": ObjectId(job_id)}, {"$set": job_data})
 
 async def get_job_by_title(title: str):
     """Retrieve a job by title."""

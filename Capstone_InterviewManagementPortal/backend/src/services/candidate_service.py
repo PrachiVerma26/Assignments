@@ -55,20 +55,20 @@ async def create_candidate(candidate_request, current_user) -> CreateCandidateRe
     created = candidate.model_dump()
     created["_id"] = result.inserted_id
     app_logger.info("Candidate created successfully: %s", result.inserted_id)
-    return CreateCandidateResponse(message="Candidate created successfully.", candidate=_build_candidate_response(created))
+    return CreateCandidateResponse(message="Candidate created successfully.", candidate=await _build_candidate_response(created))
 
 async def get_candidate_by_id(candidate_id: str) -> CandidateResponse:
     """Get candidate by ID."""
     app_logger.info("Fetching candidate by ID: %s", candidate_id)
     candidate = await _get_candidate_or_raise(candidate_id)
     app_logger.info("Candidate found: %s", candidate["email"])
-    return _build_candidate_response(candidate)
+    return await _build_candidate_response(candidate)
 
 async def get_candidates(page: int = 1, limit: int = 10, search: str | None = None) -> CandidateListResponse:
     """List candidates with pagination and optional search."""
     app_logger.info("Fetching candidates - page: %d, limit: %d", page, limit)
     result = await candidate_repository.get_candidates(page, limit, search)
-    candidates = [_build_candidate_response(c) for c in result["candidates"]]
+    candidates = [await _build_candidate_response(c) for c in result["candidates"]]
     return CandidateListResponse(
         message="Candidates retrieved successfully.",
         candidates=candidates,
@@ -103,4 +103,4 @@ async def update_candidate(candidate_id: str, candidate_request) -> CandidateRes
 
     updated = await candidate_repository.get_candidate_by_id(candidate_id)
     app_logger.info("Candidate updated successfully: %s", candidate_id)
-    return _build_candidate_response(updated)
+    return await _build_candidate_response(updated)
