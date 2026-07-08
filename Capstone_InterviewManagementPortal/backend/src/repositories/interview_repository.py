@@ -1,3 +1,4 @@
+from datetime import datetime
 from bson import ObjectId
 from pymongo import DESCENDING
 from src.constants.auth_constants import INTERVIEW_COLLECTION
@@ -27,11 +28,29 @@ async def get_interviews_by_interviewer(interviewer_id: str):
     cursor = get_interview_collection().find({"interviewer_id": interviewer_id})
     return await cursor.to_list(length=None)
 
-async def get_candidate_interview(candidate_id: str, interview_date, interview_time):
-    return await get_interview_collection().find_one({"candidate_id": candidate_id, "interview_date": interview_date, "interview_time": interview_time,})
+async def get_candidate_interview(candidate_id: str, interview_datetime):
+    return await get_interview_collection().find_one({"candidate_id": candidate_id, "interview_datetime": interview_datetime})
 
-async def get_interviewer_interview(interviewer_id: str, interview_date, interview_time):
-    return await get_interview_collection().find_one({"interviewer_id": interviewer_id, "interview_date": interview_date, "interview_time": interview_time,})
+async def get_interviewer_interview(interviewer_id: str, interview_datetime):
+    return await get_interview_collection().find_one({"interviewer_id": interviewer_id, "interview_datetime": interview_datetime})
+
+async def get_candidate_interview_except(candidate_id: str, interview_datetime: datetime, interview_id: str):
+    return await get_interview_collection().find_one(
+        {
+            "_id": {"$ne": ObjectId(interview_id)},
+            "candidate_id": candidate_id,
+            "interview_datetime": interview_datetime,
+        }
+    )
+
+async def get_interviewer_interview_except(interviewer_id: str, interview_datetime: datetime, interview_id: str):
+    return await get_interview_collection().find_one(
+        {
+            "_id": {"$ne": ObjectId(interview_id)},
+            "interviewer_id": interviewer_id,
+            "interview_datetime": interview_datetime,
+        }
+    )
 
 async def submit_feedback(interview_id: str, feedback_data: dict):
     return await get_interview_collection().update_one({"_id": ObjectId(interview_id)}, {"$set": feedback_data})

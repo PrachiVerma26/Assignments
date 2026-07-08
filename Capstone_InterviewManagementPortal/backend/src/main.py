@@ -12,6 +12,7 @@ from src.routers.auth_router import router as auth_router
 from src.routers.user_router import router as user_router
 from src.routers.job_router import router as job_router
 from src.routers.candidate_router import router as candidate_router
+from src.routers.interview_router import router as interview_router
 from src.exceptions.exception_handler import (register_exception_handlers)
 from fastapi.middleware.cors import CORSMiddleware
 from src.seeders.seed_admin import seed_admin
@@ -65,6 +66,7 @@ app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(job_router)
 app.include_router(candidate_router)
+app.include_router(interview_router)
 
 @app.get("/", tags=["Health Check"], response_model=SuccessResponse)
 def home():

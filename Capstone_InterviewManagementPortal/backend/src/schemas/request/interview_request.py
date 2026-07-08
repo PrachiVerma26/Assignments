@@ -1,5 +1,5 @@
 from datetime import date, time
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from src.enums.interview_mode import InterviewMode
 from src.enums.recommendation import Recommendation
 
@@ -13,6 +13,11 @@ class ScheduleInterviewRequest(BaseModel):
     meeting_link: str | None = None
     location: str | None = None
 
+    @field_validator("interview_time", mode="after")
+    @classmethod
+    def strip_timezone(cls, v: time) -> time:
+        return v.replace(tzinfo=None)
+
 class UpdateInterviewRequest(BaseModel):
     """Request model for updating an interview."""
     interviewer_id: str | None = None
@@ -21,6 +26,11 @@ class UpdateInterviewRequest(BaseModel):
     interview_mode: InterviewMode | None = None
     meeting_link: str | None = None
     location: str | None = None
+
+    @field_validator("interview_time", mode="after")
+    @classmethod
+    def strip_timezone(cls, v: time | None) -> time | None:
+        return v.replace(tzinfo=None) if v is not None else v
 
 class SubmitFeedbackRequest(BaseModel):
     """Request model for submitting an interview."""
