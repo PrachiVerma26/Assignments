@@ -1,101 +1,115 @@
 """Global Exception Handlers"""
-
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
-from src.exceptions.auth_exceptions import (UserNotFoundException, InvalidCredentialsException, InactiveUserException, InvalidRoleException, PasswordValidationException)
-from src.exceptions.user_exceptions import DuplicateEmailException, InvalidEmailDomainException, UserAlreadyInactiveException, UserAlreadyActiveException
-from src.exceptions.job_exceptions import JobNotFoundException, DuplicateJobTitleException
-from src.exceptions.candidate_exceptions import (
-    CandidateNotFoundException,
-    CandidateEmailAlreadyExistsException,
-    CandidateMobileAlreadyExistsException,
-    InvalidNucleusTeqEmailException,
-    ResumeNotFoundException,
-    InvalidFileTypeException,
-    EmptyFileException,
-    ResumeUploadFailedException,
-    InvalidCandidateStatusException,
-)
+from src.exceptions import auth_exceptions
+from src.exceptions import candidate_exceptions
+from src.exceptions import interview_exceptions
+from src.exceptions import job_exceptions
+from src.exceptions import user_exceptions
 
 def register_exception_handlers(app):
     """Register all application exception handlers."""
 
-    @app.exception_handler(UserNotFoundException)
-    async def user_not_found_handler(request: Request, exc: UserNotFoundException):
+    @app.exception_handler(auth_exceptions.UserNotFoundException)
+    async def user_not_found_handler(request: Request, exc:auth_exceptions.UserNotFoundException):
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": str(exc)})
 
-    @app.exception_handler(InvalidCredentialsException)
-    async def invalid_credentials_handler(request: Request, exc: InvalidCredentialsException):
+    @app.exception_handler(auth_exceptions.InvalidCredentialsException)
+    async def invalid_credentials_handler(request: Request, exc: auth_exceptions.InvalidCredentialsException):
         return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"message": str(exc)})
 
-    @app.exception_handler(InactiveUserException)
-    async def inactive_user_handler(request: Request, exc: InactiveUserException):
+    @app.exception_handler(auth_exceptions.InactiveUserException)
+    async def inactive_user_handler(request: Request, exc: auth_exceptions.InactiveUserException):
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"message": str(exc)})
 
-    @app.exception_handler(InvalidRoleException)
-    async def invalid_role_handler(request: Request, exc: InvalidRoleException):
+    @app.exception_handler(auth_exceptions.InvalidRoleException)
+    async def invalid_role_handler(request: Request, exc: auth_exceptions.InvalidRoleException):
         return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content={"message": str(exc)})
 
-    @app.exception_handler(PasswordValidationException)
-    async def password_validation_handler(request: Request, exc: PasswordValidationException):
+    @app.exception_handler(auth_exceptions.PasswordValidationException)
+    async def password_validation_handler(request: Request, exc:auth_exceptions. PasswordValidationException):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
 
-    @app.exception_handler(DuplicateEmailException)
-    async def duplicate_email_exception_handler(request: Request, exc: DuplicateEmailException):
+    @app.exception_handler(user_exceptions.DuplicateEmailException)
+    async def duplicate_email_exception_handler(request: Request, exc: user_exceptions.DuplicateEmailException):
         return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"message": str(exc)})
     
-    @app.exception_handler(InvalidEmailDomainException)
-    async def invalid_email_domain_exception_handler(request: Request, exc: InvalidEmailDomainException):
+    @app.exception_handler(user_exceptions.InvalidEmailDomainException)
+    async def invalid_email_domain_exception_handler(request: Request, exc: user_exceptions.InvalidEmailDomainException):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
     
-    @app.exception_handler(UserAlreadyInactiveException)
-    async def user_already_inactive_exception_handler(request: Request, exc: UserAlreadyInactiveException):
+    @app.exception_handler(user_exceptions.UserAlreadyInactiveException)
+    async def user_already_inactive_exception_handler(request: Request, exc: user_exceptions.UserAlreadyInactiveException):
         return JSONResponse(status_code= status.HTTP_409_CONFLICT, content= {"message": str(exc)})
     
-    @app.exception_handler(UserAlreadyActiveException)
+    @app.exception_handler(user_exceptions.UserAlreadyActiveException)
     async def user_already_active_exception_handler(request, exc):
         return JSONResponse(status_code=400, content={"success": False, "message": str(exc)})
 
-    @app.exception_handler(JobNotFoundException)
-    async def job_not_found_handler(request: Request, exc: JobNotFoundException):
+    @app.exception_handler(job_exceptions.JobNotFoundException)
+    async def job_not_found_handler(request: Request, exc: job_exceptions.JobNotFoundException):
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": str(exc)})
 
-    @app.exception_handler(DuplicateJobTitleException)
-    async def duplicate_job_title_handler(request: Request, exc: DuplicateJobTitleException):
+    @app.exception_handler(job_exceptions.DuplicateJobTitleException)
+    async def duplicate_job_title_handler(request: Request, exc: job_exceptions.DuplicateJobTitleException):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
 
-    @app.exception_handler(CandidateNotFoundException)
-    async def candidate_not_found_handler(request: Request, exc: CandidateNotFoundException):
+    @app.exception_handler(candidate_exceptions.CandidateNotFoundException)
+    async def candidate_not_found_handler(request: Request, exc: candidate_exceptions.CandidateNotFoundException):
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": str(exc)})
 
-    @app.exception_handler(CandidateEmailAlreadyExistsException)
-    async def candidate_email_exists_handler(request: Request, exc: CandidateEmailAlreadyExistsException):
+    @app.exception_handler(candidate_exceptions.CandidateEmailAlreadyExistsException)
+    async def candidate_email_exists_handler(request: Request, exc: candidate_exceptions.CandidateEmailAlreadyExistsException):
         return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"message": str(exc)})
 
-    @app.exception_handler(CandidateMobileAlreadyExistsException)
-    async def candidate_mobile_exists_handler(request: Request, exc: CandidateMobileAlreadyExistsException):
+    @app.exception_handler(candidate_exceptions.CandidateMobileAlreadyExistsException)
+    async def candidate_mobile_exists_handler(request: Request, exc: candidate_exceptions.CandidateMobileAlreadyExistsException):
         return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"message": str(exc)})
 
-    @app.exception_handler(InvalidNucleusTeqEmailException)
-    async def invalid_nucleusteq_email_handler(request: Request, exc: InvalidNucleusTeqEmailException):
+    @app.exception_handler(candidate_exceptions.InvalidNucleusTeqEmailException)
+    async def invalid_nucleusteq_email_handler(request: Request, exc: candidate_exceptions.InvalidNucleusTeqEmailException):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
 
-    @app.exception_handler(ResumeNotFoundException)
-    async def resume_not_found_handler(request: Request, exc: ResumeNotFoundException):
+    @app.exception_handler(candidate_exceptions.ResumeNotFoundException)
+    async def resume_not_found_handler(request: Request, exc: candidate_exceptions.ResumeNotFoundException):
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": str(exc)})
 
-    @app.exception_handler(InvalidFileTypeException)
-    async def invalid_file_type_handler(request: Request, exc: InvalidFileTypeException):
+    @app.exception_handler(candidate_exceptions.InvalidFileTypeException)
+    async def invalid_file_type_handler(request: Request, exc: candidate_exceptions.InvalidFileTypeException):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
 
-    @app.exception_handler(EmptyFileException)
-    async def empty_file_handler(request: Request, exc: EmptyFileException):
+    @app.exception_handler(candidate_exceptions.EmptyFileException)
+    async def empty_file_handler(request: Request, exc: candidate_exceptions.EmptyFileException):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
 
-    @app.exception_handler(ResumeUploadFailedException)
-    async def resume_upload_failed_handler(request: Request, exc: ResumeUploadFailedException):
+    @app.exception_handler(candidate_exceptions.ResumeUploadFailedException)
+    async def resume_upload_failed_handler(request: Request, exc: candidate_exceptions.ResumeUploadFailedException):
         return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"message": str(exc)})
 
-    @app.exception_handler(InvalidCandidateStatusException)
-    async def invalid_candidate_status_handler(request: Request, exc: InvalidCandidateStatusException):
+    @app.exception_handler(candidate_exceptions.InvalidCandidateStatusException)
+    async def invalid_candidate_status_handler(request: Request, exc: candidate_exceptions.InvalidCandidateStatusException):
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
+
+    @app.exception_handler(interview_exceptions.InterviewNotFoundException)
+    async def interview_not_found_handler(request: Request, exc: interview_exceptions.InterviewNotFoundException):
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": str(exc)})
+
+    @app.exception_handler(interview_exceptions.FeedbackAlreadySubmittedException)
+    async def feedback_already_submitted_handler(request: Request, exc: interview_exceptions.FeedbackAlreadySubmittedException):
+        return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"message": str(exc)})
+
+    @app.exception_handler(interview_exceptions.InvalidInterviewerException)
+    async def invalid_interviewer_handler(request: Request, exc: interview_exceptions.InvalidInterviewerException):
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
+
+    @app.exception_handler(interview_exceptions.InvalidInterviewDateException)
+    async def invalid_interview_date_handler(request: Request, exc: interview_exceptions.InvalidInterviewDateException):
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
+
+    @app.exception_handler(interview_exceptions.MeetingLinkRequiredException)
+    async def meeting_link_required_handler(request: Request, exc: interview_exceptions.MeetingLinkRequiredException):
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
+
+    @app.exception_handler(interview_exceptions.LocationRequiredException)
+    async def location_required_handler(request: Request, exc: interview_exceptions.LocationRequiredException,):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
