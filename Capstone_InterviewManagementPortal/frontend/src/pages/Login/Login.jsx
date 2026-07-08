@@ -49,8 +49,10 @@ function Login() {
                 password: password, // Store password for API authentication
             });
 
-            // Redirect based on user role
-            if (response.role === "ADMIN") {
+            // Redirect based on password reset requirement, then role
+            if (response.requires_password_reset) {
+                navigate("/reset-password");
+            } else if (response.role === "ADMIN") {
                 navigate("/users");
             } else {
                 navigate("/dashboard");
@@ -97,9 +99,7 @@ function Login() {
                             {showPassword? "Hide": "Show"}
                         </button>
                     </div>
-                    {errors.password && (
-                        <p className="error-message">{errors.password}</p>
-                    )}
+                    {errors.password && (<p className="error-message">{errors.password}</p>)}
                 </div>
                 <button type="submit" className="login-button" disabled={isLoading}>{isLoading? "Signing In...": "Sign In"}</button>
                 <p className="login-footer">For account access,{" "}<a href="mailto:admin@nucleusteq.com">contact your administrator</a></p>

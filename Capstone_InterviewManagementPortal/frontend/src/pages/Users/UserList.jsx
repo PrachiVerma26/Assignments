@@ -20,8 +20,7 @@ function UserList() {
     const [error, setError] = useState("");
     const [showUserDropdown, setShowUserDropdown] = useState(false);
     const [activeActionMenu, setActiveActionMenu] = useState(null);
-    const [userActionsLoading, setUserActionsLoading] = useState(new Set());
-    
+    const [userActionsLoading, setUserActionsLoading] = useState(new Set());    
     const [modalState, setModalState] = useState({isOpen: false, mode: "create", selectedUser: null});
     const [successMessage, setSuccessMessage] = useState("");
 
@@ -33,15 +32,13 @@ function UserList() {
                 page,
                 limit: pagination.usersPerPage,
                 search: searchTerm,
-                active: statusFilter === "active" ? true : statusFilter === "inactive" ? false : null
+                active: statusFilter === "active" ? true : statusFilter === "inactive" ? false : null,
+                role: roleFilter,
             };
             const response = await getUsers(filters);
             let usersList = response.users || [];
-            if (roleFilter) {
-                usersList = usersList.filter(user => user.role === roleFilter);
-            }
             setUsers(usersList);
-            setPagination(prev => ({...prev, currentPage: page, totalPages: Math.ceil(usersList.length / pagination.usersPerPage), totalUsers: usersList.length}));
+            setPagination(prev => ({...prev, currentPage: page, totalPages: response.total_pages || Math.ceil(usersList.length / pagination.usersPerPage), totalUsers: response.total || usersList.length}));
         } catch (error) {
             setError(error.message || "Failed to load users.");
             setUsers([]);
@@ -66,11 +63,7 @@ function UserList() {
     };
     const handlePageChange = (page) => {fetchUsers(page);};
     const handleAddUser = () => {
-        setModalState({
-            isOpen: true,
-            mode: "create",
-            selectedUser: null
-        });
+        setModalState({isOpen: true, mode: "create", selectedUser: null});
         setActiveActionMenu(null);
     };
 
@@ -101,9 +94,7 @@ function UserList() {
     const showSuccessMessage = (message) => {
         setSuccessMessage(message);
         // clear success message after 5 seconds
-        setTimeout(() => {
-            setSuccessMessage("");
-        }, 5000);
+        setTimeout(() => {setSuccessMessage("");}, 5000);
     };
 
     const handleDisableUser = async (userId) => {
@@ -151,9 +142,8 @@ function UserList() {
         // Clear success message after 5 seconds
         setTimeout(() => {setSuccessMessage("");}, 5000);
     };
-    
-    const clearSuccessMessage = () => {setSuccessMessage("");};
 
+    const clearSuccessMessage = () => {setSuccessMessage("");};
     const formatDate = (dateString) => {
         if (!dateString) return "";
         const date = new Date(dateString);
@@ -275,8 +265,7 @@ return (
                 isOpen={modalState.isOpen}
                 onClose={handleModalClose}
                 onSuccess={handleUserSuccess}
-                selectedUser={modalState.selectedUser}
-            />
+                selectedUser={modalState.selectedUser}/>
         </div>
     );
 }

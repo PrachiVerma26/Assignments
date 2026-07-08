@@ -3,7 +3,7 @@
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from src.exceptions.auth_exceptions import (UserNotFoundException, InvalidCredentialsException, InactiveUserException, InvalidRoleException, PasswordValidationException)
-from src.exceptions.user_exceptions import DuplicateEmailException, UserAlreadyActiveException
+from src.exceptions.user_exceptions import DuplicateEmailException, InvalidEmailDomainException, UserAlreadyInactiveException, UserAlreadyActiveException
 from src.exceptions.job_exceptions import JobNotFoundException, DuplicateJobTitleException
 from src.exceptions.candidate_exceptions import (
     CandidateNotFoundException,
@@ -16,7 +16,6 @@ from src.exceptions.candidate_exceptions import (
     ResumeUploadFailedException,
     InvalidCandidateStatusException,
 )
-
 
 def register_exception_handlers(app):
     """Register all application exception handlers."""
@@ -44,7 +43,15 @@ def register_exception_handlers(app):
     @app.exception_handler(DuplicateEmailException)
     async def duplicate_email_exception_handler(request: Request, exc: DuplicateEmailException):
         return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"message": str(exc)})
-
+    
+    @app.exception_handler(InvalidEmailDomainException)
+    async def invalid_email_domain_exception_handler(request: Request, exc: InvalidEmailDomainException):
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
+    
+    @app.exception_handler(UserAlreadyInactiveException)
+    async def user_already_inactive_exception_handler(request: Request, exc: UserAlreadyInactiveException):
+        return JSONResponse(status_code= status.HTTP_409_CONFLICT, content= {"message": str(exc)})
+    
     @app.exception_handler(UserAlreadyActiveException)
     async def user_already_active_exception_handler(request, exc):
         return JSONResponse(status_code=400, content={"success": False, "message": str(exc)})
