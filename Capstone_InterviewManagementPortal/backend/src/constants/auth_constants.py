@@ -6,6 +6,7 @@ from src.enums.role_types import UserRole
 USER_COLLECTION = "users"
 JOB_COLLECTION = "jobs"
 CANDIDATE_COLLECTION = "candidates"
+INTERVIEW_COLLECTION = "interviews"
 
 # GridFS bucket name for resume storage
 RESUME_BUCKET = "resumes"
