@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import Layout from "../../components/layout/Layout";
-import { getCandidateById, viewResume } from "../../services/candidateService";
+import { loadResumePreview } from "../../services/resumePreviewService";
 import "./ResumePreview.css";
 
 function ResumePreview() {
@@ -19,10 +19,7 @@ function ResumePreview() {
             setIsLoading(true);
             setError("");
             try {
-                const [candidateData, pdfBlob] = await Promise.all([
-                    getCandidateById(id),
-                    viewResume(id),
-                ]);
+                const { candidateData, pdfBlob } = await loadResumePreview(id);
                 setCandidate(candidateData);
                 objectUrl = URL.createObjectURL(pdfBlob);
                 setPdfUrl(objectUrl);
