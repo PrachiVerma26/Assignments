@@ -23,7 +23,7 @@ async def create_user(payload: CreateUserRequest, current_user=Depends(get_curre
     app_logger.info("Create user endpoint invoked by %s",current_user["email"])
     return await user_service.create_new_user(payload)
 
-@router.get("", response_model=UserListResponse)
+@router.get("/", response_model=UserListResponse)
 async def get_users(
     page: int = Query(1, ge=1, description="Page number"),
     limit: int = Query(10, ge=1, le=100, description="Items per page"),

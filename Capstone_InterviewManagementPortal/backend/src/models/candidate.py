@@ -7,7 +7,7 @@ class Candidate(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    mobile: str
+    mobile: str = Field(..., min_length=10, max_length=10, pattern=r"^\d{10}$")
     current_company: str
     total_experience: float
     applied_job_id: str

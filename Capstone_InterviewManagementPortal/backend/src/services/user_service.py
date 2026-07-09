@@ -146,7 +146,7 @@ async def change_user_status(user_id: str, status: UserStatus) -> SuccessRespons
     if status == UserStatus.INACTIVE and current_status == UserStatus.INACTIVE.value:
         raise UserAlreadyInactiveException("User is already inactive.")
     try:
-        await user_repository.update_user_status(user_id, UserStatus.INACTIVE.value)
+        await user_repository.update_user_status(user_id, status.value)
     except PyMongoError:
         app_logger.exception("Failed to update user status: %s", user_id)
         raise

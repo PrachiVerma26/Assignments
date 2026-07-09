@@ -2,22 +2,11 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { createJob, updateJob } from "../../services/jobService";
 import "./JobForm.css";
+import { EMPTY_JOB_FORM, EMPLOYMENT_TYPES } from "../../constants/jobFormConstants";
 
-const EMPTY_FORM = {
-    title: "",
-    description: "",
-    requirements: "",
-    location: "",
-    employment_type: "",
-    salary_range: "",
-    department: "",
-    experience_level: "",
-};
-
-const EMPLOYMENT_TYPES = ["Full-time", "Part-time", "Contract", "Internship", "Remote"];
 
 function JobForm({ mode, isOpen, onClose, onSuccess, jobData }) {
-    const [formData, setFormData] = useState(EMPTY_FORM);
+    const [formData, setFormData] = useState(EMPTY_JOB_FORM);
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [apiError, setApiError] = useState("");
@@ -40,7 +29,7 @@ function JobForm({ mode, isOpen, onClose, onSuccess, jobData }) {
                     department: jobData.department || "",
                     experience_level: jobData.experience_level || "",
                 }
-                : EMPTY_FORM
+                : EMPTY_JOB_FORM
         );
     }, [isOpen, mode, jobData, isEdit]);
 
