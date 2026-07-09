@@ -45,7 +45,7 @@ def candidate_doc(candidate_id=None):
         "email": "prachi.verma@nucleusteq.com",
         "mobile": "9876543210",
         "current_company": "NucleusTeq",
-        "total_experience": 3.0,
+        "total_experience": "2 Years 6 Months",
         "applied_job_id": str(ObjectId()),
         "status": CandidateStatus.PROFILE_CREATED,
         "resume_file_id": None,
@@ -63,7 +63,7 @@ def create_request(**kwargs):
         "email": "prachi.verma@nucleusteq.com",
         "mobile": "9876543210",
         "current_company": "Acme Corp",
-        "total_experience": 3.0,
+        "total_experience": "2 Years 6 Months",
         "applied_job_id": str(ObjectId()),
     }
     data.update(kwargs)

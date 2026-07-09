@@ -11,7 +11,7 @@ class CandidateResponse(BaseModel):
     email: EmailStr
     mobile: str
     current_company: str
-    total_experience: float
+    total_experience: str
     applied_job_id: str
     status: CandidateStatus
     resume_file_id: Optional[str] = None

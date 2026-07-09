@@ -14,6 +14,8 @@ const EMPTY_FORM = {
     applied_job_id: "",
 };
 
+const EXPERIENCE_PATTERN = /^(?:(\d+)\s+Years)(?:\s+(\d+)\s+Months)?|(\d+)\s+Months$/i;
+
 function CandidateForm({ mode, candidateData }) {
     const navigate = useNavigate();
     const isEdit = mode === "edit";
@@ -45,7 +47,11 @@ function CandidateForm({ mode, candidateData }) {
         if (!data.email.trim())            e.email = "Email is required.";
         if (!data.mobile.trim())           e.mobile = "Phone number is required.";
         if (!data.current_company.trim())  e.current_company = "Current company is required.";
-        if (data.total_experience === "" || data.total_experience === null) e.total_experience = "Total experience is required.";
+        if (data.total_experience === "" || data.total_experience === null) {
+            e.total_experience = "Total experience is required.";
+        } else if (!EXPERIENCE_PATTERN.test(data.total_experience.trim())) {
+            e.total_experience = "Use format like '2 Years', '6 Months', or '2 Years 6 Months'.";
+        }
         if (!data.applied_job_id.trim())   e.applied_job_id = "Applied job ID is required.";
         return e;
     };
@@ -72,7 +78,7 @@ function CandidateForm({ mode, candidateData }) {
                 email: formData.email.trim(),
                 mobile: formData.mobile.trim(),
                 current_company: formData.current_company.trim(),
-                total_experience: parseFloat(formData.total_experience),
+                total_experience: formData.total_experience.trim(),
                 applied_job_id: formData.applied_job_id.trim(),
             };
             if (isEdit) {
@@ -162,13 +168,11 @@ function CandidateForm({ mode, candidateData }) {
                             {errors.current_company && <p className="cf-error-msg">{errors.current_company}</p>}
                         </div>
                         <div className="cf-group">
-                            <label className="cf-label">Total Experience (years) <span className="cf-req">*</span></label>
+                            <label className="cf-label">Total Experience <span className="cf-req">*</span></label>
                             <input
-                                type="number"
-                                min="0"
-                                step="0.5"
+                                type="text"
                                 className={`cf-input${errors.total_experience ? " error" : ""}`}
-                                placeholder="e.g. 3.5"
+                                placeholder="e.g. 2 Years 6 Months"
                                 value={formData.total_experience}
                                 onChange={e => handleChange("total_experience", e.target.value)}
                                 disabled={isLoading}
