@@ -4,30 +4,11 @@ from datetime import datetime
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import UploadFile
-
 from src.enums.candidate_status import CandidateStatus
-from src.exceptions.candidate_exceptions import (
-    CandidateEmailAlreadyExistsException,
-    CandidateMobileAlreadyExistsException,
-    CandidateNotFoundException,
-    AppliedJobNotFoundException,
-    ResumeNotFoundException,
-    InvalidFileTypeException,
-    EmptyFileException,
-    ResumeUploadFailedException,
-)
+from src.exceptions import candidate_exceptions
 from src.models.candidate import Candidate
 from src.repositories import candidate_repository, job_repository
-from src.schemas.response.candidate_response import (
-    CandidateResponse,
-    CandidateListResponse,
-    CreateCandidateResponse,
-    ResumeUploadResponse,
-    CandidateStatusUpdateResponse,
-    StatusHistoryResponse,
-    StatusHistoryEntry,
-    JobSummaryResponse,
-)
+from src.schemas.response import candidate_response
 from src.utils.logger import app_logger
 
 _PDF_CONTENT_TYPE = "application/pdf"
@@ -37,10 +18,10 @@ async def _get_candidate_or_raise(candidate_id: str) -> dict:
     try:
         ObjectId(candidate_id)
     except InvalidId:
-        raise CandidateNotFoundException("Candidate not found.")
+        raise candidate_exceptions.CandidateNotFoundException("Candidate not found.")
     candidate = await candidate_repository.get_candidate_by_id(candidate_id)
     if not candidate:
-        raise CandidateNotFoundException("Candidate not found.")
+        raise candidate_exceptions.CandidateNotFoundException("Candidate not found.")
     return candidate
 
 async def _get_job_or_raise(job_id: str) -> dict:
@@ -49,26 +30,25 @@ async def _get_job_or_raise(job_id: str) -> dict:
         ObjectId(job_id)
     except InvalidId:
         app_logger.warning("Invalid ObjectId for applied_job_id: %s", job_id)
-        raise AppliedJobNotFoundException("Applied job not found.")
+        raise candidate_exceptions.AppliedJobNotFoundException("Applied job not found.")
     job = await job_repository.get_job_by_id(job_id)
     if not job:
         app_logger.warning("Applied job not found for id: %s", job_id)
-        raise AppliedJobNotFoundException("Applied job not found.")
+        raise candidate_exceptions.AppliedJobNotFoundException("Applied job not found.")
     return job
 
-async def _build_candidate_response(candidate: dict, skip_job_validation: bool = False) -> CandidateResponse:
+async def _build_candidate_response(candidate: dict, skip_job_validation: bool = False) -> candidate_response.CandidateResponse:
     """Convert a candidate document to a CandidateResponse."""
     job = None
     if not skip_job_validation:
         try:
             job = await _get_job_or_raise(candidate["applied_job_id"])
-        except AppliedJobNotFoundException:
+        except candidate_exceptions.AppliedJobNotFoundException:
             app_logger.warning("Invalid job reference for candidate %s: %s", candidate["_id"], candidate["applied_job_id"])
             job = None
     
-    job_summary = JobSummaryResponse(id=str(job["_id"]), title=job["title"]) if job else JobSummaryResponse(id=candidate.get("applied_job_id", "unknown"), title="Unknown Job")
-    
-    return CandidateResponse(
+    job_summary = candidate_response.JobSummaryResponse(id=str(job["_id"]), title=job["title"]) if job else candidate_response.JobSummaryResponse(id=candidate.get("applied_job_id", "unknown"), title="Unknown Job")
+    return candidate_response.CandidateResponse(
         id=str(candidate["_id"]),
         first_name=candidate.get("first_name", "N/A"),
         last_name=candidate.get("last_name", "N/A"),
@@ -84,15 +64,15 @@ async def _build_candidate_response(candidate: dict, skip_job_validation: bool =
         updated_at=candidate.get("updated_at"),
     )
 
-async def create_candidate(candidate_request, current_user) -> CreateCandidateResponse:
+async def create_candidate(candidate_request, current_user) -> candidate_response.CreateCandidateResponse:
     """Create a new candidate profile."""
     app_logger.info("Create candidate request received for: %s", candidate_request.email)
     if await candidate_repository.get_candidate_by_email(candidate_request.email):
         app_logger.warning("Duplicate candidate email detected: %s", candidate_request.email)
-        raise CandidateEmailAlreadyExistsException("Email already exists.")
+        raise candidate_exceptions.CandidateEmailAlreadyExistsException("Email already exists.")
     if await candidate_repository.get_candidate_by_mobile(candidate_request.mobile):
         app_logger.warning("Duplicate candidate mobile detected: %s", candidate_request.mobile)
-        raise CandidateMobileAlreadyExistsException("Mobile number already exists.")
+        raise candidate_exceptions.CandidateMobileAlreadyExistsException("Mobile number already exists.")
 
     # Verify job exists
     await _get_job_or_raise(candidate_request.applied_job_id)
@@ -101,21 +81,21 @@ async def create_candidate(candidate_request, current_user) -> CreateCandidateRe
     created = candidate.model_dump()
     created["_id"] = result.inserted_id
     app_logger.info("Candidate created successfully: %s", result.inserted_id)
-    return CreateCandidateResponse(message="Candidate created successfully.", candidate=await _build_candidate_response(created))
+    return candidate_response.CreateCandidateResponse(message="Candidate created successfully.", candidate=await _build_candidate_response(created))
 
-async def get_candidate_by_id(candidate_id: str) -> CandidateResponse:
+async def get_candidate_by_id(candidate_id: str) -> candidate_response.CandidateResponse:
     """Get candidate by ID."""
     app_logger.info("Fetching candidate by ID: %s", candidate_id)
     candidate = await _get_candidate_or_raise(candidate_id)
     app_logger.info("Candidate found: %s", candidate["email"])
     return await _build_candidate_response(candidate)
 
-async def get_candidates(page: int = 1, limit: int = 10, search: str | None = None) -> CandidateListResponse:
+async def get_candidates(page: int = 1, limit: int = 10, search: str | None = None) -> candidate_response.CandidateListResponse:
     """List candidates with pagination and optional search."""
     app_logger.info("Fetching candidates - page: %d, limit: %d", page, limit)
     result = await candidate_repository.get_candidates(page, limit, search)
     candidates = [await _build_candidate_response(c, skip_job_validation=True) for c in result["candidates"]]
-    return CandidateListResponse(
+    return candidate_response.CandidateListResponse(
         message="Candidates retrieved successfully.",
         candidates=candidates,
         total=result["total"],
@@ -124,7 +104,7 @@ async def get_candidates(page: int = 1, limit: int = 10, search: str | None = No
         total_pages=result["total_pages"],
     )
 
-async def update_candidate(candidate_id: str, candidate_request) -> CandidateResponse:
+async def update_candidate(candidate_id: str, candidate_request) -> candidate_response.CandidateResponse:
     """Update candidate details."""
     app_logger.info("Update candidate request received for: %s", candidate_id)
     await _get_candidate_or_raise(candidate_id)
@@ -134,13 +114,13 @@ async def update_candidate(candidate_id: str, candidate_request) -> CandidateRes
         existing = await candidate_repository.get_candidate_by_email(update_data["email"])
         if existing and str(existing["_id"]) != candidate_id:
             app_logger.warning("Duplicate candidate email detected: %s", update_data["email"])
-            raise CandidateEmailAlreadyExistsException("Email already exists.")
+            raise candidate_exceptions.CandidateEmailAlreadyExistsException("Email already exists.")
 
     if "mobile" in update_data:
         existing = await candidate_repository.get_candidate_by_mobile(update_data["mobile"])
         if existing and str(existing["_id"]) != candidate_id:
             app_logger.warning("Duplicate candidate mobile detected: %s", update_data["mobile"])
-            raise CandidateMobileAlreadyExistsException("Mobile number already exists.")
+            raise candidate_exceptions.CandidateMobileAlreadyExistsException("Mobile number already exists.")
 
     if "applied_job_id" in update_data:
         await _get_job_or_raise(update_data["applied_job_id"])
@@ -152,15 +132,15 @@ async def update_candidate(candidate_id: str, candidate_request) -> CandidateRes
     app_logger.info("Candidate updated successfully: %s", candidate_id)
     return await _build_candidate_response(updated)
 
-async def upload_resume(candidate_id: str, file: UploadFile) -> ResumeUploadResponse:
+async def upload_resume(candidate_id: str, file: UploadFile) -> candidate_response.ResumeUploadResponse:
     """Validate and upload a PDF resume to GridFS, replacing any existing one."""
     app_logger.info("Resume upload requested for candidate: %s", candidate_id)
     candidate = await _get_candidate_or_raise(candidate_id)
     if file.content_type != _PDF_CONTENT_TYPE:
-        raise InvalidFileTypeException("Only PDF files are allowed.")
+        raise candidate_exceptions.InvalidFileTypeException("Only PDF files are allowed.")
     file_data = await file.read()
     if not file_data:
-        raise EmptyFileException("Uploaded file is empty.")
+        raise candidate_exceptions.EmptyFileException("Uploaded file is empty.")
 
     try:
         existing_file_id = candidate.get("resume_file_id")
@@ -169,13 +149,13 @@ async def upload_resume(candidate_id: str, file: UploadFile) -> ResumeUploadResp
         filename = file.filename or f"{candidate_id}.pdf"
         file_id = await candidate_repository.upload_resume(file_data, filename)
         await candidate_repository.update_candidate(candidate_id, {"resume_file_id": file_id, "updated_at": datetime.utcnow()})
-    except (InvalidFileTypeException, EmptyFileException):
+    except (candidate_exceptions.InvalidFileTypeException, candidate_exceptions.EmptyFileException):
         raise
     except Exception as exc:
         app_logger.error("Resume upload failed for candidate %s: %s", candidate_id, exc)
-        raise ResumeUploadFailedException("Resume upload failed.")
+        raise candidate_exceptions.ResumeUploadFailedException("Resume upload failed.")
     app_logger.info("Resume uploaded successfully for candidate: %s, file_id: %s", candidate_id, file_id)
-    return ResumeUploadResponse(message="Resume uploaded successfully.", resume_file_id=file_id)
+    return candidate_exceptions.ResumeUploadResponse(message="Resume uploaded successfully.", resume_file_id=file_id)
 
 async def get_resume(candidate_id: str):
     """Retrieve the GridFS file object for a candidate's resume."""
@@ -183,14 +163,14 @@ async def get_resume(candidate_id: str):
     candidate = await _get_candidate_or_raise(candidate_id)
     file_id = candidate.get("resume_file_id")
     if not file_id:
-        raise ResumeNotFoundException("No resume found for this candidate.")
+        raise candidate_exceptions.ResumeNotFoundException("No resume found for this candidate.")
     grid_file = await candidate_repository.get_resume(file_id)
     if not grid_file:
-        raise ResumeNotFoundException("Resume file not found.")
+        raise candidate_exceptions.ResumeNotFoundException("Resume file not found.")
     app_logger.info("Resume retrieved for candidate: %s", candidate_id)
     return grid_file
 
-async def update_candidate_status(candidate_id: str, new_status: CandidateStatus, current_user: dict) -> CandidateStatusUpdateResponse:
+async def update_candidate_status(candidate_id: str, new_status: CandidateStatus, current_user: dict) -> candidate_response.CandidateStatusUpdateResponse:
     """Update candidate status and record history."""
     app_logger.info("Status update requested for candidate: %s to %s", candidate_id, new_status)
     candidate = await _get_candidate_or_raise(candidate_id)
@@ -206,24 +186,14 @@ async def update_candidate_status(candidate_id: str, new_status: CandidateStatus
     await candidate_repository.update_candidate(candidate_id, {"status": new_status.value, "updated_at": datetime.utcnow()})
     await candidate_repository.push_status_history(candidate_id, history_entry)
     app_logger.info("Candidate %s status updated to %s", candidate_id, new_status)
-    return CandidateStatusUpdateResponse(
-        message="Candidate status updated successfully.",
-        candidate_id=candidate_id,
-        status=new_status,
-    )
+    return candidate_response.CandidateStatusUpdateResponse(message="Candidate status updated successfully.", candidate_id=candidate_id, status=new_status)
 
-async def get_status_history(candidate_id: str) -> StatusHistoryResponse:
+async def get_status_history(candidate_id: str) -> candidate_response.StatusHistoryResponse:
     """Retrieve the full status history for a candidate."""
     app_logger.info("Status history requested for candidate: %s", candidate_id)
     candidate = await _get_candidate_or_raise(candidate_id)
     raw_history = candidate.get("status_history", [])
     history = [
-        StatusHistoryEntry(
-            previous_status=entry.get("previous_status"),
-            new_status=entry["new_status"],
-            updated_at=entry["updated_at"],
-            updated_by=entry.get("updated_by"),
-        )
-        for entry in raw_history
-    ]
-    return StatusHistoryResponse(candidate_id=candidate_id, status_history=history)
+        candidate_response.StatusHistoryEntry(previous_status=entry.get("previous_status"), new_status=entry["new_status"], updated_at=entry["updated_at"], updated_by=entry.get("updated_by"))
+        for entry in raw_history]
+    return candidate_response.StatusHistoryResponse(candidate_id=candidate_id, status_history=history)

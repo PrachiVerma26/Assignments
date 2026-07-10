@@ -142,12 +142,21 @@ def test_get_candidates_with_pagination_and_search(client, mocker, override_curr
     mock_list.assert_awaited_once_with(2, 5, "prachi")
 
 def test_get_candidates_rejects_unauthorized_role(client, mocker, override_current_user):
-    """Reject candidate listing for non-HR/INTERVIEWER roles."""
-    override_current_user(role=UserRole.ADMIN.value)
+    """Reject candidate listing for unsupported roles."""
+    override_current_user(role="MANAGER")
     mock_list = mocker.patch("src.routers.candidate_router.candidate_service.get_candidates", new=AsyncMock())
     response = client.get("/candidates")
     assert response.status_code == 403
     mock_list.assert_not_awaited()
+
+def test_get_candidates_allows_admin(client, mocker, override_current_user):
+    """Allow administrators to view the candidate list."""
+    override_current_user(role=UserRole.ADMIN.value)
+    mock_list = mocker.patch("src.routers.candidate_router.candidate_service.get_candidates",
+        new=AsyncMock(return_value=CandidateListResponse(message="Candidates retrieved successfully.", candidates=[], total=0, page=1, limit=10, total_pages=0)))
+    response = client.get("/candidates")
+    assert response.status_code == 200
+    mock_list.assert_awaited_once_with(1, 10, None)
 
 def test_get_candidates_invalid_pagination_params(client, override_current_user):
     """Return 422 for out-of-range pagination parameters."""

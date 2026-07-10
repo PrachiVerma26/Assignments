@@ -36,7 +36,7 @@ async def get_candidates(
     current_user=Depends(get_current_user)):
 
     """Retrieve candidates with pagination and search."""
-    require_roles(current_user, [UserRole.HR, UserRole.INTERVIEWER])
+    require_roles(current_user, [UserRole.HR, UserRole.INTERVIEWER, UserRole.ADMIN])
     app_logger.info("List candidates endpoint invoked.")
     return await candidate_service.get_candidates(page, limit, search)
 
@@ -63,7 +63,7 @@ async def get_status_history(candidate_id: str, current_user=Depends(get_current
 @router.get("/{candidate_id}", response_model=CandidateResponse)
 async def get_candidate(candidate_id: str, current_user=Depends(get_current_user)):
     """Retrieve a candidate by ID."""
-    require_roles(current_user, [UserRole.HR, UserRole.INTERVIEWER ])
+    require_roles(current_user, [UserRole.HR, UserRole.INTERVIEWER])
     app_logger.info("Fetching candidate: %s", candidate_id)
     return await candidate_service.get_candidate_by_id(candidate_id)
 

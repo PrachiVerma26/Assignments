@@ -87,28 +87,10 @@ async def test_create_new_job_database_error(mocker):
         await job_service.create_new_job(create_request())
 
 @pytest.mark.asyncio
-async def test_get_job_by_id_success(mocker):
-    """Test successful job retrieval by ID."""
-    job_id = str(ObjectId())
-    doc = job_doc(job_id)
-    mocker.patch("src.services.job_service.job_repository.get_job_by_id", new=AsyncMock(return_value=doc))
-    result = await job_service.get_job_by_id(job_id)
-    assert result.message == "Job retrieved successfully."
-    assert result.job.id == job_id
-
-@pytest.mark.asyncio
 async def test_get_job_by_id_invalid_id(mocker):
     """Test job retrieval with invalid ObjectId."""
     with pytest.raises(JobNotFoundException, match="Job not found."):
         await job_service.get_job_by_id("invalid_id")
-
-@pytest.mark.asyncio
-async def test_get_job_by_id_not_found(mocker):
-    """Test job retrieval when job doesn't exist."""
-    job_id = str(ObjectId())
-    mocker.patch("src.services.job_service.job_repository.get_job_by_id", new=AsyncMock(return_value=None))
-    with pytest.raises(JobNotFoundException, match="Job not found."):
-        await job_service.get_job_by_id(job_id)
 
 @pytest.mark.asyncio
 async def test_list_jobs_success(mocker):

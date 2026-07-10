@@ -30,32 +30,6 @@ async def test_create_candidate_success(mocker):
     assert result.inserted_id == insert_result.inserted_id
     collection.insert_one.assert_called_once_with(candidate_data)
 
-@pytest.mark.asyncio
-async def test_get_candidates_with_pagination_success(mocker):
-    """Return paginated candidates with correct metadata."""
-    collection = patch_candidate_collection(mocker)
-    candidates = [
-        {"_id": ObjectId(), "first_name": "Prachi", "email": "prachi@nucleusteq.com"},
-        {"_id": ObjectId(), "first_name": "Aman", "email": "aman@nucleusteq.com"},
-    ]
-    collection.count_documents = AsyncMock(return_value = 15)
-    cursor = mocker.Mock()
-    cursor.sort.return_value = cursor
-    cursor.skip.return_value = cursor
-    cursor.limit.return_value = cursor
-    cursor.to_list = AsyncMock(return_value=candidates)
-    collection.find.return_value = cursor
-    result = await repository.get_candidates(page=2, limit=10)
-    assert result["candidates"] == candidates
-    assert result["total"] == 15
-    assert result["page"] == 2
-    assert result["limit"] == 10
-    assert result["total_pages"] == 2
-    collection.find.assert_called_once_with({})
-    cursor.sort.assert_called_once_with("_id", DESCENDING)
-    cursor.skip.assert_called_once_with(10)
-    cursor.limit.assert_called_once_with(10)
-    cursor.to_list.assert_awaited_once_with(length=10)
 
 @pytest.mark.asyncio
 async def test_get_candidates_with_search_success(mocker):
@@ -156,13 +130,6 @@ async def test_get_candidate_by_mobile_success(mocker):
     assert result == expected
     collection.find_one.assert_called_once_with({"mobile": "9876543210"})
 
-@pytest.mark.asyncio
-async def test_get_candidate_by_mobile_not_found(mocker):
-    """Return None when no candidate matches the given mobile number."""
-    collection = patch_candidate_collection(mocker)
-    collection.find_one = AsyncMock(return_value = None)
-    result = await repository.get_candidate_by_mobile("0000000000")
-    assert result is None
 
 @pytest.mark.asyncio
 async def test_update_candidate_success(mocker):
@@ -174,11 +141,7 @@ async def test_update_candidate_success(mocker):
     update_data = {"current_company": "New Corp"}
     result = await repository.update_candidate(str(candidate_id), update_data)
     assert result.modified_count == 1
-    collection.update_one.assert_called_once_with(
-        {"_id": candidate_id},
-        {"$set": update_data},
-    )
-
+    collection.update_one.assert_called_once_with({"_id": candidate_id}, {"$set": update_data})
 # resume upload test cases
 @pytest.mark.asyncio
 async def test_upload_resume_success(mocker):

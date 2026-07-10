@@ -157,6 +157,21 @@ def test_get_jobs_rejects_unauthorized_role(client, mocker, override_current_use
     assert response.status_code == 403
     mock_list_jobs.assert_not_awaited()
 
+def test_get_jobs_allows_admin(client, mocker, override_current_user):
+    override_current_user(role=UserRole.ADMIN.value)
+    mock_list_jobs = mocker.patch("src.routers.job_router.job_service.list_jobs",
+        new=AsyncMock(return_value=JobListResponse(message="Jobs retrieved successfully.", jobs=[], total=0, page=1, limit=10, total_pages=0)))
+    response = client.get("/jobs")
+    assert response.status_code == 200
+    mock_list_jobs.assert_awaited_once_with(1, 10, None)
+
+def test_create_job_rejects_admin(client, mocker, override_current_user, job_payload):
+    override_current_user(role=UserRole.ADMIN.value)
+    mock_create_job = mocker.patch("src.routers.job_router.job_service.create_new_job", new=AsyncMock())
+    response = client.post("/jobs/", json=job_payload)
+    assert response.status_code == 403
+    mock_create_job.assert_not_awaited()
+
 def test_get_jobs_invalid_pagination_params(client, override_current_user):
     override_current_user()
     response = client.get("/jobs?page=0&limit=0")
@@ -181,6 +196,13 @@ def test_get_job_by_id_not_found(client, mocker, override_current_user, job_id):
 
 def test_get_job_by_id_rejects_unauthorized_role(client, mocker, override_current_user, job_id):
     override_current_user(role=UserRole.INTERVIEWER.value)
+    mock_get_job = mocker.patch("src.routers.job_router.job_service.get_job_by_id", new=AsyncMock())
+    response = client.get(f"/jobs/{job_id}")
+    assert response.status_code == 403
+    mock_get_job.assert_not_awaited()
+
+def test_get_job_by_id_rejects_admin(client, mocker, override_current_user, job_id):
+    override_current_user(role=UserRole.ADMIN.value)
     mock_get_job = mocker.patch("src.routers.job_router.job_service.get_job_by_id", new=AsyncMock())
     response = client.get(f"/jobs/{job_id}")
     assert response.status_code == 403
