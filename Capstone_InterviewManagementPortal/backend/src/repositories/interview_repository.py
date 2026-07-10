@@ -10,10 +10,13 @@ def get_interview_collection():
 async def create_interview(interview_data: dict):
     return await get_interview_collection().insert_one(interview_data)
 
-async def get_interviews(page: int = 1, limit: int = 10):
+async def get_interviews(page: int = 1, limit: int = 10, interviewer_id: str = None):
     skip = (page - 1) * limit
-    total = await get_interview_collection().count_documents({})
-    cursor = (get_interview_collection().find({}).sort("_id", DESCENDING).skip(skip).limit(limit))
+    query_filter = {}
+    if interviewer_id:
+        query_filter["interviewer_id"] = interviewer_id
+    total = await get_interview_collection().count_documents(query_filter)
+    cursor = (get_interview_collection().find(query_filter).sort("_id", DESCENDING).skip(skip).limit(limit))
     interviews = await cursor.to_list(length=limit)
 
     return {"interviews": interviews, "total": total, "page": page, "limit": limit, "total_pages": (total + limit - 1) // limit}

@@ -1,5 +1,5 @@
 from datetime import datetime, date, time
-from typing import List, Optional
+from typing import List
 from pydantic import BaseModel
 from src.enums.interview_mode import InterviewMode
 from src.enums.interview_status import InterviewStatus
@@ -13,10 +13,19 @@ class InterviewerSummaryResponse(BaseModel):
     id: str
     name: str
 
+class JobSummaryResponse(BaseModel):
+    id: str
+    title: str
+
+class SchedulingFormDataResponse(BaseModel):
+    candidates: List[CandidateSummaryResponse]
+    interviewers: List[InterviewerSummaryResponse]
+
 class InterviewResponse(BaseModel):
     id: str
     candidate: CandidateSummaryResponse
     interviewer: InterviewerSummaryResponse
+    job: JobSummaryResponse
     interview_date: date
     interview_time: time
     interview_mode: InterviewMode

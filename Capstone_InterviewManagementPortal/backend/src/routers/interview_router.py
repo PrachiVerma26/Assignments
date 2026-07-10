@@ -9,6 +9,7 @@ from src.schemas.response.interview_response import (
     InterviewListResponse,
     InterviewResponse,
     InterviewerDashboardResponse,
+    SchedulingFormDataResponse,
 )
 from src.services import interview_service
 from src.utils.logger import app_logger
@@ -16,13 +17,13 @@ from src.utils.security import get_current_user, require_roles
 
 router = APIRouter(prefix="/interviews", tags=["Interview Management"])
 
-@router.post("", response_model=CreateInterviewResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=CreateInterviewResponse, status_code=status.HTTP_201_CREATED)
 async def schedule_interview(payload: ScheduleInterviewRequest, current_user=Depends(get_current_user)):
     require_roles(current_user, [UserRole.HR])
     app_logger.info("Schedule interview endpoint invoked by %s", current_user["email"])
     return await interview_service.schedule_interview(payload, current_user)
 
-@router.get("", response_model=InterviewListResponse)
+@router.get("/", response_model=InterviewListResponse)
 async def get_interviews(
     page: int = Query(1, ge=1, description="Page number"),
     limit: int = Query(10, ge=1, le=100, description="Items per page"),
@@ -30,13 +31,19 @@ async def get_interviews(
 ):
     require_roles(current_user, [UserRole.HR, UserRole.INTERVIEWER])
     app_logger.info("List interviews endpoint invoked.")
-    return await interview_service.get_interviews(page, limit)
+    return await interview_service.get_interviews(page, limit, current_user)
 
 @router.get("/dashboard/hr", response_model=HRDashboardResponse)
 async def hr_dashboard(current_user=Depends(get_current_user)):
     require_roles(current_user, [UserRole.HR])
     app_logger.info("HR dashboard endpoint invoked by %s", current_user["email"])
     return await interview_service.get_hr_dashboard()
+
+@router.get("/form-data/scheduling", response_model=SchedulingFormDataResponse)
+async def get_scheduling_form_data(current_user=Depends(get_current_user)):
+    require_roles(current_user, [UserRole.HR])
+    app_logger.info("Scheduling form data endpoint invoked by %s", current_user["email"])
+    return await interview_service.get_scheduling_form_data()
 
 @router.get("/dashboard/interviewer", response_model=InterviewerDashboardResponse)
 async def interviewer_dashboard(current_user=Depends(get_current_user)):

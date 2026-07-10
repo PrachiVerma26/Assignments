@@ -31,19 +31,37 @@ def _interview_datetime(interview: dict) -> datetime:
     return interview_datetime
 
 async def _build_interview_response(interview: dict) -> interview_response.InterviewResponse:
-    candidate = await candidate_repository.get_candidate_by_id(interview["candidate_id"])
-    interviewer = await user_repository.find_user_by_id(interview["interviewer_id"])
+    candidate = None
+    interviewer = None
+    candidate_id = interview.get("candidate_id")
+    interviewer_id = interview.get("interviewer_id")
+    if candidate_id:
+        candidate = await candidate_repository.get_candidate_by_id(candidate_id)
+    if interviewer_id:
+        interviewer = await user_repository.find_user_by_id(interviewer_id)
     interview_datetime = _interview_datetime(interview)
+    candidate_name = "Unknown Candidate"
+    if candidate:
+        full_name = f"{candidate.get('first_name', '')} {candidate.get('last_name', '')}".strip()
+        candidate_name = full_name or candidate_name
+    interviewer_name = "Unknown Interviewer"
+    if interviewer:
+        interviewer_name = interviewer.get("name") or interviewer_name
+    job = None
+    job_title = "N/A"
+    if candidate and candidate.get("applied_job_id"):
+        try:
+            job = await job_repository.get_job_by_id(candidate["applied_job_id"])
+        except (InvalidId, TypeError, ValueError):
+            job = None
+    if job:
+        job_title = job.get("title") or job_title
+
     return interview_response.InterviewResponse(
         id=str(interview["_id"]),
-        candidate=interview_response.CandidateSummaryResponse(
-            id=interview["candidate_id"],
-            name=f"{candidate['first_name']} {candidate['last_name']}",
-        ),
-        interviewer=interview_response.InterviewerSummaryResponse(
-            id=interview["interviewer_id"],
-            name=interviewer["name"],
-        ),
+        candidate=interview_response.CandidateSummaryResponse(id="", name=candidate_name),
+        interviewer=interview_response.InterviewerSummaryResponse(id="", name=interviewer_name),
+        job=interview_response.JobSummaryResponse(id="", title=job_title),
         interview_date=interview_datetime.date(),
         interview_time=interview_datetime.time(),
         interview_mode=interview["interview_mode"],
@@ -138,10 +156,21 @@ async def schedule_interview(payload, current_user: dict) -> interview_response.
     app_logger.info("Interview scheduled successfully: %s", result.inserted_id)
     return interview_response.CreateInterviewResponse(message="Interview scheduled successfully.", interview=await _build_interview_response(created))
 
-async def get_interviews(page: int = 1, limit: int = 10) -> interview_response.InterviewListResponse:
+async def get_interviews(page: int = 1, limit: int = 10, current_user: dict | None = None) -> interview_response.InterviewListResponse:
     app_logger.info("Fetching interviews - page: %d, limit: %d", page, limit)
-    result = await interview_repository.get_interviews(page, limit)
-    interviews = [await _build_interview_response(i) for i in result["interviews"]]
+    interviewer_id = None
+    if current_user:
+        current_role = _enum_value(current_user["role"])
+        if current_role == UserRole.INTERVIEWER.value:
+            interviewer_id = str(current_user["_id"])
+    result = await interview_repository.get_interviews(page, limit, interviewer_id=interviewer_id)
+    interviews = []
+    for interview in result["interviews"]:
+        try:
+            interviews.append(await _build_interview_response(interview))
+        except (KeyError, TypeError, ValueError, InvalidId) as exc:
+            app_logger.warning("Skipping malformed interview record %s: %s", interview.get("_id"), exc)
+
     return interview_response.InterviewListResponse(
         message="Interviews retrieved successfully.",
         interviews=interviews,
@@ -262,8 +291,21 @@ async def get_interviewer_dashboard(current_user: dict) -> interview_response.In
     assigned_interviews = await interview_repository.count_assigned_interviews(interviewer_id)
     pending_feedback = await interview_repository.count_pending_feedback(interviewer_id)
     completed_feedback = await interview_repository.count_completed_feedback(interviewer_id)
-    return interview_response.InterviewerDashboardResponse(
-        assigned_interviews=assigned_interviews,
-        pending_feedback=pending_feedback,
-        completed_feedback=completed_feedback,
-    )
+    return interview_response.InterviewerDashboardResponse( assigned_interviews=assigned_interviews, pending_feedback=pending_feedback, completed_feedback=completed_feedback)
+
+async def get_scheduling_form_data() -> interview_response.SchedulingFormDataResponse:
+    app_logger.info("Fetching scheduling form data.")
+    candidates_result = await candidate_repository.get_candidates(page=1, limit=1000)
+    users_result = await user_repository.find_users_paginated(page=1, limit=1000, active=True, role=UserRole.INTERVIEWER)
+    
+    candidates = [
+        interview_response.CandidateSummaryResponse(id=str(c["_id"]), name=f"{c.get('first_name', '')} {c.get('last_name', '')}".strip())
+        for c in candidates_result["candidates"]
+    ]
+    
+    interviewers = [
+        interview_response.InterviewerSummaryResponse(id=str(u["_id"]), name=u.get("name", ""))
+        for u in users_result["users"]
+    ]
+    
+    return interview_response.SchedulingFormDataResponse(candidates=candidates, interviewers=interviewers)
