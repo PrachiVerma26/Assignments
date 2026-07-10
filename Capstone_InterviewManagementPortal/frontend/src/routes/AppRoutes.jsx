@@ -3,6 +3,7 @@ import Login from "../pages/Login/Login";
 import ResetPassword from "../pages/ResetPassword/ResetPassword";
 import HRDashboard from "../pages/Dashboard/HRDashboard";
 import InterviewerDashboard from "../pages/Dashboard/InterviewerDashboard";
+import AdminDashboard from "../pages/Dashboard/AdminDashboard";
 import UserList from "../pages/Users/UserList";
 import JobList from "../pages/Jobs/JobList";
 import JobDetail from "../pages/Jobs/JobDetail";
@@ -19,7 +20,9 @@ function DashboardRoute() {
     const session = getSession();
     if (session?.role === "INTERVIEWER") return <InterviewerDashboard />;
     if (session?.role === "HR") return <HRDashboard />;
-    return <Navigate to="/users" replace />;
+    if (session?.role === "ADMIN") return <AdminDashboard />;
+    // Unknown/unauthorized role: go to login
+    return <Navigate to="/login" replace />;
 }
 
 function ResumeUploadRedirect() {
