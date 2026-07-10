@@ -1,13 +1,25 @@
-/** API Configuration: Centralizes all backend API configuration.*/
+/* API Configuration: Centralizes all backend API endpoint definitions. */
 
-// Base URL of the FastAPI backend.
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-/**
- * Authentication API endpoints.
- * These endpoints will be consumed by authService.js.
- * If an endpoint changes, update it here instead of searching through multiple service files.
- */
+/* Authentication API endpoints.*/
 export const AUTH_ENDPOINTS = {
     LOGIN: "/auth/login",
     RESET_PASSWORD: "/auth/reset-password",
+};
+
+/* User Management API endpoints.*/
+export const USER_ENDPOINTS = {
+    USERS: "/users",
+};
+
+/* Job Management API endpoints. */
+export const JOB_ENDPOINTS = {
+    JOBS: "/jobs",
+};
+
+/* Candidate Management API endpoints.*/
+export const CANDIDATE_ENDPOINTS = {
+    CANDIDATES: "/candidates",
+    RESUME: (id) => `/candidates/${id}/resume`,
+    STATUS: (id) => `/candidates/${id}/status`,
+    STATUS_HISTORY: (id) => `/candidates/${id}/status/history`,
 };

@@ -1,0 +1,213 @@
+.cl-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+}
+
+.cl-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cl-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.cl-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #1550c8;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.cl-add-btn:hover { background: #0f3f9f; }
+
+.cl-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.cl-search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0 12px;
+    flex: 1;
+}
+
+.cl-search-icon { color: #9ca3af; flex-shrink: 0; }
+
+.cl-search-input {
+    border: none;
+    outline: none;
+    padding: 10px 0;
+    font-size: 0.9rem;
+    width: 100%;
+    color: #1f2937;
+    background: transparent;
+}
+
+.cl-error {
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+}
+
+.cl-table-container {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.cl-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cl-table thead tr { border-bottom: 1px solid #e5e7eb; }
+
+.cl-table th {
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.cl-table td {
+    padding: 16px 20px;
+    font-size: 0.9rem;
+    color: #374151;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.cl-table tbody tr:last-child td { border-bottom: none; }
+
+.cl-table-msg {
+    text-align: center;
+    color: #9ca3af;
+    padding: 2rem !important;
+}
+
+.cl-status {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.cl-status--profile_created { background: #eff6ff; color: #3b82f6; }
+.cl-status--applied { background: #f0fdf4; color: #16a34a; }
+.cl-status--shortlisted { background: #fff7ed; color: #ea580c; }
+.cl-status--rejected { background: #fef2f2; color: #dc2626; }
+.cl-status--hired { background: #f0fdf4; color: #15803d; }
+
+.cl-actions-cell {
+    display: flex;
+    gap: 8px;
+}
+
+.cl-menu-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.cl-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: white;
+    color: #6b7280;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.cl-menu-btn:hover { background: #f3f4f6; color: #1f2937; }
+
+.cl-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 100;
+    min-width: 140px;
+    overflow: hidden;
+}
+
+.cl-dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 9px 16px;
+    text-align: left;
+    background: none;
+    border: none;
+    font-size: 0.875rem;
+    color: #374151;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.cl-dropdown-item:hover { background: #f3f4f6; }
+
+.cl-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-top: 1px solid #f3f4f6;
+}
+
+.cl-pagination-info { font-size: 0.875rem; color: #6b7280; }
+
+.cl-pagination-controls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.page-btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: white;
+    color: #374151;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.page-btn:hover:not(:disabled) { background: #f0f4ff; border-color: #1550c8; color: #1550c8; }
+
+.page-btn.active { background: #1550c8; color: white; border-color: #1550c8; }
+
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.page-ellipsis { color: #6b7280; font-size: 0.875rem; padding: 0 4px; }

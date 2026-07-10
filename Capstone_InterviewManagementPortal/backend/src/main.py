@@ -9,6 +9,10 @@ from fastapi import FastAPI
 from src.core.database import Database
 from src.exceptions.exception_handler import register_exception_handlers
 from src.routers.auth_router import router as auth_router
+from src.routers.user_router import router as user_router
+from src.routers.job_router import router as job_router
+from src.routers.candidate_router import router as candidate_router
+from src.routers.interview_router import router as interview_router
 from src.exceptions.exception_handler import (register_exception_handlers)
 from fastapi.middleware.cors import CORSMiddleware
 from src.seeders.seed_admin import seed_admin
@@ -24,7 +28,6 @@ async def lifespan(app: FastAPI):
 
     try:
         app_logger.info("Application startup initiated.")
-
         await Database.connect()
 
         # Execute startup tasks
@@ -42,15 +45,10 @@ async def lifespan(app: FastAPI):
         app_logger.info("Database connection closed.")
         app_logger.info("Application shutdown completed.")
 
-app = FastAPI(
-    title="Interview Management Portal API",
-    lifespan=lifespan,
-)
+app = FastAPI(title="Interview Management Portal API", lifespan=lifespan)
 
 # Allowed frontend origins
-origins = [
-    "http://localhost:5173",
-]
+origins = ["http://localhost:5173"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -65,6 +63,10 @@ register_exception_handlers(app)
 
 # Register application routers
 app.include_router(auth_router)
+app.include_router(user_router)
+app.include_router(job_router)
+app.include_router(candidate_router)
+app.include_router(interview_router)
 
 @app.get("/", tags=["Health Check"], response_model=SuccessResponse)
 def home():

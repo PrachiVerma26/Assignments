@@ -19,6 +19,7 @@ class User(BaseModel):
     password: str
     role: UserRole
     status: UserStatus
+    requires_password_reset: bool = True
 
     created_at: datetime = Field(
         default_factory=datetime.utcnow

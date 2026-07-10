@@ -1,0 +1,192 @@
+.job-list-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+}
+
+.job-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.job-list-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.create-job-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #1550c8;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.create-job-btn:hover {
+    background: #0f3f9f;
+}
+
+.job-list-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.job-search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0 12px;
+    flex: 1;
+    max-width: 420px;
+}
+
+.search-icon {
+    color: #9ca3af;
+    flex-shrink: 0;
+}
+
+.job-search-input {
+    border: none;
+    outline: none;
+    padding: 10px 0;
+    font-size: 0.9rem;
+    width: 100%;
+    color: #1f2937;
+    background: transparent;
+}
+
+.job-location-filter {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px 36px 10px 12px;
+    font-size: 0.9rem;
+    color: #1f2937;
+    background: white;
+    cursor: pointer;
+    outline: none;
+    appearance: auto;
+}
+
+.job-error {
+    background: #fef2f2;
+    color: #dc2626;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+}
+
+.job-table-container {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+}
+
+.job-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.job-table thead tr {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.job-table th {
+    padding: 14px 20px;
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.job-table td {
+    padding: 16px 20px;
+    font-size: 0.9rem;
+    color: #374151;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.job-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.job-table-msg {
+    text-align: center;
+    color: #9ca3af;
+    padding: 2rem !important;
+}
+
+.job-actions-cell {
+    display: flex;
+    gap: 8px;
+}
+
+.job-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1.5px solid #1550c8;
+    border-radius: 6px;
+    background: white;
+    color: #1550c8;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.job-action-btn:hover {
+    background: #eef2ff;
+}
+
+.job-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-top: 1px solid #f3f4f6;
+}
+
+.job-pagination-info {
+    font-size: 0.875rem;color: #6b7280;
+}
+
+.job-pagination-controls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.page-btn {
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: white;
+    color: #374151;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.page-btn:hover:not(:disabled) {background: #f0f4ff;border-color: #1550c8;
+    color: #1550c8;
+}
+
+.page-btn.active {background: #1550c8; color: white; border-color: #1550c8;}
+
+.page-btn:disabled {opacity: 0.4;cursor: not-allowed;}
