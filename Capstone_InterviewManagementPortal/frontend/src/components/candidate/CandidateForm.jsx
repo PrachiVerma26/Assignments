@@ -6,6 +6,8 @@ import ResumeUpload from "./ResumeUpload";
 import "./CandidateForm.css";
 import {EMPTY_FORM, STATUS_OPTIONS} from "../../constants/candidateConstants";
 
+const EXPERIENCE_PATTERN = /^(?:(\d+)\s+Years)(?:\s+(\d+)\s+Months)?|(\d+)\s+Months$/i;
+
 function CandidateForm({ mode, candidateData }) {
     const navigate = useNavigate();
     const isEdit = mode === "edit";

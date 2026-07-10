@@ -103,6 +103,23 @@ def test_create_candidate_invalid_payload(client, override_current_user):
     response = client.post("/candidates", json={"first_name": "prachi"})
     assert response.status_code == 422
 
+def test_create_candidate_rejects_invalid_experience_format(client, override_current_user):
+    """Return 422 when the experience format is invalid."""
+    override_current_user()
+    response = client.post(
+        "/candidates",
+        json={
+            "first_name": "Prachi",
+            "last_name": "Verma",
+            "email": "prachi.verma@nucleusteq.com",
+            "mobile": "9876543210",
+            "current_company": "NucleusTeq",
+            "total_experience": "2.5",
+            "applied_job_id": "507f1f77bcf86cd799439022",
+        },
+    )
+    assert response.status_code == 422
+
 def test_get_candidates_success(client, mocker, override_current_user, candidate_response):
     """Return paginated candidate list with 200."""
     override_current_user()
