@@ -58,6 +58,10 @@ def register_exception_handlers(app):
     async def candidate_not_found_handler(request: Request, exc: candidate_exceptions.CandidateNotFoundException):
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": str(exc)})
 
+    @app.exception_handler(candidate_exceptions.AppliedJobNotFoundException)
+    async def applied_job_not_found_handler(request: Request, exc: candidate_exceptions.AppliedJobNotFoundException):
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": str(exc)})
+
     @app.exception_handler(candidate_exceptions.CandidateEmailAlreadyExistsException)
     async def candidate_email_exists_handler(request: Request, exc: candidate_exceptions.CandidateEmailAlreadyExistsException):
         return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"message": str(exc)})

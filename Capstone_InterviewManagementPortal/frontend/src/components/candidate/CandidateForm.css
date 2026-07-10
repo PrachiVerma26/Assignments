@@ -92,6 +92,67 @@
     font-size: 0.875rem;
 }
 
+.cf-status-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cf-status-success {
+    padding: 10px 14px;
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    color: #166534;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.cf-status-error {
+    padding: 10px 14px;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    color: #b91c1c;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.cf-status-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.cf-status-btn {
+    padding: 8px 16px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.cf-status-btn:hover:not(:disabled) {
+    border-color: #1550c8;
+    color: #1550c8;
+    background: #f0f4ff;
+}
+
+.cf-status-btn.active {
+    background: #1550c8;
+    color: white;
+    border-color: #1550c8;
+}
+
+.cf-status-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .cf-actions {
     display: flex;
     justify-content: flex-end;
@@ -125,11 +186,18 @@
 }
 
 .cf-submit:hover:not(:disabled) { background: #0f3f9f; }
-
 .cf-cancel:disabled,
 .cf-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .cf-row { grid-template-columns: 1fr; }
-    .cf-form { padding: 1rem 1.25rem 1.5rem; }
+    .cf-form { padding: 1.25rem 1.5rem 1.75rem; }
+}
+
+@media (max-width: 480px) {
+    .cf-title { font-size: 1.25rem; }
+    .cf-form { padding: 1rem 1rem 1.25rem; }
+    .cf-input { height: 38px; font-size: 0.85rem; }
+    .cf-actions { flex-direction: column; }
+    .cf-cancel, .cf-submit { width: 100%; }
 }

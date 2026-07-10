@@ -9,15 +9,15 @@ from src.enums.candidate_status import CandidateStatus
 from src.exceptions.candidate_exceptions import (
     CandidateEmailAlreadyExistsException,
     CandidateMobileAlreadyExistsException,
-    InvalidNucleusTeqEmailException,
     CandidateNotFoundException,
+    AppliedJobNotFoundException,
     ResumeNotFoundException,
     InvalidFileTypeException,
     EmptyFileException,
     ResumeUploadFailedException,
 )
 from src.models.candidate import Candidate
-from src.repositories import candidate_repository
+from src.repositories import candidate_repository, job_repository
 from src.schemas.response.candidate_response import (
     CandidateResponse,
     CandidateListResponse,
@@ -26,6 +26,7 @@ from src.schemas.response.candidate_response import (
     CandidateStatusUpdateResponse,
     StatusHistoryResponse,
     StatusHistoryEntry,
+    JobSummaryResponse,
 )
 from src.utils.logger import app_logger
 
@@ -42,28 +43,50 @@ async def _get_candidate_or_raise(candidate_id: str) -> dict:
         raise CandidateNotFoundException("Candidate not found.")
     return candidate
 
-async def _build_candidate_response(candidate: dict) -> CandidateResponse:
+async def _get_job_or_raise(job_id: str) -> dict:
+    """Retrieve a job by ID or raise AppliedJobNotFoundException."""
+    try:
+        ObjectId(job_id)
+    except InvalidId:
+        app_logger.warning("Invalid ObjectId for applied_job_id: %s", job_id)
+        raise AppliedJobNotFoundException("Applied job not found.")
+    job = await job_repository.get_job_by_id(job_id)
+    if not job:
+        app_logger.warning("Applied job not found for id: %s", job_id)
+        raise AppliedJobNotFoundException("Applied job not found.")
+    return job
+
+async def _build_candidate_response(candidate: dict, skip_job_validation: bool = False) -> CandidateResponse:
     """Convert a candidate document to a CandidateResponse."""
+    job = None
+    if not skip_job_validation:
+        try:
+            job = await _get_job_or_raise(candidate["applied_job_id"])
+        except AppliedJobNotFoundException:
+            app_logger.warning("Invalid job reference for candidate %s: %s", candidate["_id"], candidate["applied_job_id"])
+            job = None
+    
+    job_summary = JobSummaryResponse(id=str(job["_id"]), title=job["title"]) if job else JobSummaryResponse(id=candidate.get("applied_job_id", "unknown"), title="Unknown Job")
+    
     return CandidateResponse(
         id=str(candidate["_id"]),
-        first_name=candidate["first_name"],
-        last_name=candidate["last_name"],
-        email=candidate["email"],
-        mobile=candidate["mobile"],
-        current_company=candidate["current_company"],
-        total_experience=candidate["total_experience"],
-        applied_job_id=candidate["applied_job_id"],
-        status=candidate["status"],
+        first_name=candidate.get("first_name", "N/A"),
+        last_name=candidate.get("last_name", "N/A"),
+        email=candidate.get("email", "N/A"),
+        mobile=candidate.get("mobile", "N/A"),
+        current_company=candidate.get("current_company", "N/A"),
+        experience_years=candidate.get("experience_years", 0),
+        experience_months=candidate.get("experience_months", 0),
+        applied_job=job_summary,
+        status=candidate.get("status", "PROFILE_CREATED"),
         resume_file_id=candidate.get("resume_file_id"),
-        created_at=candidate["created_at"],
+        created_at=candidate.get("created_at", datetime.utcnow()),
         updated_at=candidate.get("updated_at"),
     )
 
 async def create_candidate(candidate_request, current_user) -> CreateCandidateResponse:
     """Create a new candidate profile."""
     app_logger.info("Create candidate request received for: %s", candidate_request.email)
-    if not candidate_request.email.endswith("@nucleusteq.com"):
-        raise InvalidNucleusTeqEmailException("Only @nucleusteq.com email addresses are allowed.")
     if await candidate_repository.get_candidate_by_email(candidate_request.email):
         app_logger.warning("Duplicate candidate email detected: %s", candidate_request.email)
         raise CandidateEmailAlreadyExistsException("Email already exists.")
@@ -71,6 +94,8 @@ async def create_candidate(candidate_request, current_user) -> CreateCandidateRe
         app_logger.warning("Duplicate candidate mobile detected: %s", candidate_request.mobile)
         raise CandidateMobileAlreadyExistsException("Mobile number already exists.")
 
+    # Verify job exists
+    await _get_job_or_raise(candidate_request.applied_job_id)
     candidate = Candidate(**candidate_request.model_dump(), status=CandidateStatus.PROFILE_CREATED, created_by=str(current_user["_id"]))
     result = await candidate_repository.create_candidate(candidate.model_dump())
     created = candidate.model_dump()
@@ -89,7 +114,7 @@ async def get_candidates(page: int = 1, limit: int = 10, search: str | None = No
     """List candidates with pagination and optional search."""
     app_logger.info("Fetching candidates - page: %d, limit: %d", page, limit)
     result = await candidate_repository.get_candidates(page, limit, search)
-    candidates = [await _build_candidate_response(c) for c in result["candidates"]]
+    candidates = [await _build_candidate_response(c, skip_job_validation=True) for c in result["candidates"]]
     return CandidateListResponse(
         message="Candidates retrieved successfully.",
         candidates=candidates,
@@ -106,8 +131,6 @@ async def update_candidate(candidate_id: str, candidate_request) -> CandidateRes
     update_data = candidate_request.model_dump(exclude_unset=True)
 
     if "email" in update_data:
-        if not update_data["email"].endswith("@nucleusteq.com"):
-            raise InvalidNucleusTeqEmailException("Only @nucleusteq.com email addresses are allowed.")
         existing = await candidate_repository.get_candidate_by_email(update_data["email"])
         if existing and str(existing["_id"]) != candidate_id:
             app_logger.warning("Duplicate candidate email detected: %s", update_data["email"])
@@ -118,6 +141,9 @@ async def update_candidate(candidate_id: str, candidate_request) -> CandidateRes
         if existing and str(existing["_id"]) != candidate_id:
             app_logger.warning("Duplicate candidate mobile detected: %s", update_data["mobile"])
             raise CandidateMobileAlreadyExistsException("Mobile number already exists.")
+
+    if "applied_job_id" in update_data:
+        await _get_job_or_raise(update_data["applied_job_id"])
 
     update_data["updated_at"] = datetime.utcnow()
     await candidate_repository.update_candidate(candidate_id, update_data)
