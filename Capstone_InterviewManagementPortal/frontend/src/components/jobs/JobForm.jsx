@@ -84,12 +84,13 @@ function JobForm({ mode, isOpen, onClose, onSuccess, jobData }) {
                 department: formData.department.trim(),
                 experience_level: formData.experience_level.trim(),
             };
+            let result;
             if (isEdit) {
-                await updateJob(jobData.id, payload);
+                result = await updateJob(jobData.id, payload);
             } else {
-                await createJob(payload);
+                result = await createJob(payload);
             }
-            onSuccess();
+            onSuccess(result);
             onClose();
         } catch (err) {
             setApiError(err.message || "Something went wrong. Please try again.");

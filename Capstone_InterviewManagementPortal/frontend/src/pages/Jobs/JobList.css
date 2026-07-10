@@ -50,7 +50,7 @@
     border-radius: 8px;
     padding: 0 12px;
     flex: 1;
-    max-width: 420px;
+    min-width: 0;
 }
 
 .search-icon {
@@ -190,3 +190,22 @@
 .page-btn.active {background: #1550c8; color: white; border-color: #1550c8;}
 
 .page-btn:disabled {opacity: 0.4;cursor: not-allowed;}
+
+@media (max-width: 768px) {
+    .job-list-toolbar { flex-direction: column; align-items: stretch; }
+    .job-search-box { max-width: 100%; }
+    .job-location-filter { width: 100%; }
+    .job-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .job-table { min-width: 700px; }
+    .job-pagination { flex-direction: column; gap: 0.75rem; align-items: stretch; }
+    .job-pagination-controls { justify-content: center; flex-wrap: wrap; }
+    .job-list-header { flex-wrap: wrap; gap: 0.75rem; }
+}
+
+@media (max-width: 480px) {
+    .job-list-title { font-size: 1.25rem; }
+    .create-job-btn { padding: 8px 12px; font-size: 0.8rem; }
+    .job-table { min-width: 600px; font-size: 0.8rem; }
+    .job-table th, .job-table td { padding: 10px 12px; }
+    .job-pagination-info { font-size: 0.75rem; }
+}
