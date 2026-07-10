@@ -30,6 +30,7 @@ export const INTERVIEW_ENDPOINTS = {
     INTERVIEW: (id) => `/interviews/${id}`,
     FEEDBACK: (id) => `/interviews/${id}/feedback`,
     HR_DASHBOARD: "/interviews/dashboard/hr",
+    ADMIN_DASHBOARD: "/interviews/dashboard/admin",
     INTERVIEWER_DASHBOARD: "/interviews/dashboard/interviewer",
     SCHEDULING_FORM_DATA: "/interviews/form-data/scheduling",
 };

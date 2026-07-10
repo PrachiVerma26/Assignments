@@ -4,25 +4,7 @@ import { createCandidate, updateCandidate, updateCandidateStatus } from "../../s
 import { getJobs as fetchJobs } from "../../services/jobService";
 import ResumeUpload from "./ResumeUpload";
 import "./CandidateForm.css";
-
-const EMPTY_FORM = {
-    first_name: "",
-    last_name: "",
-    email: "",
-    mobile: "",
-    current_company: "",
-    experience_years: "",
-    experience_months: "",
-    applied_job_id: "",
-};
-
-const STATUS_OPTIONS = [
-    { value: "PROFILE_CREATED", label: "Profile Created" },
-    { value: "APPLIED", label: "Applied" },
-    { value: "SHORTLISTED", label: "Shortlisted" },
-    { value: "REJECTED", label: "Rejected" },
-    { value: "HIRED", label: "Hired" },
-];
+import {EMPTY_FORM, STATUS_OPTIONS} from "../../constants/candidateConstants";
 
 function CandidateForm({ mode, candidateData }) {
     const navigate = useNavigate();
@@ -116,6 +98,7 @@ function CandidateForm({ mode, candidateData }) {
             } else {
                 const created = await createCandidate(payload);
                 setSavedCandidateId(created.id);
+                navigate("/dashboard", { replace: true });
             }
         } catch (err) {
             setApiError(err.message || "Something went wrong. Please try again.");

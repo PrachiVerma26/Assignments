@@ -18,7 +18,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     flex: 1;
-    text-align: center;
+    text-align: left;
 }
 
 .navbar-hamburger {

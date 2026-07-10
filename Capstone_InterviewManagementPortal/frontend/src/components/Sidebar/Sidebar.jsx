@@ -7,6 +7,7 @@ import "./Sidebar.css";
 function Sidebar({ isOpen, closeSidebar }) {
     const session = getSession();
     const isInterviewer = session?.role === "INTERVIEWER";
+    const isAdmin = session?.role === "ADMIN";
     const location = useLocation();
 
     useEffect(() => { closeSidebar(); }, [location.pathname, closeSidebar]);
@@ -21,35 +22,40 @@ function Sidebar({ isOpen, closeSidebar }) {
     return (
         <>
             <div className={`sidebar-overlay${isOpen ? " open" : ""}`} onClick={closeSidebar} />
-
             <aside className={`sidebar${isOpen ? " open" : ""}`}>
                 <div className="sidebar-header">
                     <span className="sidebar-title">Menu</span>
-                    <button className="sidebar-close" onClick={closeSidebar} aria-label="Close menu">
-                        <X size={18} />
-                    </button>
+                    <button className="sidebar-close" onClick={closeSidebar} aria-label="Close menu"><X size={18} /></button>
                 </div>
                 <nav className="sidebar-nav">
                     <NavLink to="/dashboard" className={navLinkClass} onClick={closeSidebar}>
                         <span>Dashboard</span>
                     </NavLink>
-                    {!isInterviewer && (
+
+                    {isAdmin ? (
                         <>
-                            <NavLink to="/jobs" className={navLinkClass} onClick={closeSidebar}>
-                                <span>Job</span>
-                            </NavLink>
-                            <NavLink to="/candidates" className={navLinkClass} onClick={closeSidebar}>
-                                <span>Candidate</span>
+                            <NavLink to="/users" className={navLinkClass} onClick={closeSidebar}><span>Users</span></NavLink>
+                            <NavLink to="/jobs" className={navLinkClass} onClick={closeSidebar}><span>Jobs</span></NavLink>
+                            <NavLink to="/candidates" className={navLinkClass} onClick={closeSidebar}><span>Candidates</span></NavLink>
+                            <NavLink to="/interviews" className={navLinkClass} onClick={closeSidebar}><span>Interviews</span></NavLink>
+                        </>
+                    ) : (
+                        <>
+                            {!isInterviewer && (
+                                <>
+                                    <NavLink to="/jobs" className={navLinkClass} onClick={closeSidebar}><span>Job</span></NavLink>
+                                    <NavLink to="/candidates" className={navLinkClass} onClick={closeSidebar}><span>Candidate</span></NavLink>
+                                </>
+                            )}
+                            <NavLink to={isInterviewer ? "/interviews/feedback" : "/interviews"} className={navLinkClass} onClick={closeSidebar}>
+                                <span>Interview</span>
                             </NavLink>
                         </>
                     )}
-                    <NavLink
-                        to={isInterviewer ? "/interviews/feedback" : "/interviews"}
-                        className={navLinkClass}
-                        onClick={closeSidebar}
-                    >
-                        <span>Interview</span>
-                    </NavLink>
+
+                    {isAdmin && (
+                        <NavLink to="/login" className={navLinkClass} onClick={closeSidebar}><span>Logout</span> </NavLink>
+                    )}
                 </nav>
             </aside>
         </>

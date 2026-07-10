@@ -1,16 +1,20 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, Pencil, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
+import ActionsMenu from "../../components/actions/ActionsMenu";
 import Layout from "../../components/layout/Layout";
 import JobForm from "../../components/jobs/JobForm";
 import { getJobs } from "../../services/jobService";
 import useDebounce from "../../utils/useDebounce";
+import { getSession } from "../../utils/session";
 import "./JobList.css";
 
 const JOBS_PER_PAGE = 5;
 
 function JobList() {
     const navigate = useNavigate();
+    const session = getSession();
+    const isAdmin = session?.role === "ADMIN";
     const [jobs, setJobs] = useState([]);
     const [search, setSearch] = useState("");
     const [location, setLocation] = useState("");
@@ -59,9 +63,11 @@ function JobList() {
                 <div className="job-list-page">
                     <div className="job-list-header">
                         <h2 className="job-list-title">Jobs</h2>
-                        <button className="create-job-btn" onClick={() => setModal({ isOpen: true, mode: "create", jobData: null })}>
-                            <Plus size={16} /> Create Job
-                        </button>
+                        {!isAdmin && (
+                            <button className="create-job-btn" onClick={() => setModal({ isOpen: true, mode: "create", jobData: null })}>
+                                <Plus size={16} /> Create Job
+                            </button>
+                        )}
                     </div>
                     <div className="job-list-toolbar">
                         <div className="job-search-box">
@@ -101,12 +107,12 @@ function JobList() {
                                         <td>{job.location}</td>
                                         <td>{job.experience_level}</td>
                                         <td className="job-actions-cell">
-                                            <button className="job-action-btn" title="View Job" onClick={() => navigate(`/jobs/${job.id}`)}>
-                                                <Eye size={16} />
-                                            </button>
-                                            <button className="job-action-btn" title="Edit Job" onClick={() => setModal({ isOpen: true, mode: "edit", jobData: job })}>
-                                                <Pencil size={16} />
-                                            </button>
+                                            <ActionsMenu
+                                                items={[
+                                                    { label: "View Job", onClick: () => navigate(`/jobs/${job.id}`), disabled: isAdmin },
+                                                    { label: "Edit Job", onClick: () => setModal({ isOpen: true, mode: "edit", jobData: job }), disabled: isAdmin },
+                                                ]}
+                                            />
                                         </td>
                                     </tr>
                                 ))}
@@ -127,13 +133,15 @@ function JobList() {
                     </div>
                 </div>
             </Layout>
-            <JobForm
-                mode={modal.mode}
-                isOpen={modal.isOpen}
-                onClose={() => setModal(prev => ({ ...prev, isOpen: false }))}
-                onSuccess={handleSuccess}
-                jobData={modal.jobData}
-            />
+            {!isAdmin && (
+                <JobForm
+                    mode={modal.mode}
+                    isOpen={modal.isOpen}
+                    onClose={() => setModal(prev => ({ ...prev, isOpen: false }))}
+                    onSuccess={handleSuccess}
+                    jobData={modal.jobData}
+                />
+            )}
         </>
     );
 }

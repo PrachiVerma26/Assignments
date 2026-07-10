@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { getSession } from "../../utils/session";
 import { createPortal } from "react-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 import { MoreVertical, Plus, Search } from "lucide-react";
@@ -7,60 +8,12 @@ import CandidateStatusHistory from "../../components/candidate/CandidateStatusHi
 import { getCandidates } from "../../services/candidateService";
 import useDebounce from "../../utils/useDebounce";
 import "./CandidateList.css";
-
-const CANDIDATES_PER_PAGE = 5;
-
-const STATUS_LABELS = {
-    PROFILE_CREATED: "New",
-    APPLIED: "Applied",
-    SHORTLISTED: "Screening",
-    REJECTED: "Rejected",
-    HIRED: "Offered",
-};
-
-function ActionMenu({ candidate, onStatusHistory }) {
-    const navigate = useNavigate();
-    const [open, setOpen] = useState(false);
-    const [dropdownStyle, setDropdownStyle] = useState({});
-    const buttonRef = useRef(null);
-    const menuRef = useRef(null);
-
-    useEffect(() => {
-        if (!open) return;
-        const rect = buttonRef.current?.getBoundingClientRect();
-        if (rect) {
-            setDropdownStyle({position: "fixed", top: rect.bottom + 4, right: window.innerWidth - rect.right});
-        }
-        const handler = (e) => {
-            if (
-                menuRef.current && !menuRef.current.contains(e.target) &&
-                buttonRef.current && !buttonRef.current.contains(e.target)
-            ) {
-                setOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
-    }, [open]);
-
-    return (
-        <div className="cl-menu-wrapper">
-            <button ref={buttonRef} className="cl-menu-btn" onClick={() => setOpen(o => !o)}>
-                <MoreVertical size={16} />
-            </button>
-            {open && createPortal(
-                <div ref={menuRef} className="cl-dropdown" style={dropdownStyle}>
-                    <button className="cl-dropdown-item" onClick={() => { setOpen(false); navigate(`/candidates/${candidate.id}`); }}>View</button>
-                    <button className="cl-dropdown-item" onClick={() => { setOpen(false); navigate(`/candidates/${candidate.id}/edit`); }}>Edit</button>
-                    <button className="cl-dropdown-item" onClick={() => { setOpen(false); onStatusHistory(candidate); }}>Status History</button>
-                </div>,
-                document.body
-            )}
-        </div>
-    );
-}
+import {CANDIDATES_PER_PAGE, STATUS_LABELS} from "../../constants/candidateConstants";
+import ActionsMenu from "../../components/actions/ActionsMenu";
 
 function CandidateList() {
+    const session = getSession();
+    const isAdmin = session?.role === "ADMIN";
     const [candidates, setCandidates] = useState([]);
     const [search, setSearch] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -120,9 +73,10 @@ function CandidateList() {
             <div className="cl-page">
                 <div className="cl-header">
                     <h2 className="cl-title">Candidates</h2>
-                    <button className="cl-add-btn" onClick={() => navigate("/candidates/create")}>
-                        <Plus size={16} /> Add Candidate
-                    </button>
+                    {!isAdmin && (
+                        <button className="cl-add-btn" onClick={() => navigate("/candidates/create")}>
+                            <Plus size={16} /> Add Candidate</button>
+                    )}
                 </div>
                 <div className="cl-toolbar">
                     <div className="cl-search-box">
@@ -142,7 +96,7 @@ function CandidateList() {
                     <table className="cl-table">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th>S.No</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
@@ -166,12 +120,16 @@ function CandidateList() {
                                     <td>{c.applied_job?.title || "N/A"}</td>
                                     <td>{formatExperience(c.experience_years, c.experience_months)}</td>
                                     <td>
-                                        <span className={`cl-status cl-status--${c.status.toLowerCase()}`}>
-                                            {STATUS_LABELS[c.status] || c.status}
-                                        </span>
+                                        <span className={`cl-status cl-status--${c.status.toLowerCase()}`}>{STATUS_LABELS[c.status] || c.status}</span>
                                     </td>
                                     <td className="cl-actions-cell">
-                                        <ActionMenu candidate={c} onStatusHistory={setHistoryCandidate} />
+                                        <ActionsMenu
+                                            items={[
+                                                {label: "View", onClick: () => navigate(`/candidates/${c.id}`), disabled: isAdmin,},
+                                                {label: "Edit", onClick: () => navigate(`/candidates/${c.id}/edit`), disabled: isAdmin,},
+                                                {label: "Status History",onClick: () => setHistoryCandidate(c), disabled: isAdmin,},
+                                            ]}
+                                        />
                                     </td>
                                 </tr>
                             ))}
@@ -195,7 +153,7 @@ function CandidateList() {
                     )}
                 </div>
             </div>
-            {historyCandidate && (
+            {!isAdmin && historyCandidate && (
                 <CandidateStatusHistory
                     candidateId={historyCandidate.id}
                     candidateName={`${historyCandidate.first_name} ${historyCandidate.last_name}`}
