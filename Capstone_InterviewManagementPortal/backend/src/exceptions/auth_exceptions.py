@@ -19,3 +19,7 @@ class InvalidRoleException(Exception):
 class PasswordValidationException(Exception):
     """Raised when password does not meet policy requirements."""
     pass
+
+class LastActiveAdminException(Exception):
+    """Raised when an operation would leave the system without an active administrator."""
+    pass

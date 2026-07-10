@@ -121,7 +121,7 @@ function UserList() {
     };
 
     return (
-        <Layout showSidebar={false}>
+        <Layout showSidebar={true}>
             <div className="users-page">
                 <div className="users-page-header">
                     <h2 className="users-title">Users</h2>

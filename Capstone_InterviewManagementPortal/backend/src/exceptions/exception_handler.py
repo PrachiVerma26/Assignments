@@ -125,3 +125,7 @@ def register_exception_handlers(app):
     @app.exception_handler(interview_exceptions.InterviewAlreadyCompletedException)
     async def interview_already_completed_handler(request: Request, exc: interview_exceptions.InterviewAlreadyCompletedException):
         return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"message": str(exc)})
+    
+    @app.exception_handler(auth_exceptions.LastActiveAdminException)
+    async def last_active_admin_exception_handler(request, exc):
+        return JSONResponse(status_code=400, content={"detail": str(exc)})

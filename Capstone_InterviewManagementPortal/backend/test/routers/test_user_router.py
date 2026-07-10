@@ -16,7 +16,6 @@ def set_admin_override():
     yield
     app.dependency_overrides.clear()
 
-
 def test_create_user_success(mocker):
     mock_create_user = mocker.patch(
         "src.routers.user_router.user_service.create_new_user",

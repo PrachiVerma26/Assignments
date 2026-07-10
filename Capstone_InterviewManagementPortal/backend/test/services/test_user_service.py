@@ -23,8 +23,7 @@ class UpdateUserRequestMock:
 @pytest.mark.asyncio
 async def test_create_user_success(mocker):
     mocker.patch("src.services.user_service.user_repository.find_user_by_email", new=AsyncMock(return_value=None))
-    mocker.patch("src.services.user_service.user_repository.find_active_admin", new=AsyncMock(return_value=None))
-    mocker.patch("src.services.user_service.encode_password",return_value="encoded_password")
+    mocker.patch("src.services.user_service.encode_password", return_value="encoded_password")
     insert_result = mocker.Mock()
     insert_result.inserted_id = ObjectId()
     mocker.patch("src.services.user_service.user_repository.create_user", new=AsyncMock(return_value=insert_result))
@@ -51,17 +50,6 @@ async def test_create_user_invalid_domain():
         "ram@gmail.com",
         UserRole.INTERVIEWER)
     with pytest.raises(InvalidEmailDomainException):
-        await create_new_user(request)
-
-@pytest.mark.asyncio
-async def test_create_admin_when_admin_exists(mocker):
-    mocker.patch("src.services.user_service.user_repository.find_user_by_email", new=AsyncMock(return_value=None))
-    mocker.patch("src.services.user_service.user_repository.find_active_admin", new=AsyncMock(return_value={"_id": ObjectId(), "role": "ADMIN", "status": "ACTIVE"}))
-    request = CreateUserRequestMock(
-        "Admin",
-        "admin2@nucleusteq.com",
-        UserRole.ADMIN)
-    with pytest.raises(DuplicateEmailException):
         await create_new_user(request)
 
 @pytest.mark.asyncio

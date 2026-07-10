@@ -15,7 +15,7 @@ from src.utils.security import (get_current_user, require_roles)
 
 router = APIRouter(prefix="/users", tags=["User Management"])
 
-@router.post("", response_model=CreateUserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=CreateUserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(payload: CreateUserRequest, current_user=Depends(get_current_user)):
     """ Create a new system user and Accessible only by administrators. """
 
