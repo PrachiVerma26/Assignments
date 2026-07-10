@@ -141,10 +141,11 @@ function UserModal({ mode, isOpen, onClose, onSuccess, selectedUser }) {
             };
             if (mode === "create") {
                 await createUser(userData);
+                onSuccess(null);
             } else {
-                await updateUser(selectedUser.id, userData);
+                const updated = await updateUser(selectedUser.id, userData);
+                onSuccess(updated);
             }
-            onSuccess();
             handleClose();
         } catch (error) {
             setApiError(error.message || "An error occurred. Please try again.");

@@ -15,7 +15,7 @@ from src.schemas.request.update_user_request import UpdateUserRequest
 from src.schemas.response.success_response import SuccessResponse
 from src.schemas.response.user_response import CreateUserResponse,UserListResponse,UserResponse
 from src.utils.logger import app_logger
-from src.utils.password_utils import encode_password, generate_random_password
+from src.utils.password_utils import encode_password
 from src.exceptions.auth_exceptions import UserNotFoundException
 from src.exceptions.user_exceptions import DuplicateEmailException, UserAlreadyInactiveException, InvalidEmailDomainException
 
@@ -44,7 +44,7 @@ def _build_user_response(user: dict) -> UserResponse:
 
 async def create_new_user(payload: CreateUserRequest) -> CreateUserResponse:
 
-    """Create a new user with generated default password."""
+    """Create a new user with default temporary password."""
     app_logger.info("Create user request received for: %s", payload.email)
     email = payload.email.strip().lower()
 
@@ -61,7 +61,9 @@ async def create_new_user(payload: CreateUserRequest) -> CreateUserResponse:
         if existing_admin:
             app_logger.warning("Attempted to create admin when admin already exists")
             raise DuplicateEmailException("An Administrator already exists in the system.")
-    encoded_password = encode_password(generate_random_password())
+    
+    # Use default temporary password from config
+    encoded_password = encode_password(settings.DEFAULT_TEMP_PASSWORD)
 
     user = User(
         name=payload.name.strip(),
@@ -69,6 +71,7 @@ async def create_new_user(payload: CreateUserRequest) -> CreateUserResponse:
         password=encoded_password,
         role=payload.role,
         status=UserStatus.ACTIVE,
+        requires_password_reset=True
     )
     try:
         result = await user_repository.create_user(user.model_dump())
@@ -77,7 +80,7 @@ async def create_new_user(payload: CreateUserRequest) -> CreateUserResponse:
         raise
     created = user.model_dump()
     created["_id"] = result.inserted_id
-    app_logger.info("User created successfully: %s", result.inserted_id)
+    app_logger.info("User created successfully: %s with default temporary password", result.inserted_id)
     return CreateUserResponse(message="User created successfully.", user=_build_user_response(created))
 
 async def get_user_by_id(user_id: str) -> UserResponse:
@@ -113,7 +116,7 @@ async def update_user(user_id: str, payload: UpdateUserRequest) -> UserResponse:
         # validate email is not in use by another user
         existing_user = await user_repository.find_user_by_email(email)
         
-        if existing_user and str(existing_user.get("id")) != user_id:
+        if existing_user and str(existing_user.get("_id")) != user_id:
             app_logger.warning("Duplicate email detected during update: %s", email)
             raise DuplicateEmailException("Email already exists")
         update_data["email"] = email

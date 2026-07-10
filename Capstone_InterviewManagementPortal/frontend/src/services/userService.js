@@ -14,7 +14,7 @@ export const getUsers = async ({page = 1, limit = 10, search = "", active = null
         params.role = role;
     }
     const response = await apiClient.get(
-        USER_ENDPOINTS.USERS,
+        `${USER_ENDPOINTS.USERS}/`,
         { params }
     );
     return response.data;
@@ -22,7 +22,7 @@ export const getUsers = async ({page = 1, limit = 10, search = "", active = null
 
 export const createUser = async (userData) => {
     const response = await apiClient.post(
-        USER_ENDPOINTS.USERS,
+        `${USER_ENDPOINTS.USERS}/`,
         userData
     );
     return response.data;

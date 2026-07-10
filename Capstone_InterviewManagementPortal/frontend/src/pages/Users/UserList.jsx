@@ -1,18 +1,18 @@
-// User listing page
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUsers, disableUser, enableUser } from "../../services/userService";
 import { getSession, clearSession } from "../../utils/session";
 import UserModal from "../../components/users/UserModal";
+import useDebounce from "../../utils/useDebounce";
 import "./Users.css";
+
+const USERS_PER_PAGE = 10;
 
 function UserList() {
     const navigate = useNavigate();
     const session = getSession();
     const [users, setUsers] = useState([]);
-    const [pagination, setPagination] = useState({currentPage: 1, totalPages: 1, totalUsers: 0, usersPerPage: 10});
-    
-    // Filter and search states
+    const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalUsers: 0 });
     const [searchTerm, setSearchTerm] = useState("");
     const [roleFilter, setRoleFilter] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
@@ -20,94 +20,65 @@ function UserList() {
     const [error, setError] = useState("");
     const [showUserDropdown, setShowUserDropdown] = useState(false);
     const [activeActionMenu, setActiveActionMenu] = useState(null);
-    const [userActionsLoading, setUserActionsLoading] = useState(new Set());    
-    const [modalState, setModalState] = useState({isOpen: false, mode: "create", selectedUser: null});
+    const [userActionsLoading, setUserActionsLoading] = useState(new Set());
+    const [modalState, setModalState] = useState({ isOpen: false, mode: "create", selectedUser: null });
     const [successMessage, setSuccessMessage] = useState("");
 
-    const fetchUsers = async (page = 1) => {
+    const debouncedSearch = useDebounce(searchTerm, 400);
+
+    const fetchUsers = useCallback(async (page = 1) => {
+        setIsLoading(true);
+        setError("");
         try {
-            setIsLoading(true);
-            setError("");
             const filters = {
                 page,
-                limit: pagination.usersPerPage,
-                search: searchTerm,
+                limit: USERS_PER_PAGE,
+                search: debouncedSearch,
                 active: statusFilter === "active" ? true : statusFilter === "inactive" ? false : null,
                 role: roleFilter,
             };
             const response = await getUsers(filters);
-            let usersList = response.users || [];
-            setUsers(usersList);
-            setPagination(prev => ({...prev, currentPage: page, totalPages: response.total_pages || Math.ceil(usersList.length / pagination.usersPerPage), totalUsers: response.total || usersList.length}));
-        } catch (error) {
-            setError(error.message || "Failed to load users.");
+            setUsers(response.users || []);
+            setPagination(prev => ({
+                ...prev,
+                currentPage: page,
+                totalPages: response.total_pages || 1,
+                totalUsers: response.total || 0,
+            }));
+        } catch (err) {
+            setError(err.message || "Failed to load users.");
             setUsers([]);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [debouncedSearch, roleFilter, statusFilter]);
 
-    // Load users on component mount and when filters change
-    useEffect(() => {fetchUsers(1);}, [searchTerm, roleFilter, statusFilter]);
-    const handleSearchChange = (event) => {
-        setSearchTerm(event.target.value);
-        setPagination(prev => ({ ...prev, currentPage: 1 }));
-    };
-    const handleRoleFilterChange = (event) => {
-        setRoleFilter(event.target.value);
-        setPagination(prev => ({ ...prev, currentPage: 1 }));
-    };
-    const handleStatusFilterChange = (event) => {
-        setStatusFilter(event.target.value);
-        setPagination(prev => ({ ...prev, currentPage: 1 }));
-    };
-    const handlePageChange = (page) => {fetchUsers(page);};
-    const handleAddUser = () => {
-        setModalState({isOpen: true, mode: "create", selectedUser: null});
-        setActiveActionMenu(null);
-    };
+    useEffect(() => { fetchUsers(1); }, [fetchUsers]);
 
-    const handleEditUser = (userId) => {
-        const userToEdit = users.find(user => user.id === userId);
-        if (userToEdit) {
-            setModalState({isOpen: true, mode: "edit", selectedUser: userToEdit});
-        }
-        setActiveActionMenu(null);
-    };
-
-    const handleUserActions = (userId) => {
-        setActiveActionMenu(activeActionMenu === userId ? null : userId);
+    const showSuccess = (message) => {
+        setSuccessMessage(message);
+        setTimeout(() => setSuccessMessage(""), 5000);
     };
 
     const setUserLoading = (userId, loading) => {
         setUserActionsLoading(prev => {
-            const newSet = new Set(prev);
-            if (loading) {
-                newSet.add(userId);
-            } else {
-                newSet.delete(userId);
-            }
-            return newSet;
+            const next = new Set(prev);
+            loading ? next.add(userId) : next.delete(userId);
+            return next;
         });
-    };
-
-    const showSuccessMessage = (message) => {
-        setSuccessMessage(message);
-        // clear success message after 5 seconds
-        setTimeout(() => {setSuccessMessage("");}, 5000);
     };
 
     const handleDisableUser = async (userId) => {
         const user = users.find(u => u.id === userId);
         if (!user) return;
+        setUserLoading(userId, true);
+        setActiveActionMenu(null);
         try {
-            setUserLoading(userId, true);
-            setActiveActionMenu(null);
             await disableUser(userId);
-            showSuccessMessage(`User "${user.name}" has been disabled successfully.`);
-            fetchUsers(pagination.currentPage); // Refresh the list
-        } catch (error) {
-            setError(error.message || "Failed to disable user.");
+            setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: "INACTIVE" } : u));
+            showSuccess(`User "${user.name}" has been disabled successfully.`);
+        } catch (err) {
+            setError(err.message || "Failed to disable user.");
         } finally {
             setUserLoading(userId, false);
         }
@@ -116,47 +87,51 @@ function UserList() {
     const handleEnableUser = async (userId) => {
         const user = users.find(u => u.id === userId);
         if (!user) return;
+        setUserLoading(userId, true);
+        setActiveActionMenu(null);
         try {
-            setUserLoading(userId, true);
-            setActiveActionMenu(null);
             await enableUser(userId);
-            showSuccessMessage(`User "${user.name}" has been enabled successfully.`);
-            fetchUsers(pagination.currentPage); // Refresh the list
-        } catch (error) {
-            setError(error.message || "Failed to enable user.");
+            setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: "ACTIVE" } : u));
+            showSuccess(`User "${user.name}" has been enabled successfully.`);
+        } catch (err) {
+            setError(err.message || "Failed to enable user.");
         } finally {
             setUserLoading(userId, false);
         }
     };
 
-    const handleUserDropdown = () => {setShowUserDropdown(!showUserDropdown);};
-    const handleLogout = () => {clearSession(); navigate("/login");};
-    const handleModalClose = () => {
-        setModalState({isOpen: false, mode: "create", selectedUser: null});
-    };
-    
-    const handleUserSuccess = () => {
-        const action = modalState.mode === "create" ? "created" : "updated";
-        setSuccessMessage(`User ${action} successfully!`);
-        fetchUsers(pagination.currentPage);
-        // Clear success message after 5 seconds
-        setTimeout(() => {setSuccessMessage("");}, 5000);
+    const handleEditUser = (userId) => {
+        const userToEdit = users.find(u => u.id === userId);
+        if (userToEdit) setModalState({ isOpen: true, mode: "edit", selectedUser: userToEdit });
+        setActiveActionMenu(null);
     };
 
-    const clearSuccessMessage = () => {setSuccessMessage("");};
+    const handleUserSuccess = (updatedUser) => {
+        const action = modalState.mode === "create" ? "created" : "updated";
+        showSuccess(`User ${action} successfully!`);
+        if (modalState.mode === "edit" && updatedUser) {
+            setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
+        } else {
+            fetchUsers(pagination.currentPage);
+        }
+    };
+
     const formatDate = (dateString) => {
         if (!dateString) return "";
-        const date = new Date(dateString);
-        const options = { day: 'numeric', month: 'short', year: 'numeric' };
-        return date.toLocaleDateString('en-GB', options);
+        return new Date(dateString).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
     };
 
-return (
+    const handlePageChange = (page) => fetchUsers(page);
+    const handleSearchChange = (e) => { setSearchTerm(e.target.value); };
+    const handleRoleFilterChange = (e) => { setRoleFilter(e.target.value); };
+    const handleStatusFilterChange = (e) => { setStatusFilter(e.target.value); };
+
+    return (
         <div className="users-container">
             <div className="users-header">
                 <h1>Users</h1>
                 <div className="user-dropdown-container">
-                    <div className="user-info" onClick={handleUserDropdown}>
+                    <div className="user-info" onClick={() => setShowUserDropdown(p => !p)}>
                         <span className="admin-name">{session?.name || "Admin User"}</span>
                         <span className="dropdown-arrow">▼</span>
                     </div>
@@ -164,16 +139,18 @@ return (
                         <div className="user-dropdown-menu">
                             <div className="dropdown-item"><span className="user-email">{session?.email}</span></div>
                             <div className="dropdown-divider"></div>
-                            <button className="dropdown-item logout-btn" onClick={handleLogout}>Logout</button>
+                            <button className="dropdown-item logout-btn" onClick={() => { clearSession(); navigate("/login"); }}>Logout</button>
                         </div>
                     )}
                 </div>
             </div>
             <div className="user-content">
-                <div className="users-actions"><button className="add-user-btn" onClick={handleAddUser}>Add User</button></div>
+                <div className="users-actions">
+                    <button className="add-user-btn" onClick={() => { setModalState({ isOpen: true, mode: "create", selectedUser: null }); setActiveActionMenu(null); }}>Add User</button>
+                </div>
                 <div className="users-filters">
                     <div className="search-box">
-                        <input type="text" placeholder="Search by name or email..." value={searchTerm} onChange={handleSearchChange} className="search-input"/>
+                        <input type="text" placeholder="Search by name or email..." value={searchTerm} onChange={handleSearchChange} className="search-input" />
                     </div>
                     <select className="filter-select" value={roleFilter} onChange={handleRoleFilterChange}>
                         <option value="">All Roles</option>
@@ -190,12 +167,14 @@ return (
                 {successMessage && (
                     <div className="success-message">
                         {successMessage}
-                        <button type="button" className="close-message-btn" onClick={clearSuccessMessage} aria-label="Close success message">  ✕ </button>
+                        <button type="button" className="close-message-btn" onClick={() => setSuccessMessage("")} aria-label="Close">✕</button>
                     </div>
                 )}
-                {error && (<div className="error-message">{error}</div>)}
+                {error && <div className="error-message">{error}</div>}
                 <div className="users-table-container">
-                    {isLoading ? (<div className="loading-message">Loading users...</div>) : (
+                    {isLoading ? (
+                        <div className="loading-message">Loading users...</div>
+                    ) : (
                         <table className="users-table">
                             <thead>
                                 <tr>
@@ -209,37 +188,46 @@ return (
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.length > 0 ? (users.map((user, index) => {
-                                    const isUserLoading = userActionsLoading.has(user.id);
-                                    return (
-                                        <tr key={user.id}>
-                                            <td>{(pagination.currentPage - 1) * pagination.usersPerPage + index + 1}</td>
-                                            <td className="user-name">{user.name}</td>
-                                            <td>{user.email}</td>
-                                            <td>{user.role}</td>
-                                            <td>
-                                                <span className={`status-badge ${user.status === 'ACTIVE' ? 'active' : 'inactive'}`}>{user.status === 'ACTIVE' ? 'Active' : 'Inactive'}</span>
-                                            </td>
-                                            <td>{formatDate(user.created_at)}</td>
-                                            <td className="actions-cell">
-                                                <div className="action-menu-container">
-                                                    <button className="menu-btn"  onClick={() => handleUserActions(user.id)} title="More actions" disabled={isUserLoading}> {isUserLoading ? "Loading..." : "⋮"}</button>
-                                                    {activeActionMenu === user.id && (
-                                                        <div className="action-dropdown-menu">
-                                                            {user.status === 'ACTIVE' ? (
-                                                                <button className="dropdown-action" onClick={() => handleDisableUser(user.id)} disabled={isUserLoading}>Disable User</button>) : (
-                                                                <button className="dropdown-action" onClick={() => handleEnableUser(user.id)} disabled={isUserLoading}>Enable User</button>)}
-                                                            <button className="dropdown-action" onClick={() => handleEditUser(user.id)} disabled={isUserLoading}>Edit User</button>
-                                                        </div>)}
-                                                </div>
-                                            </td>
-                                        </tr>);})) : (
+                                {users.length === 0 ? (
                                     <tr>
                                         <td colSpan="7" className="no-users">
                                             {searchTerm || roleFilter || statusFilter ? "No users found matching your search criteria." : "No users available."}
                                         </td>
                                     </tr>
-                                )}
+                                ) : users.map((user, index) => {
+                                    const isUserLoading = userActionsLoading.has(user.id);
+                                    return (
+                                        <tr key={user.id}>
+                                            <td>{(pagination.currentPage - 1) * USERS_PER_PAGE + index + 1}</td>
+                                            <td className="user-name">{user.name}</td>
+                                            <td>{user.email}</td>
+                                            <td>{user.role}</td>
+                                            <td>
+                                                <span className={`status-badge ${user.status === "ACTIVE" ? "active" : "inactive"}`}>
+                                                    {user.status === "ACTIVE" ? "Active" : "Inactive"}
+                                                </span>
+                                            </td>
+                                            <td>{formatDate(user.created_at)}</td>
+                                            <td className="actions-cell">
+                                                <div className="action-menu-container">
+                                                    <button className="menu-btn" onClick={() => setActiveActionMenu(p => p === user.id ? null : user.id)} title="More actions" disabled={isUserLoading}>
+                                                        {isUserLoading ? "Loading..." : "⋮"}
+                                                    </button>
+                                                    {activeActionMenu === user.id && (
+                                                        <div className="action-dropdown-menu">
+                                                            {user.status === "ACTIVE" ? (
+                                                                <button className="dropdown-action" onClick={() => handleDisableUser(user.id)} disabled={isUserLoading}>Disable User</button>
+                                                            ) : (
+                                                                <button className="dropdown-action" onClick={() => handleEnableUser(user.id)} disabled={isUserLoading}>Enable User</button>
+                                                            )}
+                                                            <button className="dropdown-action" onClick={() => handleEditUser(user.id)} disabled={isUserLoading}>Edit User</button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     )}
@@ -247,14 +235,15 @@ return (
                 {!isLoading && users.length > 0 && (
                     <div className="users-pagination">
                         <div className="pagination-info">
-                            Showing {(pagination.currentPage - 1) * pagination.usersPerPage + 1} to{" "}
-                            {Math.min(pagination.currentPage * pagination.usersPerPage, pagination.totalUsers)} of{" "}
+                            Showing {(pagination.currentPage - 1) * USERS_PER_PAGE + 1} to{" "}
+                            {Math.min(pagination.currentPage * USERS_PER_PAGE, pagination.totalUsers)} of{" "}
                             {pagination.totalUsers} users
                         </div>
                         <div className="pagination-controls">
                             <button className="pagination-btn" onClick={() => handlePageChange(pagination.currentPage - 1)} disabled={pagination.currentPage === 1}>❮</button>
-                            {Array.from({ length: pagination.totalPages }, (_, index) => (
-                                <button key={index + 1} className={`pagination-btn ${pagination.currentPage === index + 1 ? 'active' : ''}`} onClick={() => handlePageChange(index + 1)}>{index + 1}</button>))}
+                            {Array.from({ length: pagination.totalPages }, (_, i) => (
+                                <button key={i + 1} className={`pagination-btn ${pagination.currentPage === i + 1 ? "active" : ""}`} onClick={() => handlePageChange(i + 1)}>{i + 1}</button>
+                            ))}
                             <button className="pagination-btn" onClick={() => handlePageChange(pagination.currentPage + 1)} disabled={pagination.currentPage === pagination.totalPages}>❯</button>
                         </div>
                     </div>
@@ -263,10 +252,12 @@ return (
             <UserModal
                 mode={modalState.mode}
                 isOpen={modalState.isOpen}
-                onClose={handleModalClose}
+                onClose={() => setModalState({ isOpen: false, mode: "create", selectedUser: null })}
                 onSuccess={handleUserSuccess}
-                selectedUser={modalState.selectedUser}/>
+                selectedUser={modalState.selectedUser}
+            />
         </div>
     );
 }
+
 export default UserList;
