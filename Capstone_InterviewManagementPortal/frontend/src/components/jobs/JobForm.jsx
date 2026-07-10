@@ -2,15 +2,13 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { createJob, updateJob } from "../../services/jobService";
 import "./JobForm.css";
-import { EMPTY_JOB_FORM, EMPLOYMENT_TYPES } from "../../constants/jobFormConstants";
-
+import {EMPTY_JOB_FORM, EMPLOYMENT_TYPES, EXPERIENCE_LEVEL_PATTERN, JOB_TITLE_MAX_LENGTH, SALARY_RANGE_PATTERN,} from "../../constants/jobFormConstants";
 
 function JobForm({ mode, isOpen, onClose, onSuccess, jobData }) {
     const [formData, setFormData] = useState(EMPTY_JOB_FORM);
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [apiError, setApiError] = useState("");
-
     const isEdit = mode === "edit";
 
     useEffect(() => {
@@ -44,16 +42,42 @@ function JobForm({ mode, isOpen, onClose, onSuccess, jobData }) {
         };
     }, [isOpen, onClose]);
 
+    const validateRequired = (errors, field, value, message) => {
+        if (!value.trim()) errors[field] = message;
+    };
+
     const validate = (data) => {
         const e = {};
-        if (!data.title.trim())           e.title = "Job title is required.";
-        if (!data.description.trim())     e.description = "Description is required.";
-        if (!data.requirements.trim())    e.requirements = "Requirements are required.";
-        if (!data.location.trim())        e.location = "Location is required.";
-        if (!data.employment_type.trim()) e.employment_type = "Employment type is required.";
-        if (!data.salary_range.trim())    e.salary_range = "Salary range is required.";
-        if (!data.department.trim())      e.department = "Department is required.";
-        if (!data.experience_level.trim()) e.experience_level = "Experience level is required.";
+        const title = data.title.trim();
+        const employmentType = data.employment_type.trim();
+        const experienceLevel = data.experience_level.trim();
+        const salaryRange = data.salary_range.trim();
+
+        validateRequired(e, "title", data.title, "Job title is required.");
+        validateRequired(e, "description", data.description, "Description is required.");
+        validateRequired(e, "requirements", data.requirements, "Requirements are required.");
+        validateRequired(e, "location", data.location, "Location is required.");
+        validateRequired(e, "employment_type", data.employment_type, "Employment type is required.");
+        validateRequired(e, "salary_range", data.salary_range, "Salary range is required.");
+        validateRequired(e, "department", data.department, "Department is required.");
+        validateRequired(e, "experience_level", data.experience_level, "Experience level is required.");
+
+        if (!e.title && title.length > JOB_TITLE_MAX_LENGTH) {
+            e.title = `Job title must be ${JOB_TITLE_MAX_LENGTH} characters or fewer.`;
+        }
+
+        if (!e.employment_type && !EMPLOYMENT_TYPES.includes(employmentType)) {
+            e.employment_type = "Employment type must be one of the supported types.";
+        }
+
+        if (!e.experience_level && !EXPERIENCE_LEVEL_PATTERN.test(experienceLevel)) {
+            e.experience_level = "Experience level must be in format like 0-2 Years or 10+ Years.";
+        }
+
+        if (!e.salary_range && !SALARY_RANGE_PATTERN.test(salaryRange)) {
+            e.salary_range = "Salary range must be in format like 8-12 LPA.";
+        }
+
         return e;
     };
 
@@ -159,8 +183,7 @@ function JobForm({ mode, isOpen, onClose, onSuccess, jobData }) {
                                 className={`jf-input${errors.employment_type ? " error" : ""}`}
                                 value={formData.employment_type}
                                 onChange={e => handleChange("employment_type", e.target.value)}
-                                disabled={isLoading}
-                            >
+                                disabled={isLoading}>
                                 <option value="">Select type</option>
                                 {EMPLOYMENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                             </select>
@@ -207,7 +230,6 @@ function JobForm({ mode, isOpen, onClose, onSuccess, jobData }) {
                         />
                         {errors.description && <p className="jf-error-msg">{errors.description}</p>}
                     </div>
-
                     {/* Requirements */}
                     <div className="jf-group">
                         <label className="jf-label">Requirements <span className="jf-req">*</span></label>
@@ -221,7 +243,6 @@ function JobForm({ mode, isOpen, onClose, onSuccess, jobData }) {
                         />
                         {errors.requirements && <p className="jf-error-msg">{errors.requirements}</p>}
                     </div>
-
                     <div className="jf-actions">
                         <button type="button" className="jf-cancel" onClick={onClose} disabled={isLoading}>
                             Cancel
@@ -235,5 +256,4 @@ function JobForm({ mode, isOpen, onClose, onSuccess, jobData }) {
         </div>
     );
 }
-
 export default JobForm;

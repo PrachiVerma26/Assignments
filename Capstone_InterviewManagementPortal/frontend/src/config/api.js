@@ -23,3 +23,13 @@ export const CANDIDATE_ENDPOINTS = {
     STATUS: (id) => `/candidates/${id}/status`,
     STATUS_HISTORY: (id) => `/candidates/${id}/status/history`,
 };
+
+/* Interview Management API endpoints. */
+export const INTERVIEW_ENDPOINTS = {
+    INTERVIEWS: "/interviews",
+    INTERVIEW: (id) => `/interviews/${id}`,
+    FEEDBACK: (id) => `/interviews/${id}/feedback`,
+    HR_DASHBOARD: "/interviews/dashboard/hr",
+    INTERVIEWER_DASHBOARD: "/interviews/dashboard/interviewer",
+    SCHEDULING_FORM_DATA: "/interviews/form-data/scheduling",
+};

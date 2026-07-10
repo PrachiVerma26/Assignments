@@ -7,7 +7,7 @@ import re
 SUPPORTED_EMPLOYMENT_TYPES = ("Full-time", "Part-time", "Contract", "Internship", "Remote")
 EXPERIENCE_LEVEL_PATTERN = re.compile(r"^(?:\d+-\d+|\d+\+) Years$")
 SALARY_RANGE_PATTERN = re.compile(r"^\d+-\d+ LPA$")
-JOB_TEXT_FIELDS = ( "title", "description", "requirements", "location", "employment_type", "salary_range", "department", "experience_level"
+JOB_TEXT_FIELDS = ( "title", "description", "requirements", "location", "employment_type", "salary_range", "department", "experience_level")
 REQUIRED_FIELD_MESSAGES = {
     "title": "Job title is required.",
     "description": "Description is required.",

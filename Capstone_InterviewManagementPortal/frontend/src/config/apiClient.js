@@ -27,6 +27,10 @@ const handleResponseError = (error) => {
         window.location.href = "/login";
     }
 
+    if (!error.response && error.code === "ERR_NETWORK") {
+        return Promise.reject(new Error("Unable to reach the server. Please check the backend connection and try again."));
+    }
+
     const message = error.response?.data?.detail || error.response?.data?.message || error.message || "Something went wrong. Please try again.";
     return Promise.reject(new Error(message));
 };

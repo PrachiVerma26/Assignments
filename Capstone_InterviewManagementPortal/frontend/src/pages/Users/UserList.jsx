@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { Plus, Search } from "lucide-react";
+import ActionsMenu from "../../components/actions/ActionsMenu";
+import Layout from "../../components/layout/Layout";
 import { getUsers, disableUser, enableUser } from "../../services/userService";
-import { getSession, clearSession } from "../../utils/session";
 import UserModal from "../../components/users/UserModal";
 import useDebounce from "../../utils/useDebounce";
 import "./Users.css";
@@ -9,8 +10,6 @@ import "./Users.css";
 const USERS_PER_PAGE = 10;
 
 function UserList() {
-    const navigate = useNavigate();
-    const session = getSession();
     const [users, setUsers] = useState([]);
     const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalUsers: 0 });
     const [searchTerm, setSearchTerm] = useState("");
@@ -18,8 +17,6 @@ function UserList() {
     const [statusFilter, setStatusFilter] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
-    const [showUserDropdown, setShowUserDropdown] = useState(false);
-    const [activeActionMenu, setActiveActionMenu] = useState(null);
     const [userActionsLoading, setUserActionsLoading] = useState(new Set());
     const [modalState, setModalState] = useState({ isOpen: false, mode: "create", selectedUser: null });
     const [successMessage, setSuccessMessage] = useState("");
@@ -72,7 +69,6 @@ function UserList() {
         const user = users.find(u => u.id === userId);
         if (!user) return;
         setUserLoading(userId, true);
-        setActiveActionMenu(null);
         try {
             await disableUser(userId);
             setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: "INACTIVE" } : u));
@@ -88,7 +84,6 @@ function UserList() {
         const user = users.find(u => u.id === userId);
         if (!user) return;
         setUserLoading(userId, true);
-        setActiveActionMenu(null);
         try {
             await enableUser(userId);
             setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: "ACTIVE" } : u));
@@ -103,7 +98,6 @@ function UserList() {
     const handleEditUser = (userId) => {
         const userToEdit = users.find(u => u.id === userId);
         if (userToEdit) setModalState({ isOpen: true, mode: "edit", selectedUser: userToEdit });
-        setActiveActionMenu(null);
     };
 
     const handleUserSuccess = (updatedUser) => {
@@ -121,44 +115,38 @@ function UserList() {
         return new Date(dateString).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
     };
 
-    const handlePageChange = (page) => fetchUsers(page);
-    const handleSearchChange = (e) => { setSearchTerm(e.target.value); };
-    const handleRoleFilterChange = (e) => { setRoleFilter(e.target.value); };
-    const handleStatusFilterChange = (e) => { setStatusFilter(e.target.value); };
+    const handlePageChange = (page) => {
+        if (page < 1 || page > pagination.totalPages) return;
+        fetchUsers(page);
+    };
 
     return (
-        <div className="users-container">
-            <div className="users-header">
-                <h1>Users</h1>
-                <div className="user-dropdown-container">
-                    <div className="user-info" onClick={() => setShowUserDropdown(p => !p)}>
-                        <span className="admin-name">{session?.name || "Admin User"}</span>
-                        <span className="dropdown-arrow">▼</span>
-                    </div>
-                    {showUserDropdown && (
-                        <div className="user-dropdown-menu">
-                            <div className="dropdown-item"><span className="user-email">{session?.email}</span></div>
-                            <div className="dropdown-divider"></div>
-                            <button className="dropdown-item logout-btn" onClick={() => { clearSession(); navigate("/login"); }}>Logout</button>
-                        </div>
-                    )}
-                </div>
-            </div>
-            <div className="user-content">
-                <div className="users-actions">
-                    <button className="add-user-btn" onClick={() => { setModalState({ isOpen: true, mode: "create", selectedUser: null }); setActiveActionMenu(null); }}>Add User</button>
+        <Layout showSidebar={false}>
+            <div className="users-page">
+                <div className="users-page-header">
+                    <h2 className="users-title">Users</h2>
+                    <button className="add-user-btn" onClick={() => setModalState({ isOpen: true, mode: "create", selectedUser: null })}>
+                        <Plus size={16} /> Add User
+                    </button>
                 </div>
                 <div className="users-filters">
                     <div className="search-box">
-                        <input type="text" placeholder="Search by name or email..." value={searchTerm} onChange={handleSearchChange} className="search-input" />
+                        <Search size={16} className="search-icon" />
+                        <input
+                            type="text"
+                            placeholder="Search by name or email..."
+                            value={searchTerm}
+                            onChange={event => setSearchTerm(event.target.value)}
+                            className="search-input"
+                        />
                     </div>
-                    <select className="filter-select" value={roleFilter} onChange={handleRoleFilterChange}>
+                    <select className="filter-select" value={roleFilter} onChange={event => setRoleFilter(event.target.value)}>
                         <option value="">All Roles</option>
                         <option value="ADMIN">ADMIN</option>
                         <option value="HR">HR</option>
                         <option value="INTERVIEWER">INTERVIEWER</option>
                     </select>
-                    <select className="filter-select" value={statusFilter} onChange={handleStatusFilterChange}>
+                    <select className="filter-select" value={statusFilter} onChange={event => setStatusFilter(event.target.value)}>
                         <option value="">All Statuses</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
@@ -167,7 +155,7 @@ function UserList() {
                 {successMessage && (
                     <div className="success-message">
                         {successMessage}
-                        <button type="button" className="close-message-btn" onClick={() => setSuccessMessage("")} aria-label="Close">✕</button>
+                        <button type="button" className="close-message-btn" onClick={() => setSuccessMessage("")} aria-label="Close">x</button>
                     </div>
                 )}
                 {error && <div className="error-message">{error}</div>}
@@ -209,21 +197,16 @@ function UserList() {
                                             </td>
                                             <td>{formatDate(user.created_at)}</td>
                                             <td className="actions-cell">
-                                                <div className="action-menu-container">
-                                                    <button className="menu-btn" onClick={() => setActiveActionMenu(p => p === user.id ? null : user.id)} title="More actions" disabled={isUserLoading}>
-                                                        {isUserLoading ? "Loading..." : "⋮"}
-                                                    </button>
-                                                    {activeActionMenu === user.id && (
-                                                        <div className="action-dropdown-menu">
-                                                            {user.status === "ACTIVE" ? (
-                                                                <button className="dropdown-action" onClick={() => handleDisableUser(user.id)} disabled={isUserLoading}>Disable User</button>
-                                                            ) : (
-                                                                <button className="dropdown-action" onClick={() => handleEnableUser(user.id)} disabled={isUserLoading}>Enable User</button>
-                                                            )}
-                                                            <button className="dropdown-action" onClick={() => handleEditUser(user.id)} disabled={isUserLoading}>Edit User</button>
-                                                        </div>
-                                                    )}
-                                                </div>
+                                                <ActionsMenu
+                                                    items={[
+                                                        {
+                                                            label: user.status === "ACTIVE" ? "Disable User" : "Enable User",
+                                                            onClick: () => user.status === "ACTIVE" ? handleDisableUser(user.id) : handleEnableUser(user.id),
+                                                            disabled: isUserLoading,
+                                                        },
+                                                        { label: "Edit User", onClick: () => handleEditUser(user.id), disabled: isUserLoading },
+                                                    ]}
+                                                />
                                             </td>
                                         </tr>
                                     );
@@ -232,6 +215,7 @@ function UserList() {
                         </table>
                     )}
                 </div>
+
                 {!isLoading && users.length > 0 && (
                     <div className="users-pagination">
                         <div className="pagination-info">
@@ -240,23 +224,21 @@ function UserList() {
                             {pagination.totalUsers} users
                         </div>
                         <div className="pagination-controls">
-                            <button className="pagination-btn" onClick={() => handlePageChange(pagination.currentPage - 1)} disabled={pagination.currentPage === 1}>❮</button>
-                            {Array.from({ length: pagination.totalPages }, (_, i) => (
-                                <button key={i + 1} className={`pagination-btn ${pagination.currentPage === i + 1 ? "active" : ""}`} onClick={() => handlePageChange(i + 1)}>{i + 1}</button>
-                            ))}
-                            <button className="pagination-btn" onClick={() => handlePageChange(pagination.currentPage + 1)} disabled={pagination.currentPage === pagination.totalPages}>❯</button>
+                            <button className="pagination-btn" onClick={() => handlePageChange(pagination.currentPage - 1)} disabled={pagination.currentPage === 1}>Previous</button>
+                            <button className="pagination-btn active" onClick={() => handlePageChange(pagination.currentPage)}>{pagination.currentPage}</button>
+                            <button className="pagination-btn" onClick={() => handlePageChange(pagination.currentPage + 1)} disabled={pagination.currentPage === pagination.totalPages}>Next</button>
                         </div>
                     </div>
                 )}
+                <UserModal
+                    mode={modalState.mode}
+                    isOpen={modalState.isOpen}
+                    onClose={() => setModalState({ isOpen: false, mode: "create", selectedUser: null })}
+                    onSuccess={handleUserSuccess}
+                    selectedUser={modalState.selectedUser}
+                />
             </div>
-            <UserModal
-                mode={modalState.mode}
-                isOpen={modalState.isOpen}
-                onClose={() => setModalState({ isOpen: false, mode: "create", selectedUser: null })}
-                onSuccess={handleUserSuccess}
-                selectedUser={modalState.selectedUser}
-            />
-        </div>
+        </Layout>
     );
 }
 
