@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from src.enums.role_types import UserRole
 from src.exceptions.candidate_exceptions import CandidateEmailAlreadyExistsException, CandidateMobileAlreadyExistsException, CandidateNotFoundException, InvalidNucleusTeqEmailException
 from src.main import app
-from src.schemas.response.candidate_response import CandidateListResponse, CandidateResponse, CreateCandidateResponse
+from src.schemas.response.candidate_response import CandidateListResponse, CandidateResponse, CreateCandidateResponse, JobSummaryResponse
 from src.utils.security import get_current_user
 
 @pytest.fixture(autouse=True)
@@ -32,14 +32,20 @@ def candidate_payload():
         "email": "prachi.verma@nucleusteq.com",
         "mobile": "9876543210",
         "current_company": "NucleusTeq",
-        "total_experience": 3.0,
+        "experience_years": 3,
+        "experience_months": 6,
         "id": "507f1f77bcf86cd799439011",
         "applied_job_id": "507f1f77bcf86cd799439022",
     }
 
 @pytest.fixture
 def candidate_response(candidate_payload):
-    return CandidateResponse(**candidate_payload, status="PROFILE_CREATED", created_at=datetime.now(UTC))
+    return CandidateResponse(
+        **candidate_payload,
+        applied_job=JobSummaryResponse(id=candidate_payload["applied_job_id"], title="Software Engineer"),
+        status="PROFILE_CREATED",
+        created_at=datetime.now(UTC),
+    )
 
 @pytest.fixture
 def override_current_user():

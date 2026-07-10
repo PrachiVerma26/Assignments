@@ -21,3 +21,11 @@ class MeetingLinkRequiredException(Exception):
 class LocationRequiredException(Exception):
     """Raised when an offline interview requires a location."""
     pass
+
+class FeedbackNotYetAllowedException(Exception):
+    """Raised when feedback is submitted before the interview datetime."""
+    pass
+
+class InterviewAlreadyCompletedException(Exception):
+    """Raised when attempting to reschedule a completed interview."""
+    pass

@@ -117,3 +117,11 @@ def register_exception_handlers(app):
     @app.exception_handler(interview_exceptions.LocationRequiredException)
     async def location_required_handler(request: Request, exc: interview_exceptions.LocationRequiredException,):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
+
+    @app.exception_handler(interview_exceptions.FeedbackNotYetAllowedException)
+    async def feedback_not_yet_allowed_handler(request: Request, exc: interview_exceptions.FeedbackNotYetAllowedException):
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
+
+    @app.exception_handler(interview_exceptions.InterviewAlreadyCompletedException)
+    async def interview_already_completed_handler(request: Request, exc: interview_exceptions.InterviewAlreadyCompletedException):
+        return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"message": str(exc)})

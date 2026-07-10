@@ -73,7 +73,7 @@ def test_list_users_success(mocker):
             }
         ),
     )
-    response = client.get("/users?page=1&limit=10")
+    response = client.get("/users/?page=1&limit=10")
     assert response.status_code == 200
     assert len(response.json()["users"]) == 1
 
