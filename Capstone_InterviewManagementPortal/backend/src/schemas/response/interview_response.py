@@ -72,6 +72,12 @@ class HRDashboardResponse(BaseModel):
     selected_candidates: int
     rejected_candidates: int
 
+class AdminDashboardResponse(BaseModel):
+    total_users: int
+    total_jobs: int
+    total_candidates: int
+    scheduled_interviews: int
+
 class InterviewerDashboardResponse(BaseModel):
     assigned_interviews: int
     pending_feedback: int

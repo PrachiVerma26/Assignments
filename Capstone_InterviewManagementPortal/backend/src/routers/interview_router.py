@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query, status
 from src.enums.role_types import UserRole
 from src.schemas.request.interview_request import ScheduleInterviewRequest, SubmitFeedbackRequest, UpdateInterviewRequest
 from src.schemas.response.interview_response import (
+    AdminDashboardResponse,
     CreateInterviewResponse,
     FeedbackResponse,
     HRDashboardResponse,
@@ -27,17 +28,24 @@ async def schedule_interview(payload: ScheduleInterviewRequest, current_user=Dep
 async def get_interviews(
     page: int = Query(1, ge=1, description="Page number"),
     limit: int = Query(10, ge=1, le=100, description="Items per page"),
+    status: str = Query(None, description="Filter by status"),
     current_user=Depends(get_current_user),
 ):
-    require_roles(current_user, [UserRole.HR, UserRole.INTERVIEWER])
+    require_roles(current_user, [UserRole.HR, UserRole.INTERVIEWER, UserRole.ADMIN])
     app_logger.info("List interviews endpoint invoked.")
-    return await interview_service.get_interviews(page, limit, current_user)
+    return await interview_service.get_interviews(page, limit, current_user, status)
 
 @router.get("/dashboard/hr", response_model=HRDashboardResponse)
 async def hr_dashboard(current_user=Depends(get_current_user)):
     require_roles(current_user, [UserRole.HR])
     app_logger.info("HR dashboard endpoint invoked by %s", current_user["email"])
     return await interview_service.get_hr_dashboard()
+
+@router.get("/dashboard/admin", response_model=AdminDashboardResponse)
+async def admin_dashboard(current_user=Depends(get_current_user)):
+    require_roles(current_user, [UserRole.ADMIN])
+    app_logger.info("Admin dashboard endpoint invoked by %s", current_user["email"])
+    return await interview_service.get_admin_dashboard()
 
 @router.get("/form-data/scheduling", response_model=SchedulingFormDataResponse)
 async def get_scheduling_form_data(current_user=Depends(get_current_user)):
@@ -55,7 +63,7 @@ async def interviewer_dashboard(current_user=Depends(get_current_user)):
 async def get_interview(interview_id: str, current_user=Depends(get_current_user)):
     require_roles(current_user, [UserRole.HR, UserRole.INTERVIEWER])
     app_logger.info("Fetching interview: %s", interview_id)
-    return await interview_service.get_interview_by_id(interview_id)
+    return await interview_service.get_interview_by_id(interview_id, current_user)
 
 @router.put("/{interview_id}", response_model=InterviewResponse)
 async def update_interview(interview_id: str, payload: UpdateInterviewRequest, current_user=Depends(get_current_user)):
@@ -73,4 +81,4 @@ async def submit_feedback(interview_id: str, payload: SubmitFeedbackRequest, cur
 async def get_feedback(interview_id: str, current_user=Depends(get_current_user)):
     require_roles(current_user, [UserRole.HR, UserRole.INTERVIEWER])
     app_logger.info("Fetching feedback for interview: %s", interview_id)
-    return await interview_service.get_feedback(interview_id)
+    return await interview_service.get_feedback(interview_id, current_user)
