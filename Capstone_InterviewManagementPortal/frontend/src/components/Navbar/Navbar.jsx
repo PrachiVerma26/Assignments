@@ -4,7 +4,7 @@ import { ChevronDown, Menu } from "lucide-react";
 import { clearSession, getSession } from "../../utils/session";
 import "./Navbar.css";
 
-function Navbar({ onMenuToggle }) {
+function Navbar({ onMenuToggle, isMenuOpen, hasSidebar = true }) {
     const [showDropdown, setShowDropdown] = useState(false);
     const navigate = useNavigate();
     const session = getSession();
@@ -18,9 +18,16 @@ function Navbar({ onMenuToggle }) {
 
     return (
         <header className="navbar">
-            <button className="navbar-hamburger" onClick={onMenuToggle} aria-label="Toggle menu">
-                <Menu size={22} />
-            </button>
+            {hasSidebar && (
+                <button
+                    className="navbar-hamburger"
+                    onClick={onMenuToggle}
+                    aria-label="Toggle menu"
+                    aria-expanded={isMenuOpen}
+                >
+                    <Menu size={22} />
+                </button>
+            )}
             <h1 className="navbar-title">Interview Management Portal</h1>
             <div className="navbar-profile" onClick={toggleDropdown}>
                 <div className="navbar-avatar">{session?.name?.charAt(0).toUpperCase() || "U"}</div>
