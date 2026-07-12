@@ -1,62 +1,44 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { getSession } from "../../utils/session";
+import { createPortal } from "react-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { MoreVertical, Plus, Search } from "lucide-react";
 import Layout from "../../components/layout/Layout";
 import CandidateStatusHistory from "../../components/candidate/CandidateStatusHistory";
 import { getCandidates } from "../../services/candidateService";
+import useDebounce from "../../utils/useDebounce";
 import "./CandidateList.css";
-
-const CANDIDATES_PER_PAGE = 5;
-
-const STATUS_LABELS = {
-    PROFILE_CREATED: "New",
-    APPLIED: "Applied",
-    SHORTLISTED: "Screening",
-    REJECTED: "Rejected",
-    HIRED: "Offered",
-};
-
-function ActionMenu({ candidate, onStatusHistory }) {
-    const navigate = useNavigate();
-    const [open, setOpen] = useState(false);
-    const ref = useRef(null);
-
-    useEffect(() => {
-        const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
-        document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
-    }, []);
-
-    return (
-        <div className="cl-menu-wrapper" ref={ref}>
-            <button className="cl-menu-btn" onClick={() => setOpen(o => !o)}>
-                <MoreVertical size={16} />
-            </button>
-            {open && (
-                <div className="cl-dropdown">
-                    <button className="cl-dropdown-item" onClick={() => { setOpen(false); navigate(`/candidates/${candidate.id}`); }}>View</button>
-                    <button className="cl-dropdown-item" onClick={() => { setOpen(false); navigate(`/candidates/${candidate.id}/edit`); }}>Edit</button>
-                    <button className="cl-dropdown-item" onClick={() => { setOpen(false); onStatusHistory(candidate); }}>Status History</button>
-                </div>
-            )}
-        </div>
-    );
-}
+import {CANDIDATES_PER_PAGE, STATUS_LABELS} from "../../constants/candidateConstants";
+import ActionsMenu from "../../components/actions/ActionsMenu";
 
 function CandidateList() {
+    const session = getSession();
+    const isAdmin = session?.role === "ADMIN";
     const [candidates, setCandidates] = useState([]);
     const [search, setSearch] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
     const [pagination, setPagination] = useState({ currentPage: 1, total: 0 });
     const [historyCandidate, setHistoryCandidate] = useState(null);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.message) {
+            setSuccessMessage(location.state.message);
+            const timer = setTimeout(() => setSuccessMessage(""), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [location.state]);
+
+    const debouncedSearch = useDebounce(search, 400);
 
     const fetchCandidates = useCallback(async (page = 1) => {
         setIsLoading(true);
         setError("");
         try {
-            const data = await getCandidates({ page, limit: CANDIDATES_PER_PAGE, search });
+            const data = await getCandidates({ page, limit: CANDIDATES_PER_PAGE, search: debouncedSearch });
             setCandidates(data.candidates || []);
             setPagination({ currentPage: page, total: data.total || 0 });
         } catch (err) {
@@ -64,7 +46,7 @@ function CandidateList() {
         } finally {
             setIsLoading(false);
         }
-    }, [search]);
+    }, [debouncedSearch]);
 
     useEffect(() => { fetchCandidates(1); }, [fetchCandidates]);
 
@@ -79,16 +61,23 @@ function CandidateList() {
         return pages;
     };
 
+    const formatExperience = (years, months) => {
+        if (years === 0 && months === 0) return "0 months";
+        if (months === 0) return `${years} year${years !== 1 ? 's' : ''}`;
+        if (years === 0) return `${months} month${months !== 1 ? 's' : ''}`;
+        return `${years} year${years !== 1 ? 's' : ''} ${months} month${months !== 1 ? 's' : ''}`;
+    };
+
     return (
         <Layout>
             <div className="cl-page">
                 <div className="cl-header">
                     <h2 className="cl-title">Candidates</h2>
-                    <button className="cl-add-btn" onClick={() => navigate("/candidates/create")}>
-                        <Plus size={16} /> Add Candidate
-                    </button>
+                    {!isAdmin && (
+                        <button className="cl-add-btn" onClick={() => navigate("/candidates/create")}>
+                            <Plus size={16} /> Add Candidate</button>
+                    )}
                 </div>
-
                 <div className="cl-toolbar">
                     <div className="cl-search-box">
                         <Search size={16} className="cl-search-icon" />
@@ -101,47 +90,51 @@ function CandidateList() {
                         />
                     </div>
                 </div>
-
+                {successMessage && <div className="cl-success">{successMessage}</div>}
                 {error && <div className="cl-error">{error}</div>}
-
                 <div className="cl-table-container">
                     <table className="cl-table">
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th>S.No</th>
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Applied Job</th>
+                                <th>Experience</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {isLoading ? (
-                                <tr><td colSpan="7" className="cl-table-msg">Loading...</td></tr>
+                                <tr><td colSpan="8" className="cl-table-msg">Loading...</td></tr>
                             ) : candidates.length === 0 ? (
-                                <tr><td colSpan="7" className="cl-table-msg">No candidates found.</td></tr>
+                                <tr><td colSpan="8" className="cl-table-msg">No candidates found.</td></tr>
                             ) : candidates.map((c, idx) => (
                                 <tr key={c.id}>
                                     <td>{(pagination.currentPage - 1) * CANDIDATES_PER_PAGE + idx + 1}</td>
                                     <td>{c.first_name} {c.last_name}</td>
                                     <td>{c.email}</td>
                                     <td>{c.mobile}</td>
-                                    <td>{c.applied_job_id}</td>
+                                    <td>{c.applied_job?.title || "N/A"}</td>
+                                    <td>{formatExperience(c.experience_years, c.experience_months)}</td>
                                     <td>
-                                        <span className={`cl-status cl-status--${c.status.toLowerCase()}`}>
-                                            {STATUS_LABELS[c.status] || c.status}
-                                        </span>
+                                        <span className={`cl-status cl-status--${c.status.toLowerCase()}`}>{STATUS_LABELS[c.status] || c.status}</span>
                                     </td>
                                     <td className="cl-actions-cell">
-                                        <ActionMenu candidate={c} onStatusHistory={setHistoryCandidate} />
+                                        <ActionsMenu
+                                            items={[
+                                                {label: "View", onClick: () => navigate(`/candidates/${c.id}`), disabled: isAdmin,},
+                                                {label: "Edit", onClick: () => navigate(`/candidates/${c.id}/edit`), disabled: isAdmin,},
+                                                {label: "Status History",onClick: () => setHistoryCandidate(c), disabled: isAdmin,},
+                                            ]}
+                                        />
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
-
                     {pagination.total > 0 && (
                         <div className="cl-pagination">
                             <span className="cl-pagination-info">Showing {start} to {end} of {pagination.total} candidates</span>
@@ -160,8 +153,7 @@ function CandidateList() {
                     )}
                 </div>
             </div>
-
-            {historyCandidate && (
+            {!isAdmin && historyCandidate && (
                 <CandidateStatusHistory
                     candidateId={historyCandidate.id}
                     candidateName={`${historyCandidate.first_name} ${historyCandidate.last_name}`}

@@ -1,0 +1,1076 @@
+{
+  "info": {
+    "_postman_id": "ba25ffed-6caa-4136-a9ef-87c814279d3c",
+    "name": "Interview_Management_Portal",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49171566",
+    "_collection_link": "https://go.postman.co/collection/49171566-ba25ffed-6caa-4136-a9ef-87c814279d3c?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"himanshi@nucleusteq.com\",\r\n    \"password\": \"Himanshi@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8000/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Reset_Password",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_0haf}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "admin@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"old_password\": \"{{auth_password_0haf}}\",\r\n  \"new_password\": \"Admin@123\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8000/auth/reset-password",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "auth",
+            "reset-password"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "create_users",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_01r6}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "admin@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Akansha Jamre\",\r\n    \"email\": \"akansha12@nucleusteq.com\",\r\n    \"role\": \"HR\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8000/users",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "retrieve users",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_01r6}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "admin@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/users",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get_user_by_id",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_01r6}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "admin@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Akansha Jamre\",\r\n    \"email\": \"akansha12@nucleusteq.com\",\r\n    \"role\": \"HR\"\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8000/users/6a536d0dbfa7d776f1fe911f",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "users",
+            "6a536d0dbfa7d776f1fe911f"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "update_existing_user",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_01r6}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "admin@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Akansha Jamre\",\r\n    \"email\": \"akansha12@nucleusteq.com\",\r\n    \"role\": \"INTERVIEWER\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8000/users/6a536d0dbfa7d776f1fe911f",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "users",
+            "6a536d0dbfa7d776f1fe911f"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "change_user_status",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_01r6}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "admin@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/users/6a536d0dbfa7d776f1fe911f/status?status=INACTIVE",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "users",
+            "6a536d0dbfa7d776f1fe911f",
+            "status"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "INACTIVE"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "create_job",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_16r7}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "himanshi@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"title\": \"Product Manager\",\r\n  \"description\": \"Leading the development of new features.\",\r\n  \"requirements\": \"5+ years of product management experience.\",\r\n  \"location\": \"Remote\",\r\n  \"employment_type\": \"Full-time\",\r\n  \"salary_range\": \"50-60 LPA\",\r\n  \"department\": \"Product\",\r\n  \"experience_level\": \"10+ Years\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8000/jobs",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "jobs"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get_jobs",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_01r6}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "admin@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Akansha Jamre\",\r\n    \"email\": \"akansha12@nucleusteq.com\",\r\n    \"role\": \"HR\"\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8000/jobs",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "jobs"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get_job_by_uid",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_16r7}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "himanshi@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/jobs/6a5372e2bfa7d776f1fe9121",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "jobs",
+            "6a5372e2bfa7d776f1fe9121"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "update_existing_job",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_16r7}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "himanshi@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n        \"title\": \"Product Manager\",\r\n        \"description\": \"Leading the development of new features.\",\r\n        \"requirements\": \"5+ years of product management experience.\",\r\n        \"location\": \"Remote\",\r\n        \"employment_type\": \"Full-time\",\r\n        \"salary_range\": \"50-70 LPA\",\r\n        \"department\": \"Product\",\r\n        \"experience_level\": \"10+ Years\"\r\n    }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8000/jobs/6a5372e2bfa7d776f1fe9121",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "jobs",
+            "6a5372e2bfa7d776f1fe9121"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "create_candidate",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_16r7}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "himanshi@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"first_name\": \"Shreyan\",\r\n  \"last_name\": \"Verma\",\r\n  \"email\": \"shreyan@yahoo.com\",\r\n  \"mobile\": \"2342542221\",\r\n  \"current_company\": \"Mobicules Technologies\",\r\n  \"experience_years\": 2,\r\n  \"experience_months\": 2,\r\n  \"applied_job_id\": \"6a50e2c505572409cc3d5690\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8000/candidates",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "candidates"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "retrieve all candidates",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_01r6}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "admin@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/candidates",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "candidates"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get candidate by id",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_16r7}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "himanshi@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/candidates/6a537d63bfa7d776f1fe9122",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "candidates",
+            "6a537d63bfa7d776f1fe9122"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "preview candidate resume",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_16r7}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "himanshi@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/candidates/6a537d63bfa7d776f1fe9122/resume",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "candidates",
+            "6a537d63bfa7d776f1fe9122",
+            "resume"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "upload resume of a candidate",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_16r7}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "himanshi@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "uuid": "87b819fa-011d-4ca2-ba9e-fe4a622e524b",
+              "src": "/C:/Users/Prachi Verma/Downloads/Receipt_7_11_2026 12_00_00 AM.pdf"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:8000/candidates/6a537d63bfa7d776f1fe9122/resume",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "candidates",
+            "6a537d63bfa7d776f1fe9122",
+            "resume"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "update candidate",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_16r7}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "himanshi@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"first_name\": \"Shreyan\",\r\n  \"last_name\": \"Verma\",\r\n  \"email\": \"shreyan12@yahoo.com\",\r\n  \"mobile\": \"2342542227\",\r\n  \"current_company\": \"Mobicules Technologies\",\r\n  \"experience_years\": 2,\r\n  \"experience_months\": 2,\r\n  \"applied_job_id\": \"6a50e2c505572409cc3d5690\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8000/candidates/6a537d63bfa7d776f1fe9122",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "candidates",
+            "6a537d63bfa7d776f1fe9122"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_16r7}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "himanshi@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/candidates/6a537d63bfa7d776f1fe9122/status?new_status=SHORTLISTED",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "candidates",
+            "6a537d63bfa7d776f1fe9122",
+            "status"
+          ],
+          "query": [
+            {
+              "key": "new_status",
+              "value": "SHORTLISTED"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "create interview",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_16r7}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "himanshi@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"candidate_id\": \"6a537d63bfa7d776f1fe9122\",\r\n  \"interviewer_id\": \"6a50e9f4f7315618e6acfba5\",\r\n  \"interview_date\": \"2026-07-13\",\r\n  \"interview_time\": \"15:14:52.954Z\",\r\n  \"interview_mode\": \"OFFLINE\",\r\n  \"meeting_link\": \"NA\",\r\n  \"location\": \"BHOPAL\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8000/interviews",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "interviews"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get all interviews",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_16r7}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "himanshi@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/interviews",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "interviews"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "interview details for hr dashboard",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_16r7}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "himanshi@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Akansha Jamre\",\r\n    \"email\": \"akansha12@nucleusteq.com\",\r\n    \"role\": \"HR\"\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8000/interviews/dashboard/hr",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "interviews",
+            "dashboard",
+            "hr"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "interview dashboard details",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_09o9}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "anushka@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/interviews/dashboard/interviewer",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "interviews",
+            "dashboard",
+            "interviewer"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get interview by id(only interview taken by the interviewer can view it )",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_09o9}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "anushka@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/interviews/6a50cb1d5e42ca9b58c6d42e",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "interviews",
+            "6a50cb1d5e42ca9b58c6d42e"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "update_interview by the interviewer",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_09o9}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "anushka@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"interview_date\": \"2026-07-13\",\r\n  \"interview_time\": \"03:09:00.785Z\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/interviews/6a53b54a4400d8e201b474dd",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "interviews",
+            "6a53b54a4400d8e201b474dd"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "create feedback by the interviewer",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_09o9}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "anushka@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"technical_rating\": 1,\r\n  \"communication_rating\": 1,\r\n  \"comments\": \"string\",\r\n  \"recommendation\": \"SELECT\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8000/interview/6a53b54a4400d8e201b474dd/feedback",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "interview",
+            "6a53b54a4400d8e201b474dd",
+            "feedback"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "retrieve feedback",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "password",
+              "value": "{{auth_password_09o9}}",
+              "type": "string"
+            },
+            {
+              "key": "username",
+              "value": "anushka@nucleusteq.com",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8000/interviews/6a50cb1d5e42ca9b58c6d42e/feedback",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8000",
+          "path": [
+            "interviews",
+            "6a50cb1d5e42ca9b58c6d42e",
+            "feedback"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "auth_password_0haf",
+      "secret": true
+    },
+    {
+      "key": "auth_password_01r6",
+      "secret": true
+    },
+    {
+      "key": "auth_password_16r7",
+      "secret": true
+    },
+    {
+      "key": "auth_password_09o9",
+      "secret": true
+    }
+  ]
+}

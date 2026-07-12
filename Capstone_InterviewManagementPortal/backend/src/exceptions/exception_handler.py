@@ -58,6 +58,10 @@ def register_exception_handlers(app):
     async def candidate_not_found_handler(request: Request, exc: candidate_exceptions.CandidateNotFoundException):
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": str(exc)})
 
+    @app.exception_handler(candidate_exceptions.AppliedJobNotFoundException)
+    async def applied_job_not_found_handler(request: Request, exc: candidate_exceptions.AppliedJobNotFoundException):
+        return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": str(exc)})
+
     @app.exception_handler(candidate_exceptions.CandidateEmailAlreadyExistsException)
     async def candidate_email_exists_handler(request: Request, exc: candidate_exceptions.CandidateEmailAlreadyExistsException):
         return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"message": str(exc)})
@@ -113,3 +117,15 @@ def register_exception_handlers(app):
     @app.exception_handler(interview_exceptions.LocationRequiredException)
     async def location_required_handler(request: Request, exc: interview_exceptions.LocationRequiredException,):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
+
+    @app.exception_handler(interview_exceptions.FeedbackNotYetAllowedException)
+    async def feedback_not_yet_allowed_handler(request: Request, exc: interview_exceptions.FeedbackNotYetAllowedException):
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
+
+    @app.exception_handler(interview_exceptions.InterviewAlreadyCompletedException)
+    async def interview_already_completed_handler(request: Request, exc: interview_exceptions.InterviewAlreadyCompletedException):
+        return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"message": str(exc)})
+    
+    @app.exception_handler(auth_exceptions.LastActiveAdminException)
+    async def last_active_admin_exception_handler(request, exc):
+        return JSONResponse(status_code=400, content={"detail": str(exc)})

@@ -93,18 +93,3 @@ async def test_update_user_success(mocker):
         {"_id": user_id},
         {"$set": update_data},
     )
-
-@pytest.mark.asyncio
-async def test_find_active_admin_success(mocker):
-    collection = patch_user_collection(mocker)
-    admin = {
-        "_id": ObjectId(),
-        "name": "Admin",
-        "email": "admin@nucleusteq.com",
-        "role": "ADMIN",
-        "status": "ACTIVE",
-    }
-    collection.find_one = AsyncMock(return_value=admin)
-    result = await repository.find_active_admin()
-    assert result == admin
-    collection.find_one.assert_awaited_once_with({ "role": "ADMIN", "status": "ACTIVE"})

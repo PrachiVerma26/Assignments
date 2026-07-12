@@ -32,9 +32,9 @@ def job_payload():
         "requirements": "3+ years Python experience and FastAPI knowledge",
         "location": "Remote",
         "employment_type": "Full-time",
-        "salary_range": "$80,000 - $120,000",
+        "salary_range": "8-12 LPA",
         "department": "Engineering",
-        "experience_level": "Mid-level",
+        "experience_level": "2-4 Years",
     }
 
 @pytest.fixture
@@ -62,6 +62,18 @@ def test_create_job_success(client, mocker, override_current_user, job_payload, 
     mock_create_job.assert_awaited_once()
     assert mock_create_job.call_args.args[0].title == job_payload["title"]
 
+def test_create_job_trims_payload(client, mocker, override_current_user, job_payload, job_response):
+    override_current_user()
+    mock_create_job = mocker.patch("src.routers.job_router.job_service.create_new_job",
+        new=AsyncMock(return_value=CreateJobResponse(message="Job created successfully.", job=job_response)))
+    payload = {key: f"  {value}  " for key, value in job_payload.items()}
+    response = client.post("/jobs", json=payload)
+    assert response.status_code == 201
+    called_payload = mock_create_job.call_args.args[0]
+    assert called_payload.title == job_payload["title"]
+    assert called_payload.location == job_payload["location"]
+    assert called_payload.salary_range == job_payload["salary_range"]
+
 def test_create_job_rejects_unauthorized_role(client, mocker, override_current_user, job_payload):
     override_current_user(role=UserRole.INTERVIEWER.value)
     mock_create_job = mocker.patch("src.routers.job_router.job_service.create_new_job",
@@ -83,6 +95,24 @@ def test_create_job_invalid_payload(client, override_current_user):
     override_current_user()
     response = client.post("/jobs", json={"title": "", "description": "Valid description"})
     assert response.status_code == 422
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("employment_type", "Freelance", "Employment type must be one of the supported types."),
+        ("experience_level", "2 years", "Experience level must be in format like 0-2 Years or 10+ Years."),
+        ("experience_level", "10++ Years", "Experience level must be in format like 0-2 Years or 10+ Years."),
+        ("salary_range", "8-12", "Salary range must be in format like 8-12 LPA."),
+        ("salary_range", "8 to 12", "Salary range must be in format like 8-12 LPA."),
+    ],
+)
+def test_create_job_rejects_invalid_job_fields(client, mocker, override_current_user, job_payload, field, value, message):
+    override_current_user()
+    mock_create_job = mocker.patch("src.routers.job_router.job_service.create_new_job", new=AsyncMock())
+    response = client.post("/jobs", json={**job_payload, field: value})
+    assert response.status_code == 422
+    assert message in str(response.json())
+    mock_create_job.assert_not_awaited()
 
 def test_get_jobs_success(client, mocker, override_current_user, job_response):
     override_current_user()
@@ -127,6 +157,21 @@ def test_get_jobs_rejects_unauthorized_role(client, mocker, override_current_use
     assert response.status_code == 403
     mock_list_jobs.assert_not_awaited()
 
+def test_get_jobs_allows_admin(client, mocker, override_current_user):
+    override_current_user(role=UserRole.ADMIN.value)
+    mock_list_jobs = mocker.patch("src.routers.job_router.job_service.list_jobs",
+        new=AsyncMock(return_value=JobListResponse(message="Jobs retrieved successfully.", jobs=[], total=0, page=1, limit=10, total_pages=0)))
+    response = client.get("/jobs")
+    assert response.status_code == 200
+    mock_list_jobs.assert_awaited_once_with(1, 10, None)
+
+def test_create_job_rejects_admin(client, mocker, override_current_user, job_payload):
+    override_current_user(role=UserRole.ADMIN.value)
+    mock_create_job = mocker.patch("src.routers.job_router.job_service.create_new_job", new=AsyncMock())
+    response = client.post("/jobs/", json=job_payload)
+    assert response.status_code == 403
+    mock_create_job.assert_not_awaited()
+
 def test_get_jobs_invalid_pagination_params(client, override_current_user):
     override_current_user()
     response = client.get("/jobs?page=0&limit=0")
@@ -156,20 +201,28 @@ def test_get_job_by_id_rejects_unauthorized_role(client, mocker, override_curren
     assert response.status_code == 403
     mock_get_job.assert_not_awaited()
 
+def test_get_job_by_id_rejects_admin(client, mocker, override_current_user, job_id):
+    override_current_user(role=UserRole.ADMIN.value)
+    mock_get_job = mocker.patch("src.routers.job_router.job_service.get_job_by_id", new=AsyncMock())
+    response = client.get(f"/jobs/{job_id}")
+    assert response.status_code == 403
+    mock_get_job.assert_not_awaited()
+
 def test_update_job_success(client, mocker, override_current_user, job_id, job_payload):
     override_current_user()
     updated_job = JobResponse(
         id=job_id,
-        **{**job_payload, "title": "Senior Software Engineer", "salary_range": "$100,000 - $140,000", "experience_level": "Senior"})
+        **{**job_payload, "title": "Senior Software Engineer", "salary_range": "12-18 LPA", "experience_level": "5-8 Years"})
     mock_update_job = mocker.patch("src.routers.job_router.job_service.update_job",
         new=AsyncMock(return_value=updated_job))
-    response = client.put(f"/jobs/{job_id}", json={"title": "Senior Software Engineer", "salary_range": "$100,000 - $140,000"})
+    response = client.put(f"/jobs/{job_id}", json={"title": "  Senior Software Engineer  ", "salary_range": "  12-18 LPA  "})
     assert response.status_code == 200
     assert response.json()["title"] == "Senior Software Engineer"
-    assert response.json()["salary_range"] == "$100,000 - $140,000"
+    assert response.json()["salary_range"] == "12-18 LPA"
     mock_update_job.assert_awaited_once()
     assert mock_update_job.call_args.args[0] == job_id
     assert mock_update_job.call_args.args[1].title == "Senior Software Engineer"
+    assert mock_update_job.call_args.args[1].salary_range == "12-18 LPA"
 
 
 def test_update_job_not_found(client, mocker, override_current_user, job_id):
@@ -198,6 +251,23 @@ def test_update_job_invalid_payload(client, override_current_user, job_id):
     override_current_user()
     response = client.put(f"/jobs/{job_id}", json={"title": ""})
     assert response.status_code == 422
+
+@pytest.mark.parametrize(
+    ("payload", "message"),
+    [
+        ({"location": "   "}, "Location is required."),
+        ({"employment_type": "Freelance"}, "Employment type must be one of the supported types."),
+        ({"experience_level": "5"}, "Experience level must be in format like 0-2 Years or 10+ Years."),
+        ({"salary_range": "50000"}, "Salary range must be in format like 8-12 LPA."),
+    ],
+)
+def test_update_job_rejects_invalid_job_fields(client, mocker, override_current_user, job_id, payload, message):
+    override_current_user()
+    mock_update_job = mocker.patch("src.routers.job_router.job_service.update_job", new=AsyncMock())
+    response = client.put(f"/jobs/{job_id}", json=payload)
+    assert response.status_code == 422
+    assert message in str(response.json())
+    mock_update_job.assert_not_awaited()
 
 def test_update_job_accepts_empty_payload(client, mocker, override_current_user, job_id, job_response):
     override_current_user()

@@ -59,5 +59,5 @@ async def update_user(user_id: str, update_data: dict):
 async def update_user_status(user_id: str, status: str):
     return await get_user_collection().update_one({"_id": ObjectId(user_id)},{"$set": {"status": status}})
 
-async def find_active_admin():
-    return await get_user_collection().find_one({"role": "ADMIN", "status": "ACTIVE"})
+async def count_active_admins() -> int:
+    return await get_user_collection().count_documents({"role": UserRole.ADMIN.value, "status": "ACTIVE"})

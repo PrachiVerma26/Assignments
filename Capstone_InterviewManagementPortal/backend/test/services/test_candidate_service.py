@@ -6,7 +6,7 @@ import pytest
 from unittest.mock import AsyncMock
 from src.services import candidate_service
 from src.enums.candidate_status import CandidateStatus
-from src.exceptions.candidate_exceptions import CandidateNotFoundException, CandidateEmailAlreadyExistsException, CandidateMobileAlreadyExistsException, InvalidNucleusTeqEmailException
+from src.exceptions.candidate_exceptions import CandidateNotFoundException, CandidateEmailAlreadyExistsException, CandidateMobileAlreadyExistsException
 
 class CreateCandidateRequestMock:
     def __init__(self, **kwargs):
@@ -28,7 +28,8 @@ class UpdateCandidateRequestMock:
             "email": None,
             "mobile": None,
             "current_company": None,
-            "total_experience": None,
+            "experience_years": None,
+            "experience_months": None,
             "applied_job_id": None,
             **self._data,
         }
@@ -45,12 +46,19 @@ def candidate_doc(candidate_id=None):
         "email": "prachi.verma@nucleusteq.com",
         "mobile": "9876543210",
         "current_company": "NucleusTeq",
-        "total_experience": "2 Years 6 Months",
+        "experience_years": 3,
+        "experience_months": 6,
         "applied_job_id": str(ObjectId()),
         "status": CandidateStatus.PROFILE_CREATED,
         "resume_file_id": None,
         "created_at": datetime.utcnow(),
         "updated_at": None,
+    }
+
+def job_doc(job_id=None):
+    return {
+        "_id": ObjectId(job_id) if job_id else ObjectId(),
+        "title": "Software Engineer",
     }
 
 def current_user():
@@ -63,7 +71,8 @@ def create_request(**kwargs):
         "email": "prachi.verma@nucleusteq.com",
         "mobile": "9876543210",
         "current_company": "Acme Corp",
-        "total_experience": "2 Years 6 Months",
+        "experience_years": 3,
+        "experience_months": 6,
         "applied_job_id": str(ObjectId()),
     }
     data.update(kwargs)
@@ -72,17 +81,24 @@ def create_request(**kwargs):
 class TestCreateCandidate:
     @pytest.mark.asyncio
     async def test_create_candidate_success(self, mocker):
+        request = create_request()
         mocker.patch( "src.services.candidate_service.candidate_repository.get_candidate_by_email", new=AsyncMock(return_value=None))
         mocker.patch("src.services.candidate_service.candidate_repository.get_candidate_by_mobile", new=AsyncMock(return_value=None))
+        mocker.patch("src.services.candidate_service.job_repository.get_job_by_id", new=AsyncMock(return_value=job_doc(request.applied_job_id)))
         mocker.patch("src.services.candidate_service.candidate_repository.create_candidate", new=AsyncMock(return_value=mocker.Mock(inserted_id=ObjectId())))
-        result = await candidate_service.create_candidate(create_request(), current_user())
+        result = await candidate_service.create_candidate(request, current_user())
         assert result.message == "Candidate created successfully."
         assert result.candidate.status == CandidateStatus.PROFILE_CREATED
 
     @pytest.mark.asyncio
-    async def test_create_candidate_invalid_email(self):
-        with pytest.raises(InvalidNucleusTeqEmailException):
-            await candidate_service.create_candidate(create_request(email="test@gmail.com"), current_user())
+    async def test_create_candidate_invalid_email(self, mocker):
+        request = create_request(email="test@gmail.com")
+        mocker.patch("src.services.candidate_service.candidate_repository.get_candidate_by_email", new=AsyncMock(return_value=None))
+        mocker.patch("src.services.candidate_service.candidate_repository.get_candidate_by_mobile", new=AsyncMock(return_value=None))
+        mocker.patch("src.services.candidate_service.job_repository.get_job_by_id", new=AsyncMock(return_value=job_doc(request.applied_job_id)))
+        mocker.patch("src.services.candidate_service.candidate_repository.create_candidate", new=AsyncMock(return_value=mocker.Mock(inserted_id=ObjectId())))
+        result = await candidate_service.create_candidate(request, current_user())
+        assert result.candidate.email == "test@gmail.com"
 
     @pytest.mark.asyncio
     async def test_create_candidate_duplicate_email(self, mocker):
@@ -190,9 +206,15 @@ class TestUpdateCandidate:
     @pytest.mark.asyncio
     async def test_update_candidate_invalid_email(self, mocker):
         candidate_id = str(ObjectId())
-        mocker.patch( "src.services.candidate_service.candidate_repository.get_candidate_by_id", new=AsyncMock(return_value=candidate_doc(candidate_id)))
-        with pytest.raises(InvalidNucleusTeqEmailException):
-            await candidate_service.update_candidate( candidate_id, UpdateCandidateRequestMock(email="test@gmail.com"))
+        doc = candidate_doc(candidate_id)
+        updated = doc.copy()
+        updated["email"] = "test@gmail.com"
+        mocker.patch("src.services.candidate_service.candidate_repository.get_candidate_by_id", new=AsyncMock(side_effect=[doc, updated]))
+        mocker.patch("src.services.candidate_service.candidate_repository.get_candidate_by_email", new=AsyncMock(return_value=None))
+        mocker.patch("src.services.candidate_service.job_repository.get_job_by_id", new=AsyncMock(return_value=job_doc(doc["applied_job_id"])))
+        mocker.patch("src.services.candidate_service.candidate_repository.update_candidate", new=AsyncMock())
+        result = await candidate_service.update_candidate(candidate_id, UpdateCandidateRequestMock(email="test@gmail.com"))
+        assert result.email == "test@gmail.com"
 
     @pytest.mark.asyncio
     async def test_update_candidate_duplicate_email(self, mocker):

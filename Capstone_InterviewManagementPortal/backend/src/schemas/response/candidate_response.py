@@ -3,6 +3,9 @@ from typing import List, Optional
 from pydantic import BaseModel, EmailStr
 from src.enums.candidate_status import CandidateStatus
 
+class JobSummaryResponse(BaseModel):
+    id: str
+    title: str
 
 class CandidateResponse(BaseModel):
     id: str
@@ -11,8 +14,9 @@ class CandidateResponse(BaseModel):
     email: EmailStr
     mobile: str
     current_company: str
-    total_experience: str
-    applied_job_id: str
+    experience_years: int
+    experience_months: int
+    applied_job: JobSummaryResponse
     status: CandidateStatus
     resume_file_id: Optional[str] = None
     created_at: datetime

@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from src.enums.role_types import UserRole
 from src.exceptions.candidate_exceptions import CandidateEmailAlreadyExistsException, CandidateMobileAlreadyExistsException, CandidateNotFoundException, InvalidNucleusTeqEmailException
 from src.main import app
-from src.schemas.response.candidate_response import CandidateListResponse, CandidateResponse, CreateCandidateResponse
+from src.schemas.response.candidate_response import CandidateListResponse, CandidateResponse, CreateCandidateResponse, JobSummaryResponse
 from src.utils.security import get_current_user
 
 @pytest.fixture(autouse=True)
@@ -32,14 +32,20 @@ def candidate_payload():
         "email": "prachi.verma@nucleusteq.com",
         "mobile": "9876543210",
         "current_company": "NucleusTeq",
-        "total_experience": "2 Years 6 Months",
+        "experience_years": 3,
+        "experience_months": 6,
         "id": "507f1f77bcf86cd799439011",
         "applied_job_id": "507f1f77bcf86cd799439022",
     }
 
 @pytest.fixture
 def candidate_response(candidate_payload):
-    return CandidateResponse(**candidate_payload, status="PROFILE_CREATED", created_at=datetime.now(UTC))
+    return CandidateResponse(
+        **candidate_payload,
+        applied_job=JobSummaryResponse(id=candidate_payload["applied_job_id"], title="Software Engineer"),
+        status="PROFILE_CREATED",
+        created_at=datetime.now(UTC),
+    )
 
 @pytest.fixture
 def override_current_user():
@@ -153,12 +159,21 @@ def test_get_candidates_with_pagination_and_search(client, mocker, override_curr
     mock_list.assert_awaited_once_with(2, 5, "prachi")
 
 def test_get_candidates_rejects_unauthorized_role(client, mocker, override_current_user):
-    """Reject candidate listing for non-HR/INTERVIEWER roles."""
-    override_current_user(role=UserRole.ADMIN.value)
+    """Reject candidate listing for unsupported roles."""
+    override_current_user(role="MANAGER")
     mock_list = mocker.patch("src.routers.candidate_router.candidate_service.get_candidates", new=AsyncMock())
     response = client.get("/candidates")
     assert response.status_code == 403
     mock_list.assert_not_awaited()
+
+def test_get_candidates_allows_admin(client, mocker, override_current_user):
+    """Allow administrators to view the candidate list."""
+    override_current_user(role=UserRole.ADMIN.value)
+    mock_list = mocker.patch("src.routers.candidate_router.candidate_service.get_candidates",
+        new=AsyncMock(return_value=CandidateListResponse(message="Candidates retrieved successfully.", candidates=[], total=0, page=1, limit=10, total_pages=0)))
+    response = client.get("/candidates")
+    assert response.status_code == 200
+    mock_list.assert_awaited_once_with(1, 10, None)
 
 def test_get_candidates_invalid_pagination_params(client, override_current_user):
     """Return 422 for out-of-range pagination parameters."""

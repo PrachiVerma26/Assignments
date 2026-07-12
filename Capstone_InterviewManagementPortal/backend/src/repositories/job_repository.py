@@ -42,7 +42,10 @@ async def get_jobs(page: int = 1, limit: int = 10, search: Optional[str] = None)
 
 async def get_job_by_id(job_id: str):
     """Retrieve a job using MongoDB ObjectId."""
-    return await get_job_collection().find_one({"_id": ObjectId(job_id)})
+    try:
+        return await get_job_collection().find_one({"_id": ObjectId(job_id)})
+    except Exception:
+        return None
 
 async def update_job(job_id: str, job_data: dict):
     """Update job information."""

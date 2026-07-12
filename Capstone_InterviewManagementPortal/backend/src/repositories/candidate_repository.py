@@ -7,9 +7,8 @@ from src.constants.auth_constants import CANDIDATE_COLLECTION, RESUME_BUCKET
 from src.core.database import Database
 
 def get_candidate_collection():
-    """Return the jobs collection."""
+    """Return the candidates collection."""
     return Database.get_database()[CANDIDATE_COLLECTION]
-
 
 async def create_candidate(candidate_data: dict):
     return await get_candidate_collection().insert_one(candidate_data)

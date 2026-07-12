@@ -16,7 +16,6 @@ def set_admin_override():
     yield
     app.dependency_overrides.clear()
 
-
 def test_create_user_success(mocker):
     mock_create_user = mocker.patch(
         "src.routers.user_router.user_service.create_new_user",
@@ -73,7 +72,7 @@ def test_list_users_success(mocker):
             }
         ),
     )
-    response = client.get("/users?page=1&limit=10")
+    response = client.get("/users/?page=1&limit=10")
     assert response.status_code == 200
     assert len(response.json()["users"]) == 1
 

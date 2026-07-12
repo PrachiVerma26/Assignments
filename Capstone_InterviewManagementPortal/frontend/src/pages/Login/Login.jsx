@@ -49,11 +49,9 @@ function Login() {
                 password: password, // Store password for API authentication
             });
 
-            // Redirect based on password reset requirement, then role
+            // Redirect to the role-aware dashboard after any required password reset.
             if (response.requires_password_reset) {
                 navigate("/reset-password");
-            } else if (response.role === "ADMIN") {
-                navigate("/users");
             } else {
                 navigate("/dashboard");
             }

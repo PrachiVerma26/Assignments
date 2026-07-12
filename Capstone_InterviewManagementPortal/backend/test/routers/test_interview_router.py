@@ -10,6 +10,7 @@ from src.enums.role_types import UserRole
 from src.exceptions import candidate_exceptions, interview_exceptions
 from src.main import app
 from src.schemas.response.interview_response import (
+    AdminDashboardResponse,
     CandidateSummaryResponse,
     CreateInterviewResponse,
     FeedbackResponse,
@@ -19,6 +20,7 @@ from src.schemas.response.interview_response import (
     InterviewResponse,
     InterviewerDashboardResponse,
     InterviewerSummaryResponse,
+    JobSummaryResponse,
 )
 from src.utils.security import get_current_user
 
@@ -54,6 +56,7 @@ def interview_response(interview_id, interview_payload):
         id=interview_id,
         candidate=CandidateSummaryResponse(id=interview_payload["candidate_id"], name="Prachi Verma"),
         interviewer=InterviewerSummaryResponse(id=interview_payload["interviewer_id"], name="Interviewer One"),
+        job=JobSummaryResponse(id=str(ObjectId()), title="Software Engineer"),
         interview_date=date(2099, 12, 1),
         interview_time=time(10, 0),
         interview_mode=InterviewMode.ONLINE,
@@ -69,7 +72,9 @@ def interview_response(interview_id, interview_payload):
 def override_current_user():
     def _override(role=UserRole.HR.value, email="hr@nucleusteq.com", user_id=None):
         uid = user_id or str(ObjectId())
-        app.dependency_overrides[get_current_user] = lambda: {"_id": uid, "email": email, "role": role}
+        user = {"_id": uid, "email": email, "role": role}
+        app.dependency_overrides[get_current_user] = lambda: user
+        return user
     return _override
 
 def feedback_payload(**kwargs):
@@ -149,33 +154,30 @@ def test_get_interviews_success(client, mocker, override_current_user, interview
     assert response.json()["message"] == "Interviews retrieved successfully."
     assert len(response.json()["interviews"]) == 1
 
-def test_get_interviews_rejects_admin(client, mocker, override_current_user):
-    override_current_user(role=UserRole.ADMIN.value)
-    mock_svc = mocker.patch("src.routers.interview_router.interview_service.get_interviews", new=AsyncMock())
+def test_get_interviews_allows_admin(client, mocker, override_current_user):
+    current_user = override_current_user(role=UserRole.ADMIN.value)
+    mock_svc = mocker.patch("src.routers.interview_router.interview_service.get_interviews", new=AsyncMock(return_value=InterviewListResponse(message="Interviews retrieved successfully.", interviews=[], total=0, page=1, limit=10, total_pages=0)))
     response = client.get("/interviews")
-    assert response.status_code == 403
-    mock_svc.assert_not_awaited()
+    assert response.status_code == 200
+    mock_svc.assert_awaited_once_with(1, 10, current_user, None)
 
 def test_get_interviews_pagination(client, mocker, override_current_user):
-    override_current_user()
-    mock_svc = mocker.patch("src.routers.interview_router.interview_service.get_interviews",
-        new=AsyncMock(return_value=InterviewListResponse(message="Interviews retrieved successfully.", interviews=[], total=0, page=2, limit=5, total_pages=0)))
+    current_user = override_current_user()
+    mock_svc = mocker.patch("src.routers.interview_router.interview_service.get_interviews", new=AsyncMock(return_value=InterviewListResponse(message="Interviews retrieved successfully.", interviews=[], total=0, page=2, limit=5, total_pages=0)))
     response = client.get("/interviews?page=2&limit=5")
     assert response.status_code == 200
-    mock_svc.assert_awaited_once_with(2, 5)
+    mock_svc.assert_awaited_once_with(2, 5, current_user, None)
 
 def test_get_interview_by_id_success(client, mocker, override_current_user, interview_id, interview_response):
     override_current_user()
-    mocker.patch("src.routers.interview_router.interview_service.get_interview_by_id",
-        new=AsyncMock(return_value=InterviewDetailResponse(message="Interview retrieved successfully.", interview=interview_response)))
+    mocker.patch("src.routers.interview_router.interview_service.get_interview_by_id", new=AsyncMock(return_value=InterviewDetailResponse(message="Interview retrieved successfully.", interview=interview_response)))
     response = client.get(f"/interviews/{interview_id}")
     assert response.status_code == 200
     assert response.json()["message"] == "Interview retrieved successfully."
 
 def test_get_interview_by_id_not_found(client, mocker, override_current_user, interview_id):
     override_current_user()
-    mocker.patch("src.routers.interview_router.interview_service.get_interview_by_id",
-        new=AsyncMock(side_effect=interview_exceptions.InterviewNotFoundException("Interview not found.")))
+    mocker.patch("src.routers.interview_router.interview_service.get_interview_by_id", new=AsyncMock(side_effect=interview_exceptions.InterviewNotFoundException("Interview not found.")))
     response = client.get(f"/interviews/{interview_id}")
     assert response.status_code == 404
     assert response.json()["message"] == "Interview not found."
@@ -188,8 +190,7 @@ def test_update_interview_success(client, mocker, override_current_user, intervi
 
 def test_update_interview_not_found(client, mocker, override_current_user, interview_id):
     override_current_user()
-    mocker.patch("src.routers.interview_router.interview_service.update_interview",
-        new=AsyncMock(side_effect=interview_exceptions.InterviewNotFoundException("Interview not found.")))
+    mocker.patch("src.routers.interview_router.interview_service.update_interview", new=AsyncMock(side_effect=interview_exceptions.InterviewNotFoundException("Interview not found.")))
     response = client.put(f"/interviews/{interview_id}", json={"interview_time": "11:00:00"})
     assert response.status_code == 404
 
@@ -209,8 +210,7 @@ def test_update_interview_rejects_admin(client, mocker, override_current_user, i
 
 def test_submit_feedback_success(client, mocker, override_current_user, interview_id):
     override_current_user(role=UserRole.INTERVIEWER.value)
-    mocker.patch("src.routers.interview_router.interview_service.submit_feedback",
-        new=AsyncMock(return_value=FeedbackResponse(message="Feedback submitted successfully.", interview_id=interview_id, technical_rating=4, communication_rating=5, comments="Good", recommendation=Recommendation.SELECT)))
+    mocker.patch("src.routers.interview_router.interview_service.submit_feedback", new=AsyncMock(return_value=FeedbackResponse(message="Feedback submitted successfully.", interview_id=interview_id, technical_rating=4, communication_rating=5, comments="Good", recommendation=Recommendation.SELECT)))
     response = client.post(f"/interviews/{interview_id}/feedback", json=feedback_payload())
     assert response.status_code == 201
     assert response.json()["message"] == "Feedback submitted successfully."
@@ -263,8 +263,7 @@ def test_get_feedback_not_found(client, mocker, override_current_user, interview
 
 def test_hr_dashboard_success(client, mocker, override_current_user):
     override_current_user()
-    mocker.patch("src.routers.interview_router.interview_service.get_hr_dashboard",
-        new=AsyncMock(return_value=HRDashboardResponse(total_jobs=5, total_candidates=10, scheduled_interviews=3, selected_candidates=2, rejected_candidates=1)))
+    mocker.patch("src.routers.interview_router.interview_service.get_hr_dashboard", new=AsyncMock(return_value=HRDashboardResponse(total_jobs=5, total_candidates=10, scheduled_interviews=3, selected_candidates=2, rejected_candidates=1)))
     response = client.get("/interviews/dashboard/hr")
     assert response.status_code == 200
     assert response.json()["total_jobs"] == 5
@@ -278,10 +277,26 @@ def test_hr_dashboard_rejects_non_hr(client, mocker, override_current_user):
     assert response.status_code == 403
     mock_svc.assert_not_awaited()
 
+def test_admin_dashboard_success(client, mocker, override_current_user):
+    override_current_user(role=UserRole.ADMIN.value)
+    mocker.patch("src.routers.interview_router.interview_service.get_admin_dashboard", new=AsyncMock(return_value=AdminDashboardResponse(total_users=4, total_jobs=5, total_candidates=10, scheduled_interviews=3)))
+    response = client.get("/interviews/dashboard/admin")
+    assert response.status_code == 200
+    assert response.json()["total_users"] == 4
+    assert response.json()["total_jobs"] == 5
+    assert response.json()["total_candidates"] == 10
+    assert response.json()["scheduled_interviews"] == 3
+
+def test_admin_dashboard_rejects_non_admin(client, mocker, override_current_user):
+    override_current_user(role=UserRole.HR.value)
+    mock_svc = mocker.patch("src.routers.interview_router.interview_service.get_admin_dashboard", new=AsyncMock())
+    response = client.get("/interviews/dashboard/admin")
+    assert response.status_code == 403
+    mock_svc.assert_not_awaited()
+
 def test_interviewer_dashboard_success(client, mocker, override_current_user):
     override_current_user(role=UserRole.INTERVIEWER.value)
-    mocker.patch("src.routers.interview_router.interview_service.get_interviewer_dashboard",
-        new=AsyncMock(return_value=InterviewerDashboardResponse(assigned_interviews=4, pending_feedback=2, completed_feedback=2)))
+    mocker.patch("src.routers.interview_router.interview_service.get_interviewer_dashboard", new=AsyncMock(return_value=InterviewerDashboardResponse(assigned_interviews=4, pending_feedback=2, completed_feedback=2)))
     response = client.get("/interviews/dashboard/interviewer")
     assert response.status_code == 200
     assert response.json()["assigned_interviews"] == 4

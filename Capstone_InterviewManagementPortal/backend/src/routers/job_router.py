@@ -12,14 +12,14 @@ from src.utils.security import get_current_user, require_roles
 
 router = APIRouter(prefix="/jobs", tags=["Job Management"])
 
-@router.post("", response_model=CreateJobResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=CreateJobResponse, status_code=status.HTTP_201_CREATED)
 async def create_job(payload: CreateJobRequest, current_user = Depends(get_current_user)):
-    """ Create a new job description also accessible by HR only."""
+    """Create a new job description."""
     require_roles( current_user,[UserRole.HR])
     app_logger.info("Create job endpoint invoked by %s", current_user["email"])
     return await job_service.create_new_job(payload)
 
-@router.get("", response_model=JobListResponse)
+@router.get("/", response_model=JobListResponse)
 async def get_jobs(
     page: int = Query(1, ge=1, description="Page number"),
     limit: int = Query(10, ge=1, le=100, description="Items per page"),
@@ -27,14 +27,14 @@ async def get_jobs(
     current_user=Depends(get_current_user)
 ):
     """Retrieve job descriptions with pagination and search."""
-    require_roles(current_user, [UserRole.HR])
+    require_roles(current_user, [UserRole.HR, UserRole.ADMIN])
     app_logger.info("List jobs endpoint invoked.")
     return await job_service.list_jobs(page, limit, search)
 
 @router.get("/{job_id}", response_model=JobDetailResponse)
 async def get_job(job_id: str, current_user=Depends(get_current_user)):
     """Retrieve a job description by ID."""
-    require_roles(current_user, [ UserRole.HR])
+    require_roles(current_user, [UserRole.HR])
     app_logger.info("Fetching job: %s", job_id)
     return await job_service.get_job_by_id(job_id)
 
