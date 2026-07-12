@@ -3,6 +3,14 @@ import { X } from "lucide-react";
 import { getCandidateStatusHistory } from "../../services/candidateService";
 import "./CandidateStatusHistory.css";
 
+const formatDateTime = (date) =>
+    new Date(date).toLocaleString("en-IN", {
+        day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
+    });
+
+const getStatusClass = (status) =>
+    status.toLowerCase().replace(/\s+/g, "_");
+
 function CandidateStatusHistory({ candidateId, candidateName, onClose }) {
     const [history, setHistory] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +38,7 @@ function CandidateStatusHistory({ candidateId, candidateName, onClose }) {
                 <div className="csh-modal-header">
                     <div>
                         <h3 className="csh-modal-title">Status History</h3>
-                        {candidateName && <p className="csh-modal-subtitle">{candidateName}</p>}
+                        {candidateName && <p className="csh-modal-subtitle"><strong>Candidate Name: </strong>{candidateName}</p>}
                     </div>
                     <button className="csh-close-btn" onClick={onClose}><X size={18} /></button>
                 </div>
@@ -44,7 +52,7 @@ function CandidateStatusHistory({ candidateId, candidateName, onClose }) {
                         <div className="csh-timeline">
                             {history.map((entry, idx) => (
                                 <div key={idx} className="csh-timeline-item">
-                                    <div className="csh-timeline-dot" />
+                                    <div className={`csh-timeline-dot csh-dot--${getStatusClass( entry.new_status)}`}/>
                                     {idx < history.length - 1 && <div className="csh-timeline-line" />}
                                     <div className="csh-timeline-content">
                                         <div className="csh-timeline-header">
@@ -52,16 +60,16 @@ function CandidateStatusHistory({ candidateId, candidateName, onClose }) {
                                                 {entry.new_status}
                                             </span>
                                             <span className="csh-timeline-date">
-                                                {new Date(entry.updated_at).toLocaleString()}
+                                                {formatDateTime(entry.updated_at)}
                                             </span>
                                         </div>
                                         {entry.previous_status && (
                                             <p className="csh-timeline-meta">
-                                                From: <span className="csh-prev-status">{entry.previous_status}</span>
+                                                <strong>From:</strong>{" "} <span className="csh-prev-status">{entry.previous_status.replaceAll("_"," ")}</span>
                                             </p>
                                         )}
                                         {entry.updated_by && (
-                                            <p className="csh-timeline-meta">Updated by: {entry.updated_by}</p>
+                                            <p className="csh-timeline-meta"><strong>Updated by:</strong> {entry.updated_by}</p>
                                         )}
                                     </div>
                                 </div>

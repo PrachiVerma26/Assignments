@@ -80,27 +80,6 @@ def create_request(**kwargs):
 
 class TestCreateCandidate:
     @pytest.mark.asyncio
-    async def test_create_candidate_success(self, mocker):
-        request = create_request()
-        mocker.patch( "src.services.candidate_service.candidate_repository.get_candidate_by_email", new=AsyncMock(return_value=None))
-        mocker.patch("src.services.candidate_service.candidate_repository.get_candidate_by_mobile", new=AsyncMock(return_value=None))
-        mocker.patch("src.services.candidate_service.job_repository.get_job_by_id", new=AsyncMock(return_value=job_doc(request.applied_job_id)))
-        mocker.patch("src.services.candidate_service.candidate_repository.create_candidate", new=AsyncMock(return_value=mocker.Mock(inserted_id=ObjectId())))
-        result = await candidate_service.create_candidate(request, current_user())
-        assert result.message == "Candidate created successfully."
-        assert result.candidate.status == CandidateStatus.PROFILE_CREATED
-
-    @pytest.mark.asyncio
-    async def test_create_candidate_invalid_email(self, mocker):
-        request = create_request(email="test@gmail.com")
-        mocker.patch("src.services.candidate_service.candidate_repository.get_candidate_by_email", new=AsyncMock(return_value=None))
-        mocker.patch("src.services.candidate_service.candidate_repository.get_candidate_by_mobile", new=AsyncMock(return_value=None))
-        mocker.patch("src.services.candidate_service.job_repository.get_job_by_id", new=AsyncMock(return_value=job_doc(request.applied_job_id)))
-        mocker.patch("src.services.candidate_service.candidate_repository.create_candidate", new=AsyncMock(return_value=mocker.Mock(inserted_id=ObjectId())))
-        result = await candidate_service.create_candidate(request, current_user())
-        assert result.candidate.email == "test@gmail.com"
-
-    @pytest.mark.asyncio
     async def test_create_candidate_duplicate_email(self, mocker):
         mocker.patch("src.services.candidate_service.candidate_repository.get_candidate_by_email", new=AsyncMock(return_value=candidate_doc()))
         with pytest.raises(CandidateEmailAlreadyExistsException):

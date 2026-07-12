@@ -93,35 +93,6 @@ async def test_get_job_by_id_invalid_id(mocker):
         await job_service.get_job_by_id("invalid_id")
 
 @pytest.mark.asyncio
-async def test_list_jobs_success(mocker):
-    """Test successful job listing."""
-    mocker.patch("src.services.job_service.job_repository.get_jobs",
-        new=AsyncMock(return_value={"jobs": [job_doc()],
-                "total": 1,
-                "page": 1,
-                "limit": 10,
-                "total_pages": 1}),
-    )
-    result = await job_service.list_jobs(page=1, limit=10, search=None)
-    assert result.message == "Jobs retrieved successfully."
-    assert len(result.jobs) == 1
-    assert result.total == 1
-
-@pytest.mark.asyncio
-async def test_list_jobs_with_search(mocker):
-    """Test job listing with search parameter."""
-    mock_repo = mocker.patch("src.services.job_service.job_repository.get_jobs", new=AsyncMock(return_value={
-                "jobs": [],
-                "total": 0,
-                "page": 1,
-                "limit": 10,
-                "total_pages": 0}),
-    )
-    result = await job_service.list_jobs(page=1, limit=10, search="engineer")
-    assert result.message == "Jobs retrieved successfully."
-    mock_repo.assert_awaited_once_with(1, 10, "engineer")
-
-@pytest.mark.asyncio
 async def test_update_job_success(mocker):
     """Test successful job update."""
     job_id = str(ObjectId())

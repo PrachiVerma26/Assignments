@@ -11,17 +11,17 @@ export const EMPTY_FORM = {
 
 export const STATUS_OPTIONS = [
     { value: "PROFILE_CREATED", label: "Profile Created" },
-    { value: "APPLIED", label: "Applied" },
-    { value: "SHORTLISTED", label: "Shortlisted" },
+    { value: "INTERVIEW_SCHEDULED", label: "Interview Scheduled" },
+    { value: "INTERVIEW_COMPLETED", label: "Interview Completed" },
+    { value: "SELECTED", label: "Selected" },
     { value: "REJECTED", label: "Rejected" },
-    { value: "HIRED", label: "Hired" },
 ];
 
 export const CANDIDATES_PER_PAGE = 5;
 export const STATUS_LABELS = {
-    PROFILE_CREATED: "New",
-    APPLIED: "Applied",
-    SHORTLISTED: "Screening",
+    PROFILE_CREATED: "Profile Created",
+    INTERVIEW_SCHEDULED: "Interview Scheduled",
+    INTERVIEW_COMPLETED: "Interview Completed",
+    SELECTED: "Selected",
     REJECTED: "Rejected",
-    HIRED: "Offered",
 };

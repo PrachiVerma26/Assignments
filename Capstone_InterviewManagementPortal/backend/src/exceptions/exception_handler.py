@@ -70,10 +70,6 @@ def register_exception_handlers(app):
     async def candidate_mobile_exists_handler(request: Request, exc: candidate_exceptions.CandidateMobileAlreadyExistsException):
         return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"message": str(exc)})
 
-    @app.exception_handler(candidate_exceptions.InvalidNucleusTeqEmailException)
-    async def invalid_nucleusteq_email_handler(request: Request, exc: candidate_exceptions.InvalidNucleusTeqEmailException):
-        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
-
     @app.exception_handler(candidate_exceptions.ResumeNotFoundException)
     async def resume_not_found_handler(request: Request, exc: candidate_exceptions.ResumeNotFoundException):
         return JSONResponse(status_code=status.HTTP_404_NOT_FOUND, content={"message": str(exc)})
@@ -84,6 +80,10 @@ def register_exception_handlers(app):
 
     @app.exception_handler(candidate_exceptions.EmptyFileException)
     async def empty_file_handler(request: Request, exc: candidate_exceptions.EmptyFileException):
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
+
+    @app.exception_handler(candidate_exceptions.ResumeTooLargeException)
+    async def resume_too_large_handler(request: Request, exc: candidate_exceptions.ResumeTooLargeException):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"message": str(exc)})
 
     @app.exception_handler(candidate_exceptions.ResumeUploadFailedException)

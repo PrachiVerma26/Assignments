@@ -13,18 +13,24 @@ async def create_job(job_data: dict):
     """Insert a new job document."""
     return await get_job_collection().insert_one(job_data)
 
-async def get_jobs(page: int = 1, limit: int = 10, search: Optional[str] = None) -> Dict[str, Any]:
-    """Retrieve jobs with pagination and filtering."""
+async def get_jobs(page: int = 1, limit: int = 10, search: Optional[str] = None, location: Optional[str] = None,) -> Dict[str, Any]:
+    """Retrieve jobs with pagination, search, and optional location filtering."""
     skip = (page - 1) * limit
-    query_filter = {}
-    
+    query_filter: Dict[str, Any] = {}
+    if location:
+        query_filter["location"] = {"$regex": location, "$options": "i"}
     if search:
-        query_filter["$or"] = [
-            {"title": {"$regex": search, "$options": "i"}},
-            {"description": {"$regex": search, "$options": "i"}},
-            {"department": {"$regex": search, "$options": "i"}},
-            {"location": {"$regex": search, "$options": "i"}}
-        ]
+        search_filter = {"$or": [
+                {"title": {"$regex": search, "$options": "i"}},
+                {"description": {"$regex": search, "$options": "i"}},
+                {"department": {"$regex": search, "$options": "i"}},
+                {"location": {"$regex": search, "$options": "i"}},
+            ]
+        }
+        if query_filter:
+            query_filter = {"$and": [query_filter, search_filter]}
+        else:
+            query_filter = search_filter
 
     # Get total count
     total_count = await get_job_collection().count_documents(query_filter)

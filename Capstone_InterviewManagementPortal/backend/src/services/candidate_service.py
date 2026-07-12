@@ -7,11 +7,12 @@ from fastapi import UploadFile
 from src.enums.candidate_status import CandidateStatus
 from src.exceptions import candidate_exceptions
 from src.models.candidate import Candidate
-from src.repositories import candidate_repository, job_repository
+from src.repositories import candidate_repository, job_repository, user_repository
 from src.schemas.response import candidate_response
 from src.utils.logger import app_logger
 
 _PDF_CONTENT_TYPE = "application/pdf"
+_MAX_RESUME_SIZE_BYTES = 5 * 1024 * 1024  # 5MB
 
 async def _get_candidate_or_raise(candidate_id: str) -> dict:
     """Retrieve a candidate by ID or raise CandidateNotFoundException."""
@@ -48,6 +49,14 @@ async def _build_candidate_response(candidate: dict, skip_job_validation: bool =
             job = None
     
     job_summary = candidate_response.JobSummaryResponse(id=str(job["_id"]), title=job["title"]) if job else candidate_response.JobSummaryResponse(id=candidate.get("applied_job_id", "unknown"), title="Unknown Job")
+
+    # Normalize DB status to the current CandidateStatus enum.
+    raw_status = candidate.get("status", CandidateStatus.PROFILE_CREATED)
+    if isinstance(raw_status, CandidateStatus):
+        normalized_status = raw_status
+    else:
+        normalized_status = raw_status if raw_status in {s.value for s in CandidateStatus} else CandidateStatus.PROFILE_CREATED
+
     return candidate_response.CandidateResponse(
         id=str(candidate["_id"]),
         first_name=candidate.get("first_name", "N/A"),
@@ -58,7 +67,7 @@ async def _build_candidate_response(candidate: dict, skip_job_validation: bool =
         experience_years=candidate.get("experience_years", 0),
         experience_months=candidate.get("experience_months", 0),
         applied_job=job_summary,
-        status=candidate.get("status", "PROFILE_CREATED"),
+        status=normalized_status,
         resume_file_id=candidate.get("resume_file_id"),
         created_at=candidate.get("created_at", datetime.utcnow()),
         updated_at=candidate.get("updated_at"),
@@ -76,12 +85,29 @@ async def create_candidate(candidate_request, current_user) -> candidate_respons
 
     # Verify job exists
     await _get_job_or_raise(candidate_request.applied_job_id)
-    candidate = Candidate(**candidate_request.model_dump(), status=CandidateStatus.PROFILE_CREATED, created_by=str(current_user["_id"]))
+    initial_status = CandidateStatus.PROFILE_CREATED
+    candidate = Candidate(**candidate_request.model_dump(), status=initial_status, created_by=str(current_user["_id"]))
     result = await candidate_repository.create_candidate(candidate.model_dump())
     created = candidate.model_dump()
     created["_id"] = result.inserted_id
+
+    # Record initial status in status history (so UI shows "Profile Created" in history)
+    await candidate_repository.push_status_history(
+        str(created["_id"]),
+        {
+            "previous_status": None,
+            "new_status": initial_status.value,
+            "updated_at": datetime.utcnow(),
+            "updated_by": str(current_user["_id"]),
+        },
+    )
+
     app_logger.info("Candidate created successfully: %s", result.inserted_id)
-    return candidate_response.CreateCandidateResponse(message="Candidate created successfully.", candidate=await _build_candidate_response(created))
+    return candidate_response.CreateCandidateResponse(
+        message="Candidate created successfully.",
+        candidate=await _build_candidate_response(created),
+    )
+
 
 async def get_candidate_by_id(candidate_id: str) -> candidate_response.CandidateResponse:
     """Get candidate by ID."""
@@ -141,7 +167,8 @@ async def upload_resume(candidate_id: str, file: UploadFile) -> candidate_respon
     file_data = await file.read()
     if not file_data:
         raise candidate_exceptions.EmptyFileException("Uploaded file is empty.")
-
+    if len(file_data) > _MAX_RESUME_SIZE_BYTES:
+        raise candidate_exceptions.ResumeTooLargeException("Resume file exceeds maximum allowed size (5MB).")
     try:
         existing_file_id = candidate.get("resume_file_id")
         if existing_file_id:
@@ -155,7 +182,7 @@ async def upload_resume(candidate_id: str, file: UploadFile) -> candidate_respon
         app_logger.error("Resume upload failed for candidate %s: %s", candidate_id, exc)
         raise candidate_exceptions.ResumeUploadFailedException("Resume upload failed.")
     app_logger.info("Resume uploaded successfully for candidate: %s, file_id: %s", candidate_id, file_id)
-    return candidate_exceptions.ResumeUploadResponse(message="Resume uploaded successfully.", resume_file_id=file_id)
+    return candidate_response.ResumeUploadResponse(message="Resume uploaded successfully.", resume_file_id=file_id)
 
 async def get_resume(candidate_id: str):
     """Retrieve the GridFS file object for a candidate's resume."""
@@ -177,6 +204,9 @@ async def update_candidate_status(candidate_id: str, new_status: CandidateStatus
     previous_status = candidate.get("status")
     if isinstance(previous_status, CandidateStatus):
         previous_status = previous_status.value
+     # Prevent updates after final status
+    if previous_status in [CandidateStatus.SELECTED.value, CandidateStatus.REJECTED.value,]:
+        raise candidate_exceptions.InvalidCandidateStatusException(f"Candidate status is already '{previous_status}' and cannot be changed.")
     history_entry = {
         "previous_status": previous_status,
         "new_status": new_status.value,
@@ -193,7 +223,13 @@ async def get_status_history(candidate_id: str) -> candidate_response.StatusHist
     app_logger.info("Status history requested for candidate: %s", candidate_id)
     candidate = await _get_candidate_or_raise(candidate_id)
     raw_history = candidate.get("status_history", [])
-    history = [
-        candidate_response.StatusHistoryEntry(previous_status=entry.get("previous_status"), new_status=entry["new_status"], updated_at=entry["updated_at"], updated_by=entry.get("updated_by"))
-        for entry in raw_history]
-    return candidate_response.StatusHistoryResponse(candidate_id=candidate_id, status_history=history)
+    history = []
+    for entry in raw_history:
+        updated_by = entry.get("updated_by")
+        updated_by_name = None
+        if updated_by:
+            user = await user_repository.find_user_by_id(updated_by)
+            if user:
+                updated_by_name = user.get("name")
+        history.append(candidate_response.StatusHistoryEntry(previous_status=entry.get("previous_status"), new_status=entry["new_status"], updated_at=entry["updated_at"], updated_by=updated_by_name))
+    return candidate_response.StatusHistoryResponse(candidate_id=candidate_id, status_history=history)  

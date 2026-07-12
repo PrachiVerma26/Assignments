@@ -60,6 +60,12 @@ function CandidateForm({ mode, candidateData }) {
         if (!data.last_name.trim())        e.last_name = "Last name is required.";
         if (!data.email.trim())            e.email = "Email is required.";
         if (!data.mobile.trim())           e.mobile = "Phone number is required.";
+        else {
+            // Frontend enforcement (basic): backend expects mobile to be a string of <=10 chars.
+            // Requirement from user: show exactly-10-digit message.
+            const digitsOnly = data.mobile.replace(/\D/g, "");
+            if (digitsOnly.length !== 10) e.mobile = "Mobile number must contain exactly 10 digits.";
+        }
         if (!data.current_company.trim())  e.current_company = "Current company is required.";
         if (data.experience_years === "" || data.experience_years === null) e.experience_years = "Years of experience is required.";
         if (data.experience_months === "" || data.experience_months === null) e.experience_months = "Months of experience is required.";
@@ -169,7 +175,7 @@ function CandidateForm({ mode, candidateData }) {
                             <input
                                 type="email"
                                 className={`cf-input${errors.email ? " error" : ""}`}
-                                placeholder="e.g. ram@nucleusteq.com"
+                                placeholder="e.g. ram@gmail.com"
                                 value={formData.email}
                                 onChange={e => handleChange("email", e.target.value)}
                                 disabled={isLoading}/>

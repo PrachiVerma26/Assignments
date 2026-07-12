@@ -1,12 +1,31 @@
 import { CANDIDATE_ENDPOINTS } from "../config/api";
 import apiClient from "../config/apiClient";
 
+const extractErrorMessage = (error) => {
+    const data = error?.response?.data;
+    if (!data) return error?.message || "Request failed.";
+
+    if (typeof data.message === "string") return data.message;
+    if (typeof data.detail === "string") return data.detail;
+
+    // FastAPI default validation errors look like: { detail: [ { loc, msg, type }, ... ] }
+    if (Array.isArray(data.detail)) {
+        return data.detail.map(d => d.msg || d.message).filter(Boolean).join("; ") || "Request failed.";
+    }
+    // Sometimes backend wraps error as { success: false, message: ... }
+    if (typeof data.error === "string") return data.error;
+    if (typeof data.title === "string") return data.title;
+
+    return error?.message || "Something went wrong. Please try again.";
+};
+
 export const getCandidates = async ({ page = 1, limit = 10, search = "" } = {}) => {
     const params = { page, limit };
     if (search.trim()) params.search = search.trim();
     const response = await apiClient.get(`${CANDIDATE_ENDPOINTS.CANDIDATES}/`, { params });
     return response.data;
 };
+
 
 export const getCandidateById = async (candidateId) => {
     const response = await apiClient.get(`${CANDIDATE_ENDPOINTS.CANDIDATES}/${candidateId}`);

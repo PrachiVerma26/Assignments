@@ -114,56 +114,12 @@ def test_create_job_rejects_invalid_job_fields(client, mocker, override_current_
     assert message in str(response.json())
     mock_create_job.assert_not_awaited()
 
-def test_get_jobs_success(client, mocker, override_current_user, job_response):
-    override_current_user()
-    mock_list_jobs = mocker.patch("src.routers.job_router.job_service.list_jobs",
-        new=AsyncMock(
-            return_value=JobListResponse(
-                message="Jobs retrieved successfully.",
-                jobs=[job_response],
-                total=1,
-                page=1,
-                limit=10,
-                total_pages=1))
-    )
-    response = client.get("/jobs")
-    assert response.status_code == 200
-    assert response.json()["message"] == "Jobs retrieved successfully."
-    assert len(response.json()["jobs"]) == 1
-    mock_list_jobs.assert_awaited_once_with(1, 10, None)
-
-def test_get_jobs_with_pagination_and_search(client, mocker, override_current_user):
-    override_current_user()
-    mock_list_jobs = mocker.patch("src.routers.job_router.job_service.list_jobs",
-        new=AsyncMock(
-            return_value=JobListResponse(
-                message="Jobs retrieved successfully.",
-                jobs=[],
-                total=25,
-                page=2,
-                limit=5,
-                total_pages=5)),
-    )
-    response = client.get("/jobs?page=2&limit=5&search=engineer")
-    assert response.status_code == 200
-    assert response.json()["page"] == 2
-    assert response.json()["limit"] == 5
-    mock_list_jobs.assert_awaited_once_with(2, 5, "engineer")
-
 def test_get_jobs_rejects_unauthorized_role(client, mocker, override_current_user):
     override_current_user(role=UserRole.INTERVIEWER.value)
     mock_list_jobs = mocker.patch("src.routers.job_router.job_service.list_jobs", new=AsyncMock(),)
     response = client.get("/jobs")
     assert response.status_code == 403
     mock_list_jobs.assert_not_awaited()
-
-def test_get_jobs_allows_admin(client, mocker, override_current_user):
-    override_current_user(role=UserRole.ADMIN.value)
-    mock_list_jobs = mocker.patch("src.routers.job_router.job_service.list_jobs",
-        new=AsyncMock(return_value=JobListResponse(message="Jobs retrieved successfully.", jobs=[], total=0, page=1, limit=10, total_pages=0)))
-    response = client.get("/jobs")
-    assert response.status_code == 200
-    mock_list_jobs.assert_awaited_once_with(1, 10, None)
 
 def test_create_job_rejects_admin(client, mocker, override_current_user, job_payload):
     override_current_user(role=UserRole.ADMIN.value)

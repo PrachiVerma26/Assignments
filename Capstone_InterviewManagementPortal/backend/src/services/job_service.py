@@ -74,10 +74,10 @@ async def get_job_by_id(job_id: str) -> JobDetailResponse:
     app_logger.info("Job found: %s", job["title"])
     return JobDetailResponse(message="Job retrieved successfully.", job=_build_job_response(job))
 
-async def list_jobs(page: int = 1, limit: int = 10, search: Optional[str] = None) -> JobListResponse:
-    """List jobs with pagination and optional search."""
+async def list_jobs(page: int = 1, limit: int = 10, search: Optional[str] = None, location: Optional[str] = None) -> JobListResponse:
+    """List jobs with pagination, optional search, and optional location filter."""
     app_logger.info("Fetching jobs - page: %d, limit: %d", page, limit)
-    result = await job_repository.get_jobs(page, limit, search)
+    result = await job_repository.get_jobs(page, limit, search, location)
     jobs = [_build_job_response(job) for job in result["jobs"]]
     return JobListResponse(
         message="Jobs retrieved successfully.",

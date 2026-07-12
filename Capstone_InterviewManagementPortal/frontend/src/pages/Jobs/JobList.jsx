@@ -122,11 +122,11 @@ function JobList() {
                             <div className="job-pagination">
                                 <span className="job-pagination-info">Showing {start} to {end} of {pagination.totalJobs} jobs</span>
                                 <div className="job-pagination-controls">
-                                    <button className="page-btn" onClick={() => fetchJobs(pagination.currentPage - 1)} disabled={pagination.currentPage === 1}>&#8592;</button>
+                                    <button className="page-btn" onClick={() => fetchJobs(pagination.currentPage - 1)} disabled={pagination.currentPage === 1}>Previous</button>
                                     {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                                         <button key={page} className={`page-btn${pagination.currentPage === page ? " active" : ""}`} onClick={() => fetchJobs(page)}>{page}</button>
                                     ))}
-                                    <button className="page-btn" onClick={() => fetchJobs(pagination.currentPage + 1)} disabled={pagination.currentPage === totalPages}>&#8594;</button>
+                                    <button className="page-btn" onClick={() => fetchJobs(pagination.currentPage + 1)} disabled={pagination.currentPage === totalPages}>Next</button>
                                 </div>
                             </div>
                         )}

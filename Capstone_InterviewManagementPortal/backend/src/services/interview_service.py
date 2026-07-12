@@ -286,7 +286,7 @@ async def get_hr_dashboard() -> interview_response.HRDashboardResponse:
     total_jobs = await job_repository.get_job_collection().count_documents({})
     total_candidates = await candidate_repository.get_candidate_collection().count_documents({})
     scheduled_interviews = await interview_repository.count_scheduled_interviews()
-    selected_candidates = await candidate_repository.get_candidate_collection().count_documents({"status": CandidateStatus.HIRED.value})
+    selected_candidates = await candidate_repository.get_candidate_collection().count_documents({"status": CandidateStatus.SELECTED.value})
     rejected_candidates = await candidate_repository.get_candidate_collection().count_documents({"status": CandidateStatus.REJECTED.value})
     return interview_response.HRDashboardResponse(
         total_jobs=total_jobs,

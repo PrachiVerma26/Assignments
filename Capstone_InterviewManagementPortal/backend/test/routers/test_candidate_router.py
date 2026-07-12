@@ -5,7 +5,7 @@ from datetime import datetime, UTC
 from unittest.mock import AsyncMock
 from fastapi.testclient import TestClient
 from src.enums.role_types import UserRole
-from src.exceptions.candidate_exceptions import CandidateEmailAlreadyExistsException, CandidateMobileAlreadyExistsException, CandidateNotFoundException, InvalidNucleusTeqEmailException
+from src.exceptions.candidate_exceptions import CandidateEmailAlreadyExistsException, CandidateMobileAlreadyExistsException, CandidateNotFoundException
 from src.main import app
 from src.schemas.response.candidate_response import CandidateListResponse, CandidateResponse, CreateCandidateResponse, JobSummaryResponse
 from src.utils.security import get_current_user
@@ -88,14 +88,6 @@ def test_create_candidate_duplicate_mobile(client, mocker, override_current_user
     response = client.post("/candidates", json=candidate_payload)
     assert response.status_code == 409
     assert response.json()["message"] == "Mobile number already exists."
-
-def test_create_candidate_invalid_nucleusteq_email(client, mocker, override_current_user, candidate_payload):
-    """Return 400 when the email domain is not @nucleusteq.com."""
-    override_current_user()
-    mocker.patch("src.routers.candidate_router.candidate_service.create_candidate", new=AsyncMock(side_effect=InvalidNucleusTeqEmailException("Only @nucleusteq.com email addresses are allowed.")))
-    response = client.post("/candidates", json=candidate_payload)
-    assert response.status_code == 400
-    assert response.json()["message"] == "Only @nucleusteq.com email addresses are allowed."
 
 def test_create_candidate_invalid_payload(client, override_current_user):
     """Return 422 when required fields are missing."""
@@ -234,16 +226,6 @@ def test_update_candidate_duplicate_mobile(client, mocker, override_current_user
     response = client.put(f"/candidates/{candidate_id}", json={"mobile": "1111111111"})
     assert response.status_code == 409
     assert response.json()["message"] == "Mobile number already exists."
-
-def test_update_candidate_invalid_nucleusteq_email(client, mocker, override_current_user, candidate_id):
-    """Return 400 when the updated email domain is not @nucleusteq.com."""
-    override_current_user()
-    mocker.patch("src.routers.candidate_router.candidate_service.update_candidate",
-        new=AsyncMock(side_effect=InvalidNucleusTeqEmailException("Only @nucleusteq.com email addresses are allowed.")),
-    )
-    response = client.put(f"/candidates/{candidate_id}", json={"email": "prachi@gmail.com"})
-    assert response.status_code == 400
-    assert response.json()["message"] == "Only @nucleusteq.com email addresses are allowed."
 
 def test_update_candidate_rejects_unauthorized_role(client, mocker, override_current_user, candidate_id):
     """Reject candidate update for non-HR roles."""

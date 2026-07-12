@@ -135,10 +135,10 @@
 }
 
 .cl-status--profile_created { background: #eff6ff; color: #3b82f6; }
-.cl-status--applied { background: #f0fdf4; color: #16a34a; }
-.cl-status--shortlisted { background: #fff7ed; color: #ea580c; }
+.cl-status--interview_scheduled { background: #fff7ed; color: #ea580c; }
+.cl-status--interview_completed { background: #e0edfd; color: #02269c; }
+.cl-status--selected { background: #f0fdf4; color: #16a34a; }
 .cl-status--rejected { background: #fef2f2; color: #dc2626; }
-.cl-status--hired { background: #f0fdf4; color: #15803d; }
 
 .cl-actions-cell {
     display: flex;

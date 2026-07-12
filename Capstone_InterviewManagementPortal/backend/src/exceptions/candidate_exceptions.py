@@ -10,10 +10,6 @@ class CandidateMobileAlreadyExistsException(Exception):
     """Raised when candidate mobile number already exists."""
     pass
 
-class InvalidNucleusTeqEmailException(Exception):
-    """Raised when candidate email is not a valid NucleusTeq email."""
-    pass
-
 class AppliedJobNotFoundException(Exception):
     """Raised when applied job does not exist."""
     pass
@@ -28,6 +24,10 @@ class InvalidFileTypeException(Exception):
 
 class EmptyFileException(Exception):
     """Raised when an uploaded file is empty."""
+    pass
+
+class ResumeTooLargeException(Exception):
+    """Raised when an uploaded resume exceeds maximum allowed size."""
     pass
 
 class ResumeUploadFailedException(Exception):

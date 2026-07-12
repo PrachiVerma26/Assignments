@@ -24,12 +24,13 @@ async def get_jobs(
     page: int = Query(1, ge=1, description="Page number"),
     limit: int = Query(10, ge=1, le=100, description="Items per page"),
     search: Optional[str] = Query(None, description="Search by title, description, department, or location"),
+    location: Optional[str] = Query(None, description="Filter by job location"),
     current_user=Depends(get_current_user)
 ):
-    """Retrieve job descriptions with pagination and search."""
+    """Retrieve job descriptions with pagination, search, and optional location filter."""
     require_roles(current_user, [UserRole.HR, UserRole.ADMIN])
     app_logger.info("List jobs endpoint invoked.")
-    return await job_service.list_jobs(page, limit, search)
+    return await job_service.list_jobs(page, limit, search, location)
 
 @router.get("/{job_id}", response_model=JobDetailResponse)
 async def get_job(job_id: str, current_user=Depends(get_current_user)):

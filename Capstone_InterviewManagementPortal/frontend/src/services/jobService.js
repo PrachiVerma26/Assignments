@@ -2,9 +2,10 @@
 import apiClient from "../config/apiClient";
 import { JOB_ENDPOINTS } from "../config/api";
 
-export const getJobs = async ({ page = 1, limit = 10, search = "" } = {}) => {
+export const getJobs = async ({ page = 1, limit = 10, search = "", location = "" } = {}) => {
     const params = { page, limit };
     if (search.trim()) params.search = search.trim();
+    if (location && location.trim()) params.location = location.trim();
     const response = await apiClient.get(`${JOB_ENDPOINTS.JOBS}/`, { params });
     return response.data;
 };

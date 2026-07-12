@@ -4,10 +4,10 @@ import "./CandidateStatusUpdate.css";
 
 const STATUS_OPTIONS = [
     { value: "PROFILE_CREATED", label: "Profile Created" },
-    { value: "APPLIED", label: "Applied" },
-    { value: "SHORTLISTED", label: "Shortlisted" },
+    { value: "INTERVIEW_SCHEDULED", label: "Interview Scheduled" },
+    { value: "INTERVIEW_COMPLETED", label: "Interview Completed" },
+    { value: "SELECTED", label: "Selected" },
     { value: "REJECTED", label: "Rejected" },
-    { value: "HIRED", label: "Hired" },
 ];
 
 function CandidateStatusUpdate({ candidateId, currentStatus, onStatusUpdated }) {
