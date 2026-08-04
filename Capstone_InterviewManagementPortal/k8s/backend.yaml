@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interview-backend
+  namespace: interview-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: interview-backend
+  template:
+    metadata:
+      labels:
+        app: interview-backend
+    spec:
+      containers:
+      - name: interview-backend
+        image: prachiverma26/interview-backend:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MONGO_URI
+          value: "mongodb://mongodb-service:27017"
+        - name: DATABASE_NAME
+          value: "interview_management_portal"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: interview-management
+spec:
+  selector:
+    app: interview-backend
+  ports:
+  - port: 8000
+    targetPort: 8000
+    nodePort: 30080
+  type: NodePort
